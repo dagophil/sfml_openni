@@ -168,11 +168,19 @@ public:
     }
 
     /**
-     * @brief Return the user data.
+     * @brief Return the user pixel data.
      */
     Array2D<XnLabel> const & user_data() const
     {
         return user_data_;
+    }
+
+    /**
+     * @brief Return the users.
+     */
+    std::vector<User> const & users() const
+    {
+        return users_;
     }
 
 private:
@@ -233,8 +241,12 @@ KinectSensor::KinectSensor()
     check_error(depth_generator_.Create(context_));
     check_error(user_generator_.Create(context_));
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
-        throw std::runtime_error("User generator does not support skeleton.");
+        throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
     context_.SetGlobalMirror(true);
+
+    // Make sure that the pose is not needed for calibration.
+    if (user_generator_.GetSkeletonCap().NeedPoseForCalibration())
+        throw std::runtime_error("KinectSensor::KinectSensor(): User generator needs pose for calibration.");
 
     // Register the callbacks for the user generator.
     XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter;
@@ -314,7 +326,6 @@ UpdateDetails KinectSensor::update()
             if (user_generator_.GetSkeletonCap().IsTracking(user_id))
             {
                 users_.emplace_back(user_id, user_visible_[user_id]);
-                auto & user = users_.back();
                 for (auto j : skeleton_joints)
                 {
                     if (!user_generator_.GetSkeletonCap().IsJointActive(j))
@@ -325,7 +336,7 @@ UpdateDetails KinectSensor::update()
                         continue;
                     XnPoint3D proj_pos;
                     depth_generator_.ConvertRealWorldToProjective(1, &jpos.position, &proj_pos);
-                    user.joints_[j] = JointInfo(j, jpos.fConfidence, jpos.position, proj_pos);
+                    users_.back().joints_[j] = JointInfo(j, jpos.fConfidence, jpos.position, proj_pos);
                 }
             }
         }
