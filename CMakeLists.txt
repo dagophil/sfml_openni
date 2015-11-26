@@ -14,9 +14,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# C++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
 # SFML
 find_package(SFML REQUIRED system window graphics audio)
 include_directories(${SFML_INCLUDE_DIR})

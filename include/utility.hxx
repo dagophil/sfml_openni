@@ -3,13 +3,14 @@
 
 #include <stdexcept>
 #include <numeric>
-#include <array>
 #include <ndarray.hxx>
 
 #include <SFML/System.hpp>
 
 #include <ni/XnOS.h>
 #include <ni/XnCppWrapper.h>
+
+
 
 /**
  * @brief The FPS class can be used to compute the mean FPS.
@@ -39,7 +40,8 @@ public:
      */
     float update()
     {
-        elapsed_time_ = clock_.restart().asSeconds();
+        elapsed_time_ = clock_.GetElapsedTime();
+        clock_.Reset();
         fps_.push_back(1.0f / elapsed_time_);
 
         current_span_ += elapsed_time_;
@@ -103,9 +105,9 @@ void depth_to_rgba(
     }
     if (num_points > 0)
     {
-        for (auto & h : histo)
+        for (size_t i = 0; i < histo.size(); ++i)
         {
-            h = (unsigned int) (256 * (1.0f - h / num_points));
+            histo[i] = (unsigned int) (256 * (1.0f - histo[i] / num_points));
         }
     }
 
@@ -114,11 +116,11 @@ void depth_to_rgba(
     {
         for (size_t x = 0; x < depth_data.width(); ++x)
         {
-            auto const v = histo[depth_data(x, y)];
-            depth_rgba(x, y)[0] = v;
-            depth_rgba(x, y)[1] = v;
-            depth_rgba(x, y)[2] = 0;
-            depth_rgba(x, y)[3] = 255;
+            double const v = histo[depth_data(x, y)];
+            depth_rgba(x, y).r = v;
+            depth_rgba(x, y).g = v;
+            depth_rgba(x, y).b = 0;
+            depth_rgba(x, y).a = 255;
         }
     }
 }
@@ -136,15 +138,14 @@ void user_to_rgba(
 
     typedef typename RGBAARRAY::value_type RGBA;
 
-    std::vector<RGBA> const colors = {
-        {0, 0, 0, 0},
-        {0, 0, 255, 255},
-        {0, 255, 0, 255},
-        {255, 0, 0, 255},
-        {255, 255, 0, 255},
-        {255, 0, 255, 255},
-        {0, 255, 255, 255}
-    };
+    std::vector<RGBA> colors;
+    colors.push_back(RGBA(0, 0, 0, 0));
+    colors.push_back(RGBA(0, 0, 255, 255));
+    colors.push_back(RGBA(0, 255, 0, 255));
+    colors.push_back(RGBA(255, 0, 0, 255));
+    colors.push_back(RGBA(255, 255, 0, 255));
+    colors.push_back(RGBA(255, 0, 255, 255));
+    colors.push_back(RGBA(0, 255, 255, 255));
 
     for (size_t y = 0; y < user_data.height(); ++y)
         for (size_t x = 0; x < user_data.width(); ++x)
