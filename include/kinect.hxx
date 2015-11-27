@@ -6,7 +6,9 @@
 #include <vector>
 #include <ostream>
 #include <map>
+#include <array>
 
+#include "platform_support.hxx"
 #include <XnCppWrapper.h>
 
 #include "ndarray.hxx"
@@ -28,7 +30,7 @@ namespace kin
 /**
  * @brief Static constant array with all possible joints.
  */
-static XnSkeletonJoint const skeleton_joints[] = {
+static std::array<XnSkeletonJoint, 24> const skeleton_joints = {
     XN_SKEL_HEAD,
     XN_SKEL_NECK,
     XN_SKEL_TORSO,
@@ -54,7 +56,6 @@ static XnSkeletonJoint const skeleton_joints[] = {
     XN_SKEL_RIGHT_ANKLE,
     XN_SKEL_RIGHT_FOOT
 };
-static size_t const n_skeleton_joints = 24;
 
 /**
  * @brief The JointInfo struct contains position and confidence values about a single joint.
@@ -125,23 +126,15 @@ public:
      */
     ~KinectSensor();
 
-private:
     /**
      * @brief Disable copy constructor to avoid duplicate kinect access.
      */
-    KinectSensor(KinectSensor const & other)
-    {
-        throw std::runtime_error("KinectSensor::KinectSensor(KinectSensor const &): You must not copy the KinectSensor.");
-    }
+    KinectSensor(KinectSensor const & other) = delete;
 
     /**
      * @brief Disable assignment operator to avoid duplicate kinect access.
      */
-    KinectSensor & operator=(KinectSensor const & other)
-    {
-        throw std::runtime_error("KinectSensor::operator=(): You must not assign to the KinectSensor.");
-    }
-public:
+    KinectSensor & operator=(KinectSensor const & other) = delete;
 
     /**
      * @brief Return the x resolution of the depth generator.
@@ -329,13 +322,12 @@ UpdateDetails KinectSensor::update()
         users_.clear();
         for (size_t i = 0; i < n_users; ++i)
         {
-            XnUserID const user_id = user_ids[i];
+            auto const user_id = user_ids[i];
             if (user_generator_.GetSkeletonCap().IsTracking(user_id))
             {
-                users_.push_back(User(user_id, user_visible_[user_id]));
-                for (size_t k = 0; k < n_skeleton_joints; ++k)
+                users_.emplace_back(user_id, user_visible_[user_id]);
+                for (auto const j : skeleton_joints)
                 {
-                    XnSkeletonJoint const j = skeleton_joints[k];
                     if (!user_generator_.GetSkeletonCap().IsJointActive(j))
                         continue;
                     XnSkeletonJointPosition jpos;

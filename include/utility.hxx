@@ -7,8 +7,8 @@
 
 #include <SFML/System.hpp>
 
-#include <ni/XnOS.h>
-#include <ni/XnCppWrapper.h>
+#include "platform_support.hxx"
+#include <XnCppWrapper.h>
 
 
 
@@ -105,9 +105,9 @@ void depth_to_rgba(
     }
     if (num_points > 0)
     {
-        for (size_t i = 0; i < histo.size(); ++i)
+        for (auto & h : histo)
         {
-            histo[i] = (unsigned int) (256 * (1.0f - histo[i] / num_points));
+            h = (unsigned int) (256 * (1.0f - h / num_points));
         }
     }
 
@@ -116,7 +116,7 @@ void depth_to_rgba(
     {
         for (size_t x = 0; x < depth_data.width(); ++x)
         {
-            double const v = histo[depth_data(x, y)];
+            auto const v = histo[depth_data(x, y)];
             depth_rgba(x, y).r = v;
             depth_rgba(x, y).g = v;
             depth_rgba(x, y).b = 0;
@@ -138,18 +138,43 @@ void user_to_rgba(
 
     typedef typename RGBAARRAY::value_type RGBA;
 
-    std::vector<RGBA> colors;
-    colors.push_back(RGBA(0, 0, 0, 0));
-    colors.push_back(RGBA(0, 0, 255, 255));
-    colors.push_back(RGBA(0, 255, 0, 255));
-    colors.push_back(RGBA(255, 0, 0, 255));
-    colors.push_back(RGBA(255, 255, 0, 255));
-    colors.push_back(RGBA(255, 0, 255, 255));
-    colors.push_back(RGBA(0, 255, 255, 255));
+    std::vector<RGBA> colors = {
+        {0, 0, 0, 0},
+        {0, 0, 255, 255},
+        {0, 255, 0, 255},
+        {255, 0, 0, 255},
+        {255, 255, 0, 255},
+        {255, 0, 255, 255},
+        {0, 255, 255, 255}
+    };
 
     for (size_t y = 0; y < user_data.height(); ++y)
         for (size_t x = 0; x < user_data.width(); ++x)
             user_rgba(x, y) = colors[user_data(x, y)];
+}
+
+/**
+ * Return the pointer to the first uint8 value in the given color array.
+ */
+template <typename ARR>
+sf::Uint8 const * uint8_ptr(
+        ARR const & a
+){
+    typedef typename ARR::value_type value_type;
+    static_assert(std::is_same<value_type, sf::Color>::value, "uint8_ptr(): Only valid for sf::Color arrays.");
+    return &a.front().r;
+}
+
+/**
+ * Return the pointer to the first uint8 value in the given color array.
+ */
+template <typename ARR>
+sf::Uint8 * uint8_ptr(
+        ARR & a
+){
+    typedef typename ARR::value_type value_type;
+    static_assert(std::is_same<value_type, sf::Color>::value, "uint8_ptr(): Only valid for sf::Color arrays.");
+    return &a.front().r;
 }
 
 

@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <string>
-#include <sstream>
 
 #include <SFML/Graphics.hpp>
 
@@ -14,8 +13,6 @@
 int main(int argc, char** argv)
 {
     using namespace std;
-
-    typedef std::map<XnSkeletonJoint, kin::JointInfo> JointMap;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -97,28 +94,26 @@ int main(int argc, char** argv)
         ///////////////////////////////////////////////
 
         // Compute the fps.
-        float fps = fps_measure.update();
-        float elapsed_time = fps_measure.elapsed_time();
+        auto fps = fps_measure.update();
+        auto elapsed_time = fps_measure.elapsed_time();
 
         // Update the kinect data.
-        kin::UpdateDetails updates = k.update();
+        auto updates = k.update();
         if (updates.depth_)
         {
             depth_to_rgba(k.depth_data(), k.z_res(), depth_rgba);
-            depth_texture.LoadFromPixels(k.x_res(), k.y_res(), &depth_rgba.front().r);
+            depth_texture.LoadFromPixels(k.x_res(), k.y_res(), uint8_ptr(depth_rgba));
         }
         if (updates.user_)
         {
             user_to_rgba(k.user_data(), user_rgba);
-            user_texture.LoadFromPixels(k.x_res(), k.y_res(), &user_rgba.front().r);
+            user_texture.LoadFromPixels(k.x_res(), k.y_res(), uint8_ptr(user_rgba));
             joint_sprites.clear();
-            for (size_t i = 0; i < k.users().size(); ++i)
+            for (auto const & user : k.users())
             {
-                kin::User const & user = k.users()[i];
-                for (JointMap::const_iterator it = user.joints_.begin(); it != user.joints_.end(); ++it)
+                for (auto const & p : user.joints_)
                 {
-                    pair<XnSkeletonJoint, kin::JointInfo> const & p = *it;
-                    joint_sprites.push_back(sf::Sprite(joint_texture));
+                    joint_sprites.emplace_back(joint_texture);
                     joint_sprites.back().SetPosition(SCALE_X*p.second.proj_position_.X,
                                                      SCALE_Y*p.second.proj_position_.Y);
                 }
@@ -145,19 +140,16 @@ int main(int argc, char** argv)
         // Draw the FPS text.
         if (DRAW_FPS)
         {
-            stringstream ss;
-            ss << fps;
-
-            fps_text.SetText("FPS: " + ss.str());
+            fps_text.SetText("FPS: " + to_string(fps));
             window.Draw(fps_text);
         }
 
         // Draw the joints.
         if (DRAW_JOINTS)
         {
-            for (size_t i = 0; i < joint_sprites.size(); ++i)
+            for (auto const & spr : joint_sprites)
             {
-                window.Draw(joint_sprites[i]);
+                window.Draw(spr);
             }
         }
 
