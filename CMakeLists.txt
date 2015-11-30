@@ -39,11 +39,16 @@ include_directories(${SFML_INCLUDE_DIR})
 find_package(OpenNI REQUIRED)
 include_directories(${OPENNI_INCLUDE_DIRS})
 
+# NITE
+find_package(NITE REQUIRED)
+include_directories(${NITE_INCLUDE_DIRS})
+
 # The executables
 add_executable(proj proj.cxx)
 target_link_libraries(proj
     ${SFML_LIBRARIES}
     ${OPENNI_LIBRARIES}
+    ${NITE_LIBRARIES}
 )
 add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -43,7 +43,7 @@ endif()
 
 # Finally the library itself
 find_library(NITE_LIBRARY
-  NAMES XnVNITE
+  NAMES XnVNite
   PATHS ${NITE_LIB_SEARCH_PATHS}
 )
 
