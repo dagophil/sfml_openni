@@ -221,6 +221,16 @@ private:
      */
     static void XN_CALLBACK_TYPE user_reenter(xn::UserGenerator & gen, XnUserID id, void* sensor_ptr);
 
+    /**
+     * @brief Callback for "pose detected" Event
+     */
+    static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
+
+    /**
+     * @brief context_
+     */
+    //static void XN_CALLBACK_TYPE pose_in_progress();
+
     xn::Context context_; // the kinect context
 
     xn::DepthGenerator depth_generator_; // the depth generator
@@ -229,12 +239,18 @@ private:
 
     xn::UserGenerator user_generator_; // the user generator
     xn::SceneMetaData user_meta_; // the user meta data
+    bool need_pose_; // required pose for calibration
+    std::string pose_name_;
+    char* pose_name_ptr_;
     Array2D<XnLabel> user_data_; // the combined pixel data of all users
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
 };
 
 KinectSensor::KinectSensor()
+    :
+      pose_name_(20, ' '),
+      pose_name_ptr_(&pose_name_[0])
 {
     // Initialize the kinect components.
     check_error(context_.Init());
@@ -244,18 +260,29 @@ KinectSensor::KinectSensor()
         throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
     context_.SetGlobalMirror(true);
 
-    // Make sure that the pose is not needed for calibration.
-    if (user_generator_.GetSkeletonCap().NeedPoseForCalibration())
-        throw std::runtime_error("KinectSensor::KinectSensor(): User generator needs pose for calibration.");
 
     // Register the callbacks for the user generator.
-    XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter;
+    XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter, h_pose_detected,h_pose_in_progress;
     check_error(user_generator_.RegisterUserCallbacks(user_new, user_lost, this, hUser));
     check_error(user_generator_.GetSkeletonCap().RegisterToCalibrationStart(user_calibration_start, this, hCalibrationStart));
     check_error(user_generator_.GetSkeletonCap().RegisterToCalibrationComplete(user_calibration_complete, this, hCalibrationComplete));
     check_error(user_generator_.RegisterToUserExit(user_exit, this, hUserExit));
     check_error(user_generator_.RegisterToUserReEnter(user_reenter, this, hUserReenter));
     user_generator_.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
+
+    // Check if the pose is needed for calibration.
+    if (user_generator_.GetSkeletonCap().NeedPoseForCalibration())
+    {
+        need_pose_=true;
+        if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_POSE_DETECTION)){
+            throw std::runtime_error("KinectSensor::KinectSensor(): User generator needs pose for calibration, "
+                                     "but the kinect doesn't support it.");
+        }
+        check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseDetected(pose_detected,this,h_pose_detected));
+        user_generator_.GetSkeletonCap().GetCalibrationPose(pose_name_ptr_);
+        //check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseInProgress(pose_in_progress,this,h_pose_in_progress));
+
+    }
 
     // Start generating the kinect data.
     check_error(context_.StartGeneratingAll());
@@ -360,7 +387,10 @@ void XN_CALLBACK_TYPE KinectSensor::user_new(xn::UserGenerator & gen, XnUserID i
     if (id+1 > k.user_visible_.size())
         k.user_visible_.resize(id+1, false);
     k.user_visible_[id] = true;
-    k.user_generator_.GetSkeletonCap().RequestCalibration(id, TRUE);
+    if (k.need_pose_)
+        k.user_generator_.GetPoseDetectionCap().StartPoseDetection(k.pose_name_ptr_, id);
+    else
+        k.user_generator_.GetSkeletonCap().RequestCalibration(id, TRUE);
 }
 
 void XN_CALLBACK_TYPE KinectSensor::user_lost(xn::UserGenerator & gen, XnUserID id, void* sensor_ptr)
@@ -387,7 +417,10 @@ void XN_CALLBACK_TYPE KinectSensor::user_calibration_complete(xn::SkeletonCapabi
     else
     {
         std::cout << "calibration failed for user " << id << ", trying again" << std::endl;
-        k.user_generator_.GetSkeletonCap().RequestCalibration(id, TRUE);
+        if (k.need_pose_)
+            k.user_generator_.GetPoseDetectionCap().StartPoseDetection(k.pose_name_ptr_, id);
+        else
+            k.user_generator_.GetSkeletonCap().RequestCalibration(id, TRUE);
     }
 }
 
@@ -403,6 +436,14 @@ void XN_CALLBACK_TYPE KinectSensor::user_reenter(xn::UserGenerator & gen, XnUser
     KinectSensor & k = *static_cast<KinectSensor*>(sensor_ptr);
     std::cout << "user " << id << " reentered scene" << std::endl;
     k.user_visible_[id] = true;
+}
+
+void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void* sensor_ptr)
+{
+    KinectSensor & k = *static_cast<KinectSensor*>(sensor_ptr);
+    std::cout << "pose "<< strPose << " detected."<< std::endl;
+    k.user_generator_.GetPoseDetectionCap().StopPoseDetection(nId);
+    k.user_generator_.GetSkeletonCap().RequestCalibration(nId,true);
 }
 
 
