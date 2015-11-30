@@ -10,6 +10,7 @@
 
 #include "platform_support.hxx"
 #include <XnCppWrapper.h>
+#include <XnVNite.h>
 
 #include "ndarray.hxx"
 #include "utility.hxx"

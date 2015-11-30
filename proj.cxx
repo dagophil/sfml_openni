@@ -7,6 +7,7 @@
 
 #include "kinect.hxx"
 #include "utility.hxx"
+#include "menu_overlay.hxx"
 
 
 
