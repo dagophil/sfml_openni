@@ -25,17 +25,14 @@ ELSE(WIN32)
 	set(NITE_LIB_SEARCH_PATHS "${NITE_LIB_SEARCH_PATHS}" "/usr/local/lib" "/usr/lib")
 ENDIF(WIN32)
 
-MESSAGE(STATUS "Try to look here: ${NITE_INCLUDE_SEARCH_PATHS}")
-
 # Include dir
 find_path(NITE_INCLUDE_DIR
   NAMES XnVNite.h
   HINTS ${NITE_INCLUDE_SEARCH_PATHS} 
   PATH_SUFFIXES "nite"
 )
-
 if(NITE_INCLUDE_DIR STREQUAL "NITE_INCLUDE_DIR-NOTFOUND")
-	message(STATUS "Looking for NITE in default dirs")
+	message(STATUS "Looking for NITE in default dirs.")
 	find_path(NITE_INCLUDE_DIR NAMES XnVNite.h 
 	  PATH_SUFFIXES "nite"
 	)
@@ -48,26 +45,12 @@ find_library(NITE_LIBRARY
 )
 
 if(NITE_LIBRARY STREQUAL "NITE_LIBRARY-NOTFOUND")
-	message(STATUS "can't find NITE library, looking more aggressively")
+	message(STATUS "Could not find NITE library, looking more aggressively.")
 	foreach(NITE_LOOKUP_PATH ${NITE_LIB_SEARCH_PATHS})
 		file(GLOB NITE_LIBRARY "${NITE_LOOKUP_PATH}/*XnV*")
-		message(STATUS "looking in ${NITE_LOOKUP_PATH} resulted in ${NITE_LIBRARY}")
-		if(NITE_LIBRARY)
-#			#found NITE library
-#			#but there may be many files found..
-			if(WIN32)
-				foreach(NITE_LIBRARY_FOUND ${NITE_LIBRARY})
-					message(STATUS "checking ${NITE_LIBRARY_FOUND}")
-					string(REGEX MATCH "lib" FOUND_LIB_IN_FILE ${NITE_LIBRARY_FOUND})
-					if(FOUND_LIB_IN_FILE)
-						set(NITE_LIBRARY_TMP ${NITE_LIBRARY_TMP} ${NITE_LIBRARY_FOUND})
-					endif()
-				endforeach()
-			set(NITE_LIBRARY ${NITE_LIBRARY_TMP})
-			endif(WIN32)
-			break()
-		endif()
+		message(STATUS "Looking in ${NITE_LOOKUP_PATH} resulted in ${NITE_LIBRARY}.")
 	endforeach()
+	message(FATAL_ERROR "Cannot decide which NITE libraries to use. Please set NITE_LIBRARY manually.")
 endif()
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
