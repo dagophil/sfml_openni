@@ -53,3 +53,17 @@ target_link_libraries(proj
 add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:proj>/fonts)
+                   
+# Test menu
+add_executable(testmenu testmenu.cxx)
+target_link_libraries(testmenu
+    ${SFML_LIBRARIES}
+)
+add_custom_command(TARGET testmenu PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:testmenu>/fonts)
+add_custom_command(TARGET testmenu PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
+
+

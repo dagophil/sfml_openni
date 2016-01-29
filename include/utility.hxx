@@ -6,6 +6,7 @@
 #include <ndarray.hxx>
 
 #include <SFML/System.hpp>
+#include <SFML/Graphics.hpp>
 
 #include "platform_support.hxx"
 #include <XnCppWrapper.h>
@@ -175,6 +176,49 @@ sf::Uint8 * uint8_ptr(
     typedef typename ARR::value_type value_type;
     static_assert(std::is_same<value_type, sf::Color>::value, "uint8_ptr(): Only valid for sf::Color arrays.");
     return &a.front().r;
+}
+
+/**
+ * Split the given string at the given character.
+ */
+std::vector<std::string> split_string(std::string const & s)
+{
+    std::vector<std::string> v;
+    std::string word = "";
+    for (size_t i = 0; i < s.size(); ++i)
+    {
+        if (s[i] == ' ' || s[i] == '\n')
+        {
+            v.push_back(word);
+            word = "";
+        }
+        else
+        {
+            word += s[i];
+        }
+    }
+    if (word.size() > 0)
+        v.push_back(word);
+    return v;
+}
+
+/**
+ * Inserts line breaks into the sf::String so it does not exceed max_width.
+ */
+void insert_line_breaks(sf::String & str, double max_width)
+{
+    auto const words = split_string(str.GetText());
+    if (words.size() == 0)
+        return;
+    str.SetText(words[0]);
+    for (size_t i = 1; i < words.size(); ++i)
+    {
+        auto const & word = words[i];
+        std::string s = str.GetText();
+        str.SetText(s + " " + word);
+        if (str.GetCharacterPos(s.size()+word.size()).x > max_width)
+            str.SetText(s + "\n" + word);
+    }
 }
 
 

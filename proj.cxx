@@ -10,7 +10,6 @@
 #include "menu_overlay.hxx"
 
 
-
 int main(int argc, char** argv)
 {
     using namespace std;
