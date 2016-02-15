@@ -122,9 +122,13 @@ private:
 
     int current_selection_;
 
-    mutable int scroll_amount_;
+    int scroll_amount_;
 
     std::vector<MenuItem> items_;
+
+    sf::Shape top_scroll_;
+    sf::Shape bottom_scroll_;
+    sf::Shape right_scroll_;
 
 };
 
@@ -137,7 +141,7 @@ MenuOverlay::MenuOverlay(
 {
     if (xml_filename == "")
     {
-        items_.emplace_back("images/mario.png", "Mario", "Mario game ist echt ein supertolles Spiel. bla blubb und eins zwei drei, Philip ist toll :D");
+        items_.emplace_back("images/mario.png", "Mario", "Mario game ist echt ein supertolles Spiel.");
         items_.emplace_back("images/luigi.jpg", "Luigi", "Luigi game");
         items_.emplace_back("images/mario.png", "Mario 2", "Mario game 2");
     }
@@ -145,6 +149,21 @@ MenuOverlay::MenuOverlay(
     {
         // TODO: Read the xml file and fill items_.
         throw std::runtime_error("TODO: Implement xml reader.");
+    }
+    scroll_amount_ = 0.16 * screen_height;
+
+    // Create the scroll buttons.
+    sf::Color gray(120, 120, 120);
+    {
+        double const left_x = 0.04 * screen_width;
+        double const right_x = 0.7 * screen_width;
+        double const scroll_height = 0.05 * screen_height;
+        top_scroll_ = sf::Shape::Rectangle(left_x, 0, right_x, scroll_height, gray);
+        bottom_scroll_ = sf::Shape::Rectangle(left_x, screen_height - scroll_height, right_x, screen_height, gray);
+    }
+    {
+        double const width = 0.18 * screen_width;
+        right_scroll_ = sf::Shape::Rectangle(screen_width - width, 0, screen_width, screen_height, gray);
     }
 }
 
@@ -158,6 +177,9 @@ void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
         double const item_offset_y = scroll_amount_ + i * (item_height+10);
         items_[i].draw(target, font, item_offset_x, item_offset_y, item_width, item_height);
     }
+    target.Draw(top_scroll_);
+    target.Draw(bottom_scroll_);
+    target.Draw(right_scroll_);
 }
 
 
