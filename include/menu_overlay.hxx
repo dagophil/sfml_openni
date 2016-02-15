@@ -94,6 +94,8 @@ class MenuOverlay
 {
 public:
 
+    typedef sf::Rect<double> Rect;
+
     /**
      * @brief Load the xml file.
      */
@@ -111,7 +113,7 @@ public:
     /**
      * @brief update function
      */
-    void update(float elapsed_time);
+    void update(float elapsed_time, double mouse_x, double mouse_y);
 
     /**
      * @brief Draw the menu overlay on the given sprite.
@@ -122,10 +124,13 @@ private:
 
     int current_selection_;
 
-    int scroll_amount_;
+    double scroll_amount_;
 
     std::vector<MenuItem> items_;
 
+    Rect top_scroll_rect_;
+    Rect bottom_scroll_rect_;
+    Rect right_scroll_rect_;
     sf::Shape top_scroll_;
     sf::Shape bottom_scroll_;
     sf::Shape right_scroll_;
@@ -158,12 +163,30 @@ MenuOverlay::MenuOverlay(
         double const left_x = 0.04 * screen_width;
         double const right_x = 0.7 * screen_width;
         double const scroll_height = 0.05 * screen_height;
-        top_scroll_ = sf::Shape::Rectangle(left_x, 0, right_x, scroll_height, gray);
-        bottom_scroll_ = sf::Shape::Rectangle(left_x, screen_height - scroll_height, right_x, screen_height, gray);
+        top_scroll_rect_ = Rect(left_x, 0, right_x, scroll_height);
+        bottom_scroll_rect_ = Rect(left_x, screen_height - scroll_height, right_x, screen_height);
+        top_scroll_ = sf::Shape::Rectangle(top_scroll_rect_.Left, top_scroll_rect_.Top,
+                                           top_scroll_rect_.Right, top_scroll_rect_.Bottom, gray);
+        bottom_scroll_ = sf::Shape::Rectangle(bottom_scroll_rect_.Left, bottom_scroll_rect_.Top,
+                                              bottom_scroll_rect_.Right, bottom_scroll_rect_.Bottom, gray);
     }
     {
         double const width = 0.18 * screen_width;
-        right_scroll_ = sf::Shape::Rectangle(screen_width - width, 0, screen_width, screen_height, gray);
+        right_scroll_rect_ = Rect(screen_width - width, 0, screen_width, screen_height);
+        right_scroll_ = sf::Shape::Rectangle(right_scroll_rect_.Left, right_scroll_rect_.Top,
+                                             right_scroll_rect_.Right, right_scroll_rect_.Bottom, gray);
+    }
+}
+
+void MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
+{
+    if (top_scroll_rect_.Contains(mouse_x, mouse_y))
+    {
+        scroll_amount_ += 100 * elapsed_time;
+    }
+    else if (bottom_scroll_rect_.Contains(mouse_x, mouse_y))
+    {
+        scroll_amount_ -= 100 * elapsed_time;
     }
 }
 

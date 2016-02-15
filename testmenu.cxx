@@ -27,17 +27,31 @@ int main(int argc, char** argv)
 
     // Create window.
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu");
+    FPS fps_measure;
     while (window.IsOpened())
     {
+        int mouse_x;
+        int mouse_y;
+
         // Handle window events.
         sf::Event event;
         while (window.GetEvent(event))
         {
             if (event.Type == sf::Event::Closed)
                 window.Close();
+            else if (event.Type == sf::Event::MouseMoved)
+            {
+                mouse_x = event.MouseMove.X;
+                mouse_y = event.MouseMove.Y;
+            }
         }
 
+        // Compute the fps.
+        auto fps = fps_measure.update();
+        auto elapsed_time = fps_measure.elapsed_time();
 
+        // Update the menu.
+        overlay.update(elapsed_time, mouse_x, mouse_y);
 
         window.Clear();
 
