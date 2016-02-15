@@ -227,6 +227,10 @@ private:
      */
     static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
 
+//    static void XN_CALLBACK_TYPE hand_create(xn::HandsGenerator & gen, XnUserID id, XnPoint3D const * position, XnFloat time, void*);
+//    static void XN_CALLBACK_TYPE hand_update(xn::HandsGenerator & gen, XnUserID id, XnPoint3D const * position, XnFloat time, void*);
+//    static void XN_CALLBACK_TYPE hand_destroy(xn::HandsGenerator & gen, XnUserID id, XnFloat time, void*);
+
     /**
      * @brief context_
      */
@@ -246,6 +250,8 @@ private:
     Array2D<XnLabel> user_data_; // the combined pixel data of all users
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
+
+    xn::HandsGenerator hands_generator_; // the hands generator
 };
 
 KinectSensor::KinectSensor()
@@ -259,8 +265,8 @@ KinectSensor::KinectSensor()
     check_error(user_generator_.Create(context_));
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
         throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
+    check_error(hands_generator_.Create(context_));
     context_.SetGlobalMirror(true);
-
 
     // Register the callbacks for the user generator.
     XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter, h_pose_detected,h_pose_in_progress;
@@ -282,8 +288,11 @@ KinectSensor::KinectSensor()
         check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseDetected(pose_detected,this,h_pose_detected));
         user_generator_.GetSkeletonCap().GetCalibrationPose(pose_name_ptr_);
         //check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseInProgress(pose_in_progress,this,h_pose_in_progress));
-
     }
+
+//    // Register the callbacks for the hand generator.
+//    XnCallbackHandle hHand;
+//    check_error(hands_generator_.RegisterHandCallbacks(hand_create, hand_update, hand_destroy, this, hHand));
 
     // Start generating the kinect data.
     check_error(context_.StartGeneratingAll());
@@ -370,6 +379,11 @@ UpdateDetails KinectSensor::update()
         }
     }
 
+//    if (hands_generator_.IsNewDataAvailable())
+//    {
+//        check_error(hands_generator_.WaitAndUpdateData());
+//    }
+
     return updates;
 }
 
@@ -446,6 +460,34 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
     k.user_generator_.GetPoseDetectionCap().StopPoseDetection(nId);
     k.user_generator_.GetSkeletonCap().RequestCalibration(nId,true);
 }
+
+//void XN_CALLBACK_TYPE KinectSensor::hand_create(
+//        xn::HandsGenerator & gen,
+//        XnUserID id,
+//        XnPoint3D const * position,
+//        XnFloat time, void*
+//){
+//    std::cout << "hand_create" << std::endl;
+//}
+
+//void XN_CALLBACK_TYPE KinectSensor::hand_update(
+//        xn::HandsGenerator & gen,
+//        XnUserID id,
+//        XnPoint3D const * position,
+//        XnFloat time,
+//        void*
+//){
+////    std::cout << "hand_update" << std::endl;
+//}
+
+//void XN_CALLBACK_TYPE KinectSensor::hand_destroy(
+//        xn::HandsGenerator & gen,
+//        XnUserID id,
+//        XnFloat time,
+//        void*
+//){
+//    std::cout << "hand_destroy" << std::endl;
+//}
 
 
 

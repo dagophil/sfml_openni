@@ -44,7 +44,7 @@ find_package(NITE REQUIRED)
 include_directories(${NITE_INCLUDE_DIRS})
 
 # The executables
-add_executable(proj proj.cxx)
+add_executable(proj proj.cxx tinyxml2.cpp)
 target_link_libraries(proj
     ${SFML_LIBRARIES}
     ${OPENNI_LIBRARIES}
@@ -55,9 +55,10 @@ add_custom_command(TARGET proj PRE_BUILD
                    ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:proj>/fonts)
                    
 # Test menu
-add_executable(testmenu testmenu.cxx)
+add_executable(testmenu testmenu.cxx tinyxml2.cpp)
 target_link_libraries(testmenu
     ${SFML_LIBRARIES}
+    ${TINYXML2_LIBRARIES}
 )
 add_custom_command(TARGET testmenu PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

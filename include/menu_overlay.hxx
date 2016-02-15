@@ -6,6 +6,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <tinyxml2.h>
+
 #include "utility.hxx"
 
 namespace kin
@@ -21,10 +23,13 @@ public:
     explicit MenuItem(
             std::string const & img_filename = "",
             std::string const & title = "",
-            std::string const & text = ""
+            std::string const & text = "",
+            std::string const & call_command = ""
     )   :
         title_(title),
-        text_(text)
+        text_(text),
+        call_command_(call_command),
+        hover_time_(0)
     {
         title_.SetSize(16);
         title_.SetColor(sf::Color(0, 0, 0, 255));
@@ -80,11 +85,36 @@ public:
         target.Draw(text_);
     }
 
+    bool hover(float elapsed_time)
+    {
+        hover_time_ += elapsed_time;
+        if (hover_time_ > 3 && event_sent_ == false)
+        {
+            event_sent_ = true;
+            return true;
+        }
+        return false;
+    }
+
+    void unhover()
+    {
+        event_sent_ = false;
+        hover_time_ = 0;
+    }
+
+    std::string const & get_call_command() const
+    {
+        return call_command_;
+    }
+
 private:
     sf::String title_;
     sf::String text_;
     sf::Image img_;
+    std::string call_command_;
     sf::Shape bg_;
+    float hover_time_;
+    bool event_sent_;
 };
 
 /**
@@ -111,16 +141,29 @@ public:
     void scroll(int amount, float scroll_time);
 
     /**
-     * @brief update function
+     * @brief Update the menu item states and return the id of the menu item that shall be executed.
+     * @param elapsed_time elapsed time since last frame
+     * @param mouse_x mouse position x
+     * @param mouse_y mouse position y
+     * @return id of the menu item that shall be executed
      */
-    void update(float elapsed_time, double mouse_x, double mouse_y);
+    int update(float elapsed_time, double mouse_x, double mouse_y);
 
     /**
      * @brief Draw the menu overlay on the given sprite.
      */
     void draw(sf::RenderTarget & target, sf::Font & font);
 
+    /**
+     * @brief Return the call command of the given menu item.
+     */
+    std::string get_call_command(int item) const;
+
 private:
+
+    size_t const screen_width_;
+
+    size_t const screen_height_;
 
     int current_selection_;
 
@@ -142,16 +185,20 @@ MenuOverlay::MenuOverlay(
         size_t screen_width,
         size_t screen_height
 )   :
+      screen_width_(screen_width),
+      screen_height_(screen_height),
       current_selection_(-1)
 {
     if (xml_filename == "")
     {
-        items_.emplace_back("images/mario.png", "Mario", "Mario game ist echt ein supertolles Spiel.");
-        items_.emplace_back("images/luigi.jpg", "Luigi", "Luigi game");
-        items_.emplace_back("images/mario.png", "Mario 2", "Mario game 2");
+        items_.emplace_back("images/mario.png", "Mario", "Mario game ist echt ein supertolles Spiel.", "gedit /home/philip/game0.txt");
+        items_.emplace_back("images/luigi.jpg", "Luigi", "Luigi game", "gedit /home/philip/game1.txt");
+        items_.emplace_back("images/mario.png", "Mario 2", "Mario game 2", "gedit /home/philip/game2.txt");
     }
     else
     {
+        tinyxml2::XMLDocument doc;
+
         // TODO: Read the xml file and fill items_.
         throw std::runtime_error("TODO: Implement xml reader.");
     }
@@ -178,7 +225,7 @@ MenuOverlay::MenuOverlay(
     }
 }
 
-void MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
+int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
 {
     if (top_scroll_rect_.Contains(mouse_x, mouse_y))
     {
@@ -188,13 +235,36 @@ void MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
     {
         scroll_amount_ -= 100 * elapsed_time;
     }
+    else
+    {
+        double const item_width = 0.66 * screen_width_;
+        double const item_height = 0.15 * screen_height_;
+        double const item_offset_x = 0.04 * screen_width_;
+        for (size_t i = 0; i < items_.size(); ++i)
+        {
+            double const item_offset_y = scroll_amount_ + i * (item_height+10);
+            Rect r(item_offset_x, item_offset_y, item_offset_x + item_width, item_offset_y + item_height);
+            if (r.Contains(mouse_x, mouse_y))
+            {
+                if (items_[i].hover(elapsed_time))
+                {
+                    return i;
+                }
+            }
+            else
+            {
+                items_[i].unhover();
+            }
+        }
+    }
+    return -1;
 }
 
 void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
 {
-    double const item_width = 0.66 * target.GetWidth();
-    double const item_height = 0.15 * target.GetHeight();
-    double const item_offset_x = 0.04 * target.GetWidth();
+    double const item_width = 0.66 * screen_width_;
+    double const item_height = 0.15 * screen_height_;
+    double const item_offset_x = 0.04 * screen_width_;
     for (size_t i = 0; i < items_.size(); ++i)
     {
         double const item_offset_y = scroll_amount_ + i * (item_height+10);
@@ -203,6 +273,11 @@ void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
     target.Draw(top_scroll_);
     target.Draw(bottom_scroll_);
     target.Draw(right_scroll_);
+}
+
+std::string MenuOverlay::get_call_command(int item) const
+{
+    return items_[item].get_call_command();
 }
 
 
