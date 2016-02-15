@@ -118,6 +118,52 @@ private:
 };
 
 /**
+ * @brief Throws an exception when error is an XML error.
+ */
+void check_xml_error(tinyxml2::XMLError error)
+{
+    using namespace tinyxml2;
+
+    std::map<XMLError, std::string> const error_messages = {
+        {tinyxml2::XML_ERROR_COUNT, "Count"},
+        {tinyxml2::XML_ERROR_ELEMENT_MISMATCH, "Element mismatch"},
+        {tinyxml2::XML_ERROR_EMPTY_DOCUMENT, "Empty document"},
+        {tinyxml2::XML_ERROR_FILE_COULD_NOT_BE_OPENED, "File could not be opened"},
+        {tinyxml2::XML_ERROR_FILE_NOT_FOUND, "File not found"},
+        {tinyxml2::XML_ERROR_FILE_READ_ERROR, "File read error"},
+        {tinyxml2::XML_ERROR_IDENTIFYING_TAG, "Identifying tag"},
+        {tinyxml2::XML_ERROR_MISMATCHED_ELEMENT, "Mismatched element"},
+        {tinyxml2::XML_ERROR_PARSING, "Parsing"},
+        {tinyxml2::XML_ERROR_PARSING_ATTRIBUTE, "Parsing attribute"},
+        {tinyxml2::XML_ERROR_PARSING_CDATA, "Parsing CData"},
+        {tinyxml2::XML_ERROR_PARSING_COMMENT, "Parsing comment"},
+        {tinyxml2::XML_ERROR_PARSING_DECLARATION, "Parsing declaration"},
+        {tinyxml2::XML_ERROR_PARSING_ELEMENT, "Parsing element"},
+        {tinyxml2::XML_ERROR_PARSING_TEXT, "Parsing text"},
+        {tinyxml2::XML_ERROR_PARSING_UNKNOWN, "Parsing unknown"}
+    };
+
+    if (error != tinyxml2::XML_NO_ERROR)
+        throw std::runtime_error("XML Error: " + error_messages.at(error));
+}
+
+tinyxml2::XMLElement * check_xml_element(tinyxml2::XMLElement * elt)
+{
+    if (elt != nullptr)
+        return elt;
+    else
+        throw std::runtime_error("XML Error: Could not find XML element.");
+}
+
+tinyxml2::XMLElement const * check_xml_element(tinyxml2::XMLElement const * elt)
+{
+    if (elt != nullptr)
+        return elt;
+    else
+        throw std::runtime_error("XML Error: Could not find XML element.");
+}
+
+/**
  * @brief The MenuOverlay class loads menu items from an xml file and draws them.
  */
 class MenuOverlay
@@ -197,10 +243,25 @@ MenuOverlay::MenuOverlay(
     }
     else
     {
+        // Open the xml file.
         tinyxml2::XMLDocument doc;
+        std::cout << xml_filename << std::endl;
+        check_xml_error(doc.LoadFile(xml_filename.c_str()));
+        auto root = doc.FirstChild();
+        if (std::string(root->Value()) != "MENU")
+            throw std::runtime_error("XML error: Root node should be MENU.");
 
-        // TODO: Read the xml file and fill items_.
-        throw std::runtime_error("TODO: Implement xml reader.");
+        // Loop over the menu items in the xml file.
+        for (auto elt = root->FirstChildElement("MENUITEM");
+             elt != nullptr;
+             elt = elt->NextSiblingElement("MENUITEM"))
+        {
+            auto img = check_xml_element(elt->FirstChildElement("IMAGE"));
+            auto title = check_xml_element(elt->FirstChildElement("TITLE"));
+            auto description = check_xml_element(elt->FirstChildElement("DESCRIPTION"));
+            auto command = check_xml_element(elt->FirstChildElement("COMMAND"));
+            items_.emplace_back(img->GetText(), title->GetText(), description->GetText(), command->GetText());
+        }
     }
     scroll_amount_ = 0.16 * screen_height;
 

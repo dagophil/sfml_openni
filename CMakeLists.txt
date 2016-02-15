@@ -53,6 +53,12 @@ target_link_libraries(proj
 add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:proj>/fonts)
+add_custom_command(TARGET proj PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
+add_custom_command(TARGET proj PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
                    
 # Test menu
 add_executable(testmenu testmenu.cxx tinyxml2.cpp)
@@ -66,5 +72,8 @@ add_custom_command(TARGET testmenu PRE_BUILD
 add_custom_command(TARGET testmenu PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
+add_custom_command(TARGET testmenu PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
 
 
