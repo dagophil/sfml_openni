@@ -352,7 +352,7 @@ MenuOverlay::MenuOverlay(
     auto rsr = get_right_scroll_rect();
     right_scroll_ = sf::Shape::Rectangle(rsr.Left, rsr.Top, rsr.Right, rsr.Bottom, gray);
 
-    close_button_img_.LoadFromFile("images/exit_button_2.png");
+    close_button_img_.LoadFromFile("images/exit_button.png");
     close_button_spr_.SetImage(close_button_img_);
     close_button_spr_.Resize(get_close_button_rect().GetWidth(),get_close_button_rect().GetHeight());
     close_button_spr_.Move(get_close_button_rect().Left,get_close_button_rect().Top);
