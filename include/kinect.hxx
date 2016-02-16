@@ -256,6 +256,7 @@ private:
 
 KinectSensor::KinectSensor()
     :
+      need_pose_(false),
       pose_name_(20, ' '),
       pose_name_ptr_(&pose_name_[0])
 {
@@ -280,7 +281,7 @@ KinectSensor::KinectSensor()
     // Check if the pose is needed for calibration.
     if (user_generator_.GetSkeletonCap().NeedPoseForCalibration())
     {
-        need_pose_=true;
+        need_pose_ = true;
         if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_POSE_DETECTION)){
             throw std::runtime_error("KinectSensor::KinectSensor(): User generator needs pose for calibration, "
                                      "but the kinect doesn't support it.");

@@ -290,7 +290,6 @@ MenuOverlay::MenuOverlay(
     {
         // Open the xml file.
         tinyxml2::XMLDocument doc;
-        std::cout << xml_filename << std::endl;
         check_xml_error(doc.LoadFile(xml_filename.c_str()));
         auto root = doc.FirstChild();
         if (std::string(root->Value()) != "MENU")
