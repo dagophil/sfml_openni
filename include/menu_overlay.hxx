@@ -297,7 +297,7 @@ private:
     sf::Image close_button_img_;
     ActionButton close_button_;
 
-    int const gap_ = 10;
+    int const gap_;
 
 };
 
@@ -308,7 +308,8 @@ MenuOverlay::MenuOverlay(
 )   :
       screen_width_(screen_width),
       screen_height_(screen_height),
-      current_selection_(-1)
+      current_selection_(-1),
+      gap_(10)
 {
     if (xml_filename == "")
     {
