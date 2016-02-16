@@ -84,7 +84,6 @@ public:
     }
     void set_draw_menu(bool draw_menu)
     {
-        std::cout << "set draw menu to " << draw_menu << std::endl;
         draw_menu_ = draw_menu;
     }
 
