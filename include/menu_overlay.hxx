@@ -205,6 +205,50 @@ public:
      */
     std::string get_call_command(int item) const;
 
+    /**
+     * @brief Return the rectangle of the i-th menu item.
+     */
+    Rect get_item_rect(int i) const
+    {
+        return Rect(0.04 * screen_width_,
+                    scroll_amount_ + i * (0.15*screen_height_ + gap_),
+                    0.7 * screen_width_,
+                    scroll_amount_ + i * (0.15*screen_height_ + gap_) + 0.15*screen_height_);
+    }
+
+    /**
+     * @brief Return the rectangle of the top scroll button.
+     */
+    Rect get_top_scroll_rect() const
+    {
+        return Rect(0.04 * screen_width_,
+                    0,
+                    0.7 * screen_width_,
+                    0.05 * screen_height_);
+    }
+
+    /**
+     * @brief Return the rectangle of the bottom scroll button.
+     */
+    Rect get_bottom_scroll_rect() const
+    {
+        return Rect(0.04 * screen_width_,
+                    0.95 * screen_height_,
+                    0.7 * screen_width_,
+                    screen_height_);
+    }
+
+    /**
+     * @brief Return the rectangle of the right scroll button.
+     */
+    Rect get_right_scroll_rect() const
+    {
+        return Rect(0.82 * screen_width_,
+                    0,
+                    screen_width_,
+                    screen_height_);
+    }
+
 private:
 
     size_t const screen_width_;
@@ -217,12 +261,13 @@ private:
 
     std::vector<MenuItem> items_;
 
-    Rect top_scroll_rect_;
-    Rect bottom_scroll_rect_;
-    Rect right_scroll_rect_;
     sf::Shape top_scroll_;
+
     sf::Shape bottom_scroll_;
+
     sf::Shape right_scroll_;
+
+    int const gap_ = 10;
 
 };
 
@@ -262,50 +307,44 @@ MenuOverlay::MenuOverlay(
             auto command = check_xml_element(elt->FirstChildElement("COMMAND"));
             items_.emplace_back(img->GetText(), title->GetText(), description->GetText(), command->GetText());
         }
+        if (items_.size() == 0)
+        {
+            throw std::runtime_error("The menu is empty.");
+        }
     }
     scroll_amount_ = 0.16 * screen_height;
 
     // Create the scroll buttons.
     sf::Color gray(120, 120, 120);
-    {
-        double const left_x = 0.04 * screen_width;
-        double const right_x = 0.7 * screen_width;
-        double const scroll_height = 0.05 * screen_height;
-        top_scroll_rect_ = Rect(left_x, 0, right_x, scroll_height);
-        bottom_scroll_rect_ = Rect(left_x, screen_height - scroll_height, right_x, screen_height);
-        top_scroll_ = sf::Shape::Rectangle(top_scroll_rect_.Left, top_scroll_rect_.Top,
-                                           top_scroll_rect_.Right, top_scroll_rect_.Bottom, gray);
-        bottom_scroll_ = sf::Shape::Rectangle(bottom_scroll_rect_.Left, bottom_scroll_rect_.Top,
-                                              bottom_scroll_rect_.Right, bottom_scroll_rect_.Bottom, gray);
-    }
-    {
-        double const width = 0.18 * screen_width;
-        right_scroll_rect_ = Rect(screen_width - width, 0, screen_width, screen_height);
-        right_scroll_ = sf::Shape::Rectangle(right_scroll_rect_.Left, right_scroll_rect_.Top,
-                                             right_scroll_rect_.Right, right_scroll_rect_.Bottom, gray);
-    }
+    auto tsr = get_top_scroll_rect();
+    top_scroll_ = sf::Shape::Rectangle(tsr.Left, tsr.Top, tsr.Right, tsr.Bottom, gray);
+    auto bsr = get_bottom_scroll_rect();
+    bottom_scroll_ = sf::Shape::Rectangle(bsr.Left, bsr.Top, bsr.Right, bsr.Bottom, gray);
+    auto rsr = get_right_scroll_rect();
+    right_scroll_ = sf::Shape::Rectangle(rsr.Left, rsr.Top, rsr.Right, rsr.Bottom, gray);
 }
 
 int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
 {
-    if (top_scroll_rect_.Contains(mouse_x, mouse_y))
+    if (get_top_scroll_rect().Contains(mouse_x, mouse_y))
     {
         scroll_amount_ += 100 * elapsed_time;
+        auto diff = get_bottom_scroll_rect().Top - get_item_rect(0).Bottom - gap_;
+        if (diff < 0)
+            scroll_amount_ += diff;
     }
-    else if (bottom_scroll_rect_.Contains(mouse_x, mouse_y))
+    else if (get_bottom_scroll_rect().Contains(mouse_x, mouse_y))
     {
         scroll_amount_ -= 100 * elapsed_time;
+        auto diff = get_top_scroll_rect().Bottom - get_item_rect(items_.size()-1).Top + gap_;
+        if (diff > 0)
+            scroll_amount_ += diff;
     }
     else
     {
-        double const item_width = 0.66 * screen_width_;
-        double const item_height = 0.15 * screen_height_;
-        double const item_offset_x = 0.04 * screen_width_;
         for (size_t i = 0; i < items_.size(); ++i)
         {
-            double const item_offset_y = scroll_amount_ + i * (item_height+10);
-            Rect r(item_offset_x, item_offset_y, item_offset_x + item_width, item_offset_y + item_height);
-            if (r.Contains(mouse_x, mouse_y))
+            if (get_item_rect(i).Contains(mouse_x, mouse_y))
             {
                 if (items_[i].hover(elapsed_time))
                 {
@@ -323,13 +362,10 @@ int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
 
 void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
 {
-    double const item_width = 0.66 * screen_width_;
-    double const item_height = 0.15 * screen_height_;
-    double const item_offset_x = 0.04 * screen_width_;
     for (size_t i = 0; i < items_.size(); ++i)
     {
-        double const item_offset_y = scroll_amount_ + i * (item_height+10);
-        items_[i].draw(target, font, item_offset_x, item_offset_y, item_width, item_height);
+        auto r = get_item_rect(i);
+        items_[i].draw(target, font, r.Left, r.Top, r.GetWidth(), r.GetHeight());
     }
     target.Draw(top_scroll_);
     target.Draw(bottom_scroll_);
