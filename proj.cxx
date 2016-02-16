@@ -106,9 +106,17 @@ int main(int argc, char** argv)
         throw runtime_error("Wrong number of arguments.");
     string xml_filename = argv[1];
 
+    bool FULLSCREEN = false;
+
     // Window width and height.
-    size_t const WIDTH = 800;
-    size_t const HEIGHT = 600;
+    size_t WIDTH = 800;
+    size_t HEIGHT = 600;
+    if (FULLSCREEN)
+    {
+        auto mode = sf::VideoMode::GetDesktopMode();
+        WIDTH = mode.Width;
+        HEIGHT = mode.Height;
+    }
 
     // The drawing options.
     DrawOptions draw_opts;
@@ -148,6 +156,12 @@ int main(int argc, char** argv)
     sf::Image joint_texture(3, 3, sf::Color(255, 255, 255, 255));
     std::vector<sf::Sprite> joint_sprites;
 
+    // Create the cursor.
+    sf::Image cursor;
+    cursor.LoadFromFile("images/hand.png");
+    sf::Sprite cursor_sprite(cursor);
+    cursor_sprite.SetScale(0.1, 0.1);
+
     // Window open/close loop.
     string call_command;
     do
@@ -155,9 +169,10 @@ int main(int argc, char** argv)
         call_command = "";
 
         // Create the window and go into the main loop.
-    //    auto const & modes = sf::VideoMode::getFullscreenModes();
-    //    sf::RenderWindow window(modes.front(), "Kinect menu", sf::Style::Fullscreen);
-        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu");
+        auto style = sf::Style::Close;
+        if (FULLSCREEN)
+            style = sf::Style::Fullscreen;
+        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
         while (window.IsOpened())
         {
             ///////////////////////////////////////////////
@@ -223,10 +238,17 @@ int main(int argc, char** argv)
                 }
             }
 
+            // Get the hand position.
+            auto user_pos = k.user_pos();
+            auto mouse_x = (user_pos.X + 0.33) * WIDTH / 1.75;
+            auto mouse_y = (user_pos.Y - 0.7) * HEIGHT / 1.5;
+            cursor_sprite.SetX(mouse_x);
+            cursor_sprite.SetY(mouse_y);
+
             // Update the menu (hover, etc...) and get the command that shall be executed.
             if (draw_opts.draw_menu())
             {
-                auto call_id = overlay.update(elapsed_time, window.GetInput().GetMouseX(), window.GetInput().GetMouseY());
+                auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y);
                 if (call_id >= 0)
                 {
                     call_command = overlay.get_call_command(call_id);
@@ -257,13 +279,6 @@ int main(int argc, char** argv)
                 window.Draw(user_sprite);
             }
 
-            // Draw the FPS text.
-            if (draw_opts.draw_fps())
-            {
-                fps_text.SetText("FPS: " + to_string(fps));
-                window.Draw(fps_text);
-            }
-
             // Draw the joints.
             if (draw_opts.draw_joints())
             {
@@ -278,6 +293,16 @@ int main(int argc, char** argv)
             {
                 overlay.draw(window, font);
             }
+
+            // Draw the FPS text.
+            if (draw_opts.draw_fps())
+            {
+                fps_text.SetText("FPS: " + to_string(fps));
+                window.Draw(fps_text);
+            }
+
+            // Draw the cursor.
+            window.Draw(cursor_sprite);
 
             // Show the drawed stuff on the window.
             window.Display();

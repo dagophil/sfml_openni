@@ -85,6 +85,8 @@ struct JointInfo
  */
 struct User
 {
+public:
+
     XnLabel id_;
     bool visible_;
     std::map<XnSkeletonJoint, JointInfo> joints_;
@@ -93,7 +95,49 @@ struct User
         :
           id_(id),
           visible_(visible)
-    {}
+    {
+        base_change_ = sf::Matrix3::Identity;
+    }
+
+    /**
+     * @brief Compute the base change matrix (real coordinates -> user plane coordinates).
+     */
+    void compute_base_change()
+    {
+        if (joints_.count(XN_SKEL_LEFT_SHOULDER) > 0 &&
+            joints_.count(XN_SKEL_RIGHT_SHOULDER) > 0)
+        {
+            auto s0 = joints_.at(XN_SKEL_LEFT_SHOULDER).real_position_;
+            auto s1 = joints_.at(XN_SKEL_RIGHT_SHOULDER).real_position_;
+            auto len = length(s1 - s0);
+
+            sf::Matrix3 base(s1.X - s0.X, 0, s1.Z - s0.Z, 0, 1, 0, s1.Z - s0.Z, 0, s0.X - s1.X);
+            base_change_ = base.GetInverse();
+            if (len > 0)
+            {
+                base_change_(1, 0) /= len;
+                base_change_(1, 1) /= len;
+                base_change_(1, 2) /= len;
+            }
+        }
+    }
+
+    /**
+     * @brief Transform the given vector from real coordinates to user plane coordinates.
+     */
+    XnVector3D transform_vector(XnVector3D const & v) const
+    {
+        XnV3DVector ret;
+        ret.X = base_change_(0, 0) * v.X + base_change_(0, 1) * v.Y + base_change_(0, 2) * v.Z;
+        ret.Y = base_change_(1, 0) * v.X + base_change_(1, 1) * v.Y + base_change_(1, 2) * v.Z;
+        ret.Z = base_change_(2, 0) * v.X + base_change_(2, 1) * v.Y + base_change_(2, 2) * v.Z;
+        return ret;
+    }
+
+private:
+
+    sf::Matrix3 base_change_; // the base change matrix
+
 };
 
 /**
@@ -184,6 +228,11 @@ public:
         return users_;
     }
 
+    /**
+     * @brief Return the position of the user hand or (0, 0, 0) if the hand is not visible.
+     */
+    XnVector3D user_pos();
+
 private:
 
     /**
@@ -227,10 +276,6 @@ private:
      */
     static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
 
-//    static void XN_CALLBACK_TYPE hand_create(xn::HandsGenerator & gen, XnUserID id, XnPoint3D const * position, XnFloat time, void*);
-//    static void XN_CALLBACK_TYPE hand_update(xn::HandsGenerator & gen, XnUserID id, XnPoint3D const * position, XnFloat time, void*);
-//    static void XN_CALLBACK_TYPE hand_destroy(xn::HandsGenerator & gen, XnUserID id, XnFloat time, void*);
-
     /**
      * @brief context_
      */
@@ -251,7 +296,8 @@ private:
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
 
-    xn::HandsGenerator hands_generator_; // the hands generator
+    std::vector<XnVector3D> user_positions_; // the last 10 hand positions of the user
+    XnVector3D user_mean_position_; // the mean of the last 10 hand positions
 };
 
 KinectSensor::KinectSensor()
@@ -266,7 +312,6 @@ KinectSensor::KinectSensor()
     check_error(user_generator_.Create(context_));
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
         throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
-    check_error(hands_generator_.Create(context_));
     context_.SetGlobalMirror(true);
 
     // Register the callbacks for the user generator.
@@ -290,10 +335,6 @@ KinectSensor::KinectSensor()
         user_generator_.GetSkeletonCap().GetCalibrationPose(pose_name_ptr_);
         //check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseInProgress(pose_in_progress,this,h_pose_in_progress));
     }
-
-//    // Register the callbacks for the hand generator.
-//    XnCallbackHandle hHand;
-//    check_error(hands_generator_.RegisterHandCallbacks(hand_create, hand_update, hand_destroy, this, hHand));
 
     // Start generating the kinect data.
     check_error(context_.StartGeneratingAll());
@@ -376,14 +417,10 @@ UpdateDetails KinectSensor::update()
                     depth_generator_.ConvertRealWorldToProjective(1, &jpos.position, &proj_pos);
                     users_.back().joints_[j] = JointInfo(j, jpos.fConfidence, jpos.position, proj_pos);
                 }
+                users_.back().compute_base_change();
             }
         }
     }
-
-//    if (hands_generator_.IsNewDataAvailable())
-//    {
-//        check_error(hands_generator_.WaitAndUpdateData());
-//    }
 
     return updates;
 }
@@ -489,6 +526,55 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
 //){
 //    std::cout << "hand_destroy" << std::endl;
 //}
+
+XnVector3D KinectSensor::user_pos()
+{
+    if (users_.size() > 0)
+    {
+        auto const & u = users_.front();
+        if (u.joints_.count(XN_SKEL_RIGHT_HAND) > 0 &&
+            u.joints_.count(XN_SKEL_TORSO) > 0 &&
+            u.joints_.count(XN_SKEL_LEFT_SHOULDER) > 0 &&
+            u.joints_.count(XN_SKEL_RIGHT_SHOULDER) > 0)
+        {
+            // Get the hand coordinates and transform them relative to the user plane position.
+            auto hand_pos = u.joints_.at(XN_SKEL_RIGHT_HAND).real_position_;
+            auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
+            auto ret = u.transform_vector(hand_pos - torso);
+            ret.Y = 1.5 - ret.Y;
+
+            // Do not move at all, if hand moved only a little.
+            if (user_positions_.size() == 10)
+            {
+                auto delta = length(user_mean_position_ - ret);
+                if (delta < 0.04)
+                    return user_mean_position_;
+            }
+
+            // Compute the new mean.
+            user_positions_.push_back(ret);
+            if(user_positions_.size() > 10)
+            {
+                user_positions_.erase(user_positions_.begin());
+                XnVector3D mean;
+                mean.X = 0;
+                mean.Y = 0;
+                mean.Z = 0;
+                for(int i =0; i < user_positions_.size(); ++i)
+                {
+                    mean += user_positions_[i];
+                }
+                user_mean_position_ = mean / user_positions_.size();
+            }
+            return user_mean_position_;
+        }
+    }
+    XnVector3D r;
+    r.X = 0;
+    r.Y = 0;
+    r.Z = 0;
+    return r;
+}
 
 
 

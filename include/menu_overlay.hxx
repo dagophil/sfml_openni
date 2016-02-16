@@ -224,7 +224,7 @@ public:
         return Rect(0.04 * screen_width_,
                     0,
                     0.7 * screen_width_,
-                    0.05 * screen_height_);
+                    0.1 * screen_height_);
     }
 
     /**
@@ -233,7 +233,7 @@ public:
     Rect get_bottom_scroll_rect() const
     {
         return Rect(0.04 * screen_width_,
-                    0.95 * screen_height_,
+                    0.9 * screen_height_,
                     0.7 * screen_width_,
                     screen_height_);
     }
