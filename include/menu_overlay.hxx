@@ -14,9 +14,45 @@ namespace kin
 {
 
 /**
+ * @brief The ActionButton class represents a hoverable menu button.
+ */
+class ActionButton
+{
+public:
+    ActionButton()
+        :
+          hover_time_(0),
+          event_sent_(false)
+    {}
+
+    bool hover(float elapsed_time)
+    {
+        hover_time_ += elapsed_time;
+        if (hover_time_ > 3 && event_sent_ == false)
+        {
+            event_sent_ = true;
+            return true;
+        }
+        return false;
+    }
+
+    void unhover()
+    {
+        event_sent_ = false;
+        hover_time_ = 0;
+    }
+
+private:
+    float hover_time_;
+    bool event_sent_;
+};
+
+
+
+/**
  * @brief The MenuItem class represents a single menu item with image and text.
  */
-class MenuItem
+class MenuItem : public ActionButton
 {
 public:
 
@@ -28,8 +64,7 @@ public:
     )   :
         title_(title),
         text_(text),
-        call_command_(call_command),
-        hover_time_(0)
+        call_command_(call_command)
     {
         title_.SetSize(16);
         title_.SetColor(sf::Color(0, 0, 0, 255));
@@ -85,22 +120,6 @@ public:
         target.Draw(text_);
     }
 
-    bool hover(float elapsed_time)
-    {
-        hover_time_ += elapsed_time;
-        if (hover_time_ > 3 && event_sent_ == false)
-        {
-            event_sent_ = true;
-            return true;
-        }
-        return false;
-    }
-
-    void unhover()
-    {
-        event_sent_ = false;
-        hover_time_ = 0;
-    }
 
     std::string const & get_call_command() const
     {
@@ -113,8 +132,7 @@ private:
     sf::Image img_;
     std::string call_command_;
     sf::Shape bg_;
-    float hover_time_;
-    bool event_sent_;
+
 };
 
 /**
@@ -244,9 +262,17 @@ public:
     Rect get_right_scroll_rect() const
     {
         return Rect(0.82 * screen_width_,
-                    0,
+                    get_top_scroll_rect().Bottom,
                     screen_width_,
                     screen_height_);
+    }
+
+    Rect get_close_button_rect() const
+    {
+        return Rect(get_right_scroll_rect().Left,
+                    0,
+                    screen_width_,
+                    get_right_scroll_rect().Top);
     }
 
 private:
@@ -266,6 +292,10 @@ private:
     sf::Shape bottom_scroll_;
 
     sf::Shape right_scroll_;
+
+    sf::Sprite close_button_spr_;
+    sf::Image close_button_img_;
+    ActionButton close_button_;
 
     int const gap_ = 10;
 
@@ -321,10 +351,25 @@ MenuOverlay::MenuOverlay(
     bottom_scroll_ = sf::Shape::Rectangle(bsr.Left, bsr.Top, bsr.Right, bsr.Bottom, gray);
     auto rsr = get_right_scroll_rect();
     right_scroll_ = sf::Shape::Rectangle(rsr.Left, rsr.Top, rsr.Right, rsr.Bottom, gray);
+
+    close_button_img_.LoadFromFile("images/exit_button_2.png");
+    close_button_spr_.SetImage(close_button_img_);
+    close_button_spr_.Resize(get_close_button_rect().GetWidth(),get_close_button_rect().GetHeight());
+    close_button_spr_.Move(get_close_button_rect().Left,get_close_button_rect().Top);
 }
 
+/**
+ * @brief Check if something was hovered.
+ * @return
+ * -4: Close button was hovered,
+ * -3: Scroll button was hovered,
+ * -2: Close button fired the exit event,
+ * -1: Nothing was hovered,
+ * else: return value is the id of the hovered menu item.
+ */
 int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
 {
+    int h = -3;
     if (get_top_scroll_rect().Contains(mouse_x, mouse_y))
     {
         scroll_amount_ += 100 * elapsed_time;
@@ -339,7 +384,28 @@ int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
         if (diff > 0)
             scroll_amount_ += diff;
     }
+    else if (get_close_button_rect().Contains(mouse_x, mouse_y))
+    {
+        h=-4;
+        if(close_button_.hover(elapsed_time))
+            h = -2;
+    }
     else
+    {
+        h = -1;
+    }
+
+    // Something was hovered, so unhover all menu items.
+    if (h != -1)
+        for (auto & i : items_)
+            i.unhover();
+
+    // Close button was not hovered, so unhover it.
+    if (h != -4)
+        close_button_.unhover();
+
+    // Check if a menu item was hovered.
+    if (h == -1)
     {
         for (size_t i = 0; i < items_.size(); ++i)
         {
@@ -347,16 +413,22 @@ int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
             {
                 if (items_[i].hover(elapsed_time))
                 {
-                    return i;
+                    h = i;
                 }
             }
-            else
+        }
+        if (h != -1)
+        {
+            for (size_t i = 0; i < items_.size(); ++i)
             {
-                items_[i].unhover();
+                if (i != h)
+                {
+                    items_[i].unhover();
+                }
             }
         }
     }
-    return -1;
+    return h;
 }
 
 void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
@@ -369,6 +441,7 @@ void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
     target.Draw(top_scroll_);
     target.Draw(bottom_scroll_);
     target.Draw(right_scroll_);
+    target.Draw(close_button_spr_);
 }
 
 std::string MenuOverlay::get_call_command(int item) const

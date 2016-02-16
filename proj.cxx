@@ -257,6 +257,12 @@ int main(int argc, char** argv)
                     window.Close();
                     break;
                 }
+                else if (call_id==-2)
+                {
+                    call_command = "";
+                    window.Close();
+                    break;
+                }
             }
 
 
