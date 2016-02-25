@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         throw runtime_error("Wrong number of arguments.");
     string xml_filename = argv[1];
 
-    bool FULLSCREEN = false;
+    bool FULLSCREEN = true;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -166,6 +166,8 @@ int main(int argc, char** argv)
     do
     {
         call_command = "";
+        float mouse_x = 0;
+        float mouse_y = 0;
 
         // Create the window and go into the main loop.
         auto style = sf::Style::Close;
@@ -238,13 +240,13 @@ int main(int argc, char** argv)
             }
 
             // Get the hand positions.
+            float old_mouse_x = mouse_x;
+            float old_mouse_y = mouse_y;
             auto hand_left = k.hand_left();
             auto hand_right = k.hand_right();
-            bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.66;
-            bool hand_right_visible = k.hand_right_visible() && hand_right.Z >= 0.66;
+            bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.0;
+            bool hand_right_visible = k.hand_right_visible() && hand_right.Z >= 0.0;
             bool hand_visible = hand_left_visible || hand_right_visible;
-            float mouse_x = 0;
-            float mouse_y = 0;
             if (hand_visible)
             {
                 bool both_visible = hand_left_visible && hand_right_visible;
@@ -258,6 +260,14 @@ int main(int argc, char** argv)
                     mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
                     mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
                 }
+
+                // Check that the mouse is actually visible.
+                if (mouse_x < 0 || mouse_x >= WIDTH || mouse_y < 0 || mouse_y >= HEIGHT)
+                    hand_visible = false;
+            }
+
+            if (hand_visible)
+            {
                 cursor_sprite.SetX(mouse_x);
                 cursor_sprite.SetY(mouse_y);
             }
@@ -270,7 +280,7 @@ int main(int argc, char** argv)
             // Update the menu (hover, etc...) and get the command that shall be executed.
             if (draw_opts.draw_menu())
             {
-                auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y);
+                auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y, old_mouse_x, old_mouse_y);
                 if (call_id >= 0)
                 {
                     call_command = overlay.get_call_command(call_id);

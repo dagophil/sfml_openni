@@ -209,9 +209,11 @@ public:
      * @param elapsed_time elapsed time since last frame
      * @param mouse_x mouse position x
      * @param mouse_y mouse position y
+     * @param old_mouse_x mouse position x from the previous frame
+     * @param old_Mouse_y mouse position y from the previous frame
      * @return id of the menu item that shall be executed
      */
-    int update(float elapsed_time, double mouse_x, double mouse_y);
+    int update(float elapsed_time, double mouse_x, double mouse_y, double old_mouse_x, double old_mouse_y);
 
     /**
      * @brief Draw the menu overlay on the given sprite.
@@ -299,6 +301,8 @@ private:
 
     int const gap_;
 
+    std::vector<float> last_scroll_amounts_;
+
 };
 
 MenuOverlay::MenuOverlay(
@@ -362,14 +366,20 @@ MenuOverlay::MenuOverlay(
 /**
  * @brief Check if something was hovered.
  * @return
+ * -5: Right scroll bar was hovered,
  * -4: Close button was hovered,
- * -3: Scroll button was hovered,
+ * -3: Top or bottom scroll button was hovered,
  * -2: Close button fired the exit event,
  * -1: Nothing was hovered,
  * else: return value is the id of the hovered menu item.
  */
-int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
-{
+int MenuOverlay::update(
+        float elapsed_time,
+        double mouse_x,
+        double mouse_y,
+        double old_mouse_x,
+        double old_mouse_y
+){
     int h = -3;
     if (get_top_scroll_rect().Contains(mouse_x, mouse_y))
     {
@@ -385,15 +395,63 @@ int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
         if (diff > 0)
             scroll_amount_ += diff;
     }
+    else if (get_right_scroll_rect().Contains(mouse_x, mouse_y))
+    {
+        if (old_mouse_y != -1)
+            h = -5;
+    }
     else if (get_close_button_rect().Contains(mouse_x, mouse_y))
     {
-        h=-4;
+        h = -4;
         if(close_button_.hover(elapsed_time))
             h = -2;
     }
     else
     {
         h = -1;
+    }
+
+    // Scroll automatically if the right scroll bar was used.
+    if ((h != -5 && !last_scroll_amounts_.empty()) || last_scroll_amounts_.size() > 5)
+    {
+        auto & last = last_scroll_amounts_.back();
+        if (last > 0)
+        {
+            last -= 35;
+            if (last <= 0)
+                last_scroll_amounts_.clear();
+            else
+                scroll_amount_ += last * elapsed_time;
+        }
+        else
+        {
+            last += 35;
+            if (last > 0)
+                last_scroll_amounts_.clear();
+            else
+                scroll_amount_ += last * elapsed_time;
+        }
+    }
+    else if (h == -5)
+    {
+        auto diff = mouse_y - old_mouse_y;
+        last_scroll_amounts_.push_back(diff / elapsed_time);
+        scroll_amount_ += diff;
+        std::cout << "scroll amount: " << diff << std::endl;
+    }
+
+    // Make sure that we did not scroll to far.
+    auto diff = get_bottom_scroll_rect().Top - get_item_rect(0).Bottom - gap_;
+    if (diff < 0)
+    {
+        scroll_amount_ += diff;
+        last_scroll_amounts_.clear();
+    }
+    diff = get_top_scroll_rect().Bottom - get_item_rect(items_.size()-1).Top + gap_;
+    if (diff > 0)
+    {
+        scroll_amount_ += diff;
+        last_scroll_amounts_.clear();
     }
 
     // Something was hovered, so unhover all menu items.

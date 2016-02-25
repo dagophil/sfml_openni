@@ -38,12 +38,14 @@ int main(int argc, char** argv)
         call_command = "";
 
         // Create window.
+        int mouse_x;
+        int mouse_y;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu");
         FPS fps_measure;
         while (window.IsOpened())
         {
-            int mouse_x;
-            int mouse_y;
+            int old_mouse_x = mouse_x;
+            int old_mouse_y = mouse_y;
 
             // Handle window events.
             sf::Event event;
@@ -63,7 +65,7 @@ int main(int argc, char** argv)
             auto elapsed_time = fps_measure.elapsed_time();
 
             // Update the menu (hover, etc...) and get the command that shall be executed.
-            auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y);
+            auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y, old_mouse_x, old_mouse_y);
             if (call_id >= 0)
             {
                 call_command = overlay.get_call_command(call_id);

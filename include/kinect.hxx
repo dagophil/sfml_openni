@@ -453,10 +453,10 @@ UpdateDetails KinectSensor::update()
                 users_.back().compute_base_change();
             }
         }
+
+        // Compute the new hand coordinates.
+        compute_hand_positions();
     }
-    
-    // Compute the new hand coordinates.
-    compute_hand_positions();
 
     return updates;
 }

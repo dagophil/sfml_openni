@@ -17,4 +17,166 @@
         <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game2.txt</COMMAND>
     </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 1</TITLE>
+        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/luigi.jpg</IMAGE>
+        <TITLE>Luigi</TITLE>
+        <DESCRIPTION>Luigi Game Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game1.txt</COMMAND>
+    </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/mario.png</IMAGE>
+        <TITLE>Mario 2</TITLE>
+        <DESCRIPTION>Mario Game 2 Description</DESCRIPTION>
+        <COMMAND>gedit /home/philip/game2.txt</COMMAND>
+    </MENUITEM>
 </MENU>
