@@ -437,7 +437,6 @@ int MenuOverlay::update(
         auto diff = mouse_y - old_mouse_y;
         last_scroll_amounts_.push_back(diff / elapsed_time);
         scroll_amount_ += diff;
-        std::cout << "scroll amount: " << diff << std::endl;
     }
 
     // Make sure that we did not scroll to far.
