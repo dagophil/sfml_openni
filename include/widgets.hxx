@@ -171,24 +171,19 @@ public:
 
     template <typename... Args>
     HoverclickWidget(
-            DiffType x,
-            DiffType y,
-            DiffType width,
-            DiffType height,
-            int z_index,
-//            float click_delay = 3.0,
             Args... args
     )
         :
-          T(x, y, width, height, z_index),
+          T(args...),
           handle_click_(detail::do_nothing2<DiffType, DiffType>),
-//          click_delay_(click_delay),
           click_delay_(3.0),
           hover_time_(0.0),
           clicked_(false)
     {}
 
     std::function<void(DiffType, DiffType)> handle_click_; // callback for click events
+
+    float click_delay_; // the time hover phase until a click event is raised
 
 protected:
 
@@ -213,8 +208,6 @@ protected:
             clicked_ = true;
         }
     }
-
-    float click_delay_; // the time hover phase until a click event is raised
 
 private:
 
