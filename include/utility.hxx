@@ -259,15 +259,22 @@ void insert_line_breaks(sf::String & str, double max_width)
     auto const words = split_string(str.GetText());
     if (words.size() == 0)
         return;
+
+    std::string result = "";
     str.SetText(words[0]);
     for (size_t i = 1; i < words.size(); ++i)
     {
         auto const & word = words[i];
-        std::string s = str.GetText();
-        str.SetText(s + " " + word);
-        if (str.GetCharacterPos(s.size()+word.size()).x > max_width)
-            str.SetText(s + "\n" + word);
+        str.SetText((std::string)str.GetText() + " " + word);
+        if (str.GetRect().GetWidth() > max_width)
+        {
+            std::string text = str.GetText();
+            result += text.substr(0, text.size()-word.size()) + "\n";
+            str.SetText(word);
+        }
     }
+    result += str.GetText();
+    str.SetText(result);
 }
 
 /**

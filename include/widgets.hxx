@@ -10,6 +10,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "utility.hxx"
+
 namespace kin
 {
 
@@ -219,6 +221,7 @@ private:
 
     float hover_time_; // the current hover time
     bool clicked_; // whether a click event has been raised in the current hover phase
+
 };
 
 /**
@@ -239,7 +242,7 @@ public:
     {}
 
     /**
-     * @brief Draw a rectangle.
+     * @brief Render the rectangle.
      */
     void render_impl(sf::RenderTarget & target)
     {
@@ -250,6 +253,7 @@ public:
 private:
 
     sf::Color color_;
+
 };
 
 /**
@@ -274,7 +278,7 @@ public:
 protected:
 
     /**
-     * @brief Draw the stored image.
+     * @brief Render the stored image.
      */
     void render_impl(sf::RenderTarget & target)
     {
@@ -288,6 +292,56 @@ protected:
 private:
 
     sf::Image image_; // the image
+
+};
+
+/**
+ * @brief A widget for displaying text.
+ */
+class TextWidget : public Widget
+{
+public:
+
+    template <typename... Args>
+    TextWidget(
+            std::string const & text,
+            Args... args
+    )
+        :
+          Widget(args...),
+          text_(text),
+          style_(sf::String::Style::Regular),
+          font_size_(16),
+          color_({255, 255, 255})
+    {}
+
+    void set_font(sf::Font const & font)
+    {
+        text_obj_.SetFont(font);
+    }
+
+    /**
+     * @brief Render the text.
+     */
+    void render_impl(sf::RenderTarget & target)
+    {
+        text_obj_.SetText(text_);
+        text_obj_.SetSize(font_size_);
+        text_obj_.SetStyle(style_);
+        text_obj_.SetColor(color_);
+        insert_line_breaks(text_obj_, rect_.GetWidth());
+        text_obj_.SetPosition(rect_.Left, rect_.Top);
+        target.Draw(text_obj_);
+    }
+
+    std::string text_; // the text
+    sf::String::Style style_; // the text style
+    double font_size_; // the font size
+    sf::Color color_; // the text color
+
+private:
+
+    sf::String text_obj_; // the text object that is rendered
 
 };
 
