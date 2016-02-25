@@ -105,7 +105,7 @@ public:
     /**
      * @brief Update the widgets.
      */
-    virtual void update(float elapsed_time) final
+    virtual void update(float elapsed_time)
     {
         update_impl(elapsed_time);
         for (auto w : widgets_)
@@ -115,7 +115,7 @@ public:
     /**
      * @brief Render the widget.
      */
-    virtual void render(sf::RenderTarget & target) final
+    virtual void render(sf::RenderTarget & target)
     {
         render_impl(target);
 
@@ -195,7 +195,7 @@ protected:
     /**
      * @brief Update the hover time and eventually raise the click event.
      */
-    void update_impl(float elapsed_time) override
+    void update_impl(float elapsed_time)
     {
         if (T::hovered())
         {
