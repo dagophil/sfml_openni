@@ -222,6 +222,37 @@ private:
 };
 
 /**
+ * @brief A widget that is filled with the given color.
+ */
+class ColorWidget : public Widget
+{
+public:
+
+    template <typename... Args>
+    ColorWidget(
+            sf::Color const & color,
+            Args... args
+    )
+        :
+          Widget(args...),
+          color_(color)
+    {}
+
+    /**
+     * @brief Draw a rectangle.
+     */
+    void render_impl(sf::RenderTarget & target)
+    {
+        auto bg = sf::Shape::Rectangle(rect_.Left, rect_.Top, rect_.Right, rect_.Bottom, color_);
+        target.Draw(bg);
+    }
+
+private:
+
+    sf::Color color_;
+};
+
+/**
  * @brief A widget that displays a single image.
  */
 class ImageWidget : public Widget
