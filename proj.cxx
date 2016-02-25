@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         throw runtime_error("Wrong number of arguments.");
     string xml_filename = argv[1];
 
-    bool FULLSCREEN = true;
+    bool FULLSCREEN = false;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -240,21 +240,32 @@ int main(int argc, char** argv)
             // Get the hand positions.
             auto hand_left = k.hand_left();
             auto hand_right = k.hand_right();
-            float mouse_x;
-            float mouse_y;
-            //if (hand_left.Z > hand_right.Z)
-            if (false)
+            bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.66;
+            bool hand_right_visible = k.hand_right_visible() && hand_right.Z >= 0.66;
+            bool hand_visible = hand_left_visible || hand_right_visible;
+            float mouse_x = 0;
+            float mouse_y = 0;
+            if (hand_visible)
             {
-                mouse_x = (hand_left.X - 0.33) * WIDTH / 1.75;
-                mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+                bool both_visible = hand_left_visible && hand_right_visible;
+                if (!hand_right_visible || (both_visible && hand_left.Z > hand_right.Z))
+                {
+                    mouse_x = (hand_left.X + 1.5) * WIDTH / 1.75;
+                    mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+                }
+                else
+                {
+                    mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
+                    mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+                }
+                cursor_sprite.SetX(mouse_x);
+                cursor_sprite.SetY(mouse_y);
             }
             else
             {
-                mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
-                mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+                mouse_x = -1;
+                mouse_y = -1;
             }
-            cursor_sprite.SetX(mouse_x);
-            cursor_sprite.SetY(mouse_y);
 
             // Update the menu (hover, etc...) and get the command that shall be executed.
             if (draw_opts.draw_menu())
@@ -307,9 +318,7 @@ int main(int argc, char** argv)
 
             // Draw the menu.
             if (draw_opts.draw_menu())
-            {
                 overlay.draw(window, font);
-            }
 
             // Draw the FPS text.
             if (draw_opts.draw_fps())
@@ -319,7 +328,8 @@ int main(int argc, char** argv)
             }
 
             // Draw the cursor.
-            window.Draw(cursor_sprite);
+            if (hand_visible)
+                window.Draw(cursor_sprite);
 
             // Show the drawed stuff on the window.
             window.Display();

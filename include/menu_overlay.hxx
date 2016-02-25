@@ -408,24 +408,23 @@ int MenuOverlay::update(float elapsed_time, double mouse_x, double mouse_y)
     // Check if a menu item was hovered.
     if (h == -1)
     {
+        int hovered_item = -1;
         for (size_t i = 0; i < items_.size(); ++i)
         {
             if (get_item_rect(i).Contains(mouse_x, mouse_y))
             {
+                hovered_item = i;
                 if (items_[i].hover(elapsed_time))
                 {
                     h = i;
                 }
             }
         }
-        if (h != -1)
+        for (size_t i = 0; i < items_.size(); ++i)
         {
-            for (size_t i = 0; i < items_.size(); ++i)
+            if (i != hovered_item)
             {
-                if (i != h)
-                {
-                    items_[i].unhover();
-                }
+                items_[i].unhover();
             }
         }
     }

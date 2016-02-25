@@ -229,14 +229,36 @@ public:
     }
     
     /**
-     * @brief Return the position of the left hand or (0, 0, 0) if the hand is not visible.
+     * @brief Return the position of the left hand.
      */
-    XnVector3D hand_left() const;
+    XnVector3D hand_left() const
+    {
+        return hand_left_.mean();
+    }
     
     /**
-     * @brief Return the position of the right hand or (0, 0, 0) if the hand is not visible.
+     * @brief Return the position of the right hand.
      */
-    XnVector3D hand_right() const;
+    XnVector3D hand_right() const
+    {
+        return hand_right_.mean();
+    }
+
+    /**
+     * @brief Return whether the left hand is visible.
+     */
+    bool hand_left_visible() const
+    {
+        return hand_left_visible_;
+    }
+
+    /**
+     * @brief Return whether the right hand is visible.
+     */
+    bool hand_right_visible() const
+    {
+        return hand_right_visible_;
+    }
 
 private:
 
@@ -303,8 +325,8 @@ private:
 
     Averager<XnVector3D, 10> hand_left_; // track the left hand
     Averager<XnVector3D, 10> hand_right_; // track the right hand
-//    std::vector<XnVector3D> user_positions_; // the last 10 hand positions of the user
-//    XnVector3D user_mean_position_; // the mean of the last 10 hand positions
+    bool hand_left_visible_; // whether the left hand is visible
+    bool hand_right_visible_; // whether the right hand is visible
 };
 
 KinectSensor::KinectSensor()
@@ -313,7 +335,9 @@ KinectSensor::KinectSensor()
       pose_name_(20, ' '),
       pose_name_ptr_(&pose_name_[0]),
       hand_left_({0, 0, 0}),
-      hand_right_({0, 0, 0})
+      hand_right_({0, 0, 0}),
+      hand_left_visible_(false),
+      hand_right_visible_(false)
 {
     // Initialize the kinect components.
     check_error(context_.Init());
@@ -511,34 +535,6 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
     k.user_generator_.GetSkeletonCap().RequestCalibration(nId,true);
 }
 
-//void XN_CALLBACK_TYPE KinectSensor::hand_create(
-//        xn::HandsGenerator & gen,
-//        XnUserID id,
-//        XnPoint3D const * position,
-//        XnFloat time, void*
-//){
-//    std::cout << "hand_create" << std::endl;
-//}
-
-//void XN_CALLBACK_TYPE KinectSensor::hand_update(
-//        xn::HandsGenerator & gen,
-//        XnUserID id,
-//        XnPoint3D const * position,
-//        XnFloat time,
-//        void*
-//){
-////    std::cout << "hand_update" << std::endl;
-//}
-
-//void XN_CALLBACK_TYPE KinectSensor::hand_destroy(
-//        xn::HandsGenerator & gen,
-//        XnUserID id,
-//        XnFloat time,
-//        void*
-//){
-//    std::cout << "hand_destroy" << std::endl;
-//}
-
 void KinectSensor::compute_hand_positions()
 {
     // Only track if there are users.
@@ -553,8 +549,11 @@ void KinectSensor::compute_hand_positions()
         return;
         
     // Track the left hand.
+    hand_left_visible_ = false;
     if (u.joints_.count(XN_SKEL_LEFT_HAND) > 0)
     {
+        hand_left_visible_ = true;
+
         // Get the hand coordinates and transform them relative to the user plane position.
         auto hand_pos = u.joints_.at(XN_SKEL_LEFT_HAND).real_position_;
         auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
@@ -569,8 +568,11 @@ void KinectSensor::compute_hand_positions()
     }
     
     // Track the right hand.
+    hand_right_visible_ = false;
     if (u.joints_.count(XN_SKEL_RIGHT_HAND) > 0)
     {
+        hand_right_visible_ = true;
+
         // Get the hand coordinates and transform them relative to the user plane position.
         auto hand_pos = u.joints_.at(XN_SKEL_RIGHT_HAND).real_position_;
         auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
@@ -584,65 +586,6 @@ void KinectSensor::compute_hand_positions()
             hand_right_.push(ret);
     }
 }
-
-XnVector3D KinectSensor::hand_left() const
-{
-    return hand_left_.mean();
-}
-
-XnVector3D KinectSensor::hand_right() const
-{
-    return hand_right_.mean();
-}
-
-/*XnVector3D KinectSensor::user_pos()
-{
-    if (users_.size() > 0)
-    {
-        auto const & u = users_.front();
-        if (u.joints_.count(XN_SKEL_RIGHT_HAND) > 0 &&
-            u.joints_.count(XN_SKEL_TORSO) > 0 &&
-            u.joints_.count(XN_SKEL_LEFT_SHOULDER) > 0 &&
-            u.joints_.count(XN_SKEL_RIGHT_SHOULDER) > 0)
-        {
-            // Get the hand coordinates and transform them relative to the user plane position.
-            auto hand_pos = u.joints_.at(XN_SKEL_RIGHT_HAND).real_position_;
-            auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
-            auto ret = u.transform_vector(hand_pos - torso);
-            ret.Y = 1.5 - ret.Y;
-
-            // Do not move at all, if hand moved only a little.
-            if (user_positions_.size() == 10)
-            {
-                auto delta = length(user_mean_position_ - ret);
-                if (delta < 0.04)
-                    return user_mean_position_;
-            }
-
-            // Compute the new mean.
-            user_positions_.push_back(ret);
-            if(user_positions_.size() > 10)
-            {
-                user_positions_.erase(user_positions_.begin());
-                XnVector3D mean;
-                mean.X = 0;
-                mean.Y = 0;
-                mean.Z = 0;
-                for(int i =0; i < user_positions_.size(); ++i)
-                {
-                    mean += user_positions_[i];
-                }
-                user_mean_position_ = mean / user_positions_.size();
-            }
-            return user_mean_position_;
-        }
-    }
-    XnVector3D r;
-    r.X = 0;
-    r.Y = 0;
-    r.Z = 0;
-    return r;
-}*/
 
 
 

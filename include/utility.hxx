@@ -25,6 +25,7 @@ public:
     
     Averager(T const & zero)
         :
+          mean_(zero),
           zero_(zero)
     {}
 
