@@ -14,6 +14,54 @@
 
 
 /**
+ * @brief Compute the average of the last N elements.
+ */
+template <typename T, unsigned int N>
+class Averager
+{
+public:
+
+    typedef T value_type;
+    
+    Averager(T const & zero)
+        :
+          zero_(zero)
+    {}
+
+    /**
+     * @brief Add a new element to the queue and compute the new mean.
+     */
+    void push(value_type const & v)
+    {
+        values_.push_back(v);
+        if (values_.size() > N)
+            values_.erase(values_.begin());
+        if (values_.size() > 0)
+            mean_ = std::accumulate(values_.begin(), values_.end(), zero_) / static_cast<double>(values_.size());
+    }
+    
+    /**
+     * @brief Return the mean.
+     */
+    T mean() const
+    {
+        return mean_;
+    }
+    
+    bool empty() const
+    {
+        return values_.empty();
+    }
+
+private:
+
+    std::vector<T> values_;
+    T mean_;
+    T zero_;
+    
+};
+
+/**
  * @brief The FPS class can be used to compute the mean FPS.
  */
 class FPS
@@ -241,12 +289,17 @@ double length(XnVector3D const & a)
     return std::sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z);
 }
 
-XnVector3D& operator+=(XnVector3D & a, XnVector3D const & b)
+XnVector3D & operator+=(XnVector3D & a, XnVector3D const & b)
 {
     a.X=a.X+b.X;
     a.Y=a.Y+b.Y;
     a.Z=a.Z+b.Z;
     return a;
+}
+
+XnVector3D operator+(XnVector3D a, XnVector3D const & b)
+{
+    return a += b;
 }
 
 XnVector3D operator/(XnVector3D const & a, float b)

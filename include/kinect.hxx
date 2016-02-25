@@ -227,11 +227,16 @@ public:
     {
         return users_;
     }
-
+    
     /**
-     * @brief Return the position of the user hand or (0, 0, 0) if the hand is not visible.
+     * @brief Return the position of the left hand or (0, 0, 0) if the hand is not visible.
      */
-    XnVector3D user_pos();
+    XnVector3D hand_left() const;
+    
+    /**
+     * @brief Return the position of the right hand or (0, 0, 0) if the hand is not visible.
+     */
+    XnVector3D hand_right() const;
 
 private:
 
@@ -239,6 +244,11 @@ private:
      * @brief Check if the status is OK and throw an exception if it is not.
      */
     void check_error(XnStatus status);
+    
+    /**
+     * @brief Compute the hand positions.
+     */
+    void compute_hand_positions();
 
     /**
      * @brief Callback for the "new user" event. Starts the calibration.
@@ -276,11 +286,6 @@ private:
      */
     static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
 
-    /**
-     * @brief context_
-     */
-    //static void XN_CALLBACK_TYPE pose_in_progress();
-
     xn::Context context_; // the kinect context
 
     xn::DepthGenerator depth_generator_; // the depth generator
@@ -296,15 +301,19 @@ private:
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
 
-    std::vector<XnVector3D> user_positions_; // the last 10 hand positions of the user
-    XnVector3D user_mean_position_; // the mean of the last 10 hand positions
+    Averager<XnVector3D, 10> hand_left_; // track the left hand
+    Averager<XnVector3D, 10> hand_right_; // track the right hand
+//    std::vector<XnVector3D> user_positions_; // the last 10 hand positions of the user
+//    XnVector3D user_mean_position_; // the mean of the last 10 hand positions
 };
 
 KinectSensor::KinectSensor()
     :
       need_pose_(false),
       pose_name_(20, ' '),
-      pose_name_ptr_(&pose_name_[0])
+      pose_name_ptr_(&pose_name_[0]),
+      hand_left_({0, 0, 0}),
+      hand_right_({0, 0, 0})
 {
     // Initialize the kinect components.
     check_error(context_.Init());
@@ -421,6 +430,9 @@ UpdateDetails KinectSensor::update()
             }
         }
     }
+    
+    // Compute the new hand coordinates.
+    compute_hand_positions();
 
     return updates;
 }
@@ -527,7 +539,63 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
 //    std::cout << "hand_destroy" << std::endl;
 //}
 
-XnVector3D KinectSensor::user_pos()
+void KinectSensor::compute_hand_positions()
+{
+    // Only track if there are users.
+    if (users_.size() == 0)
+        return;
+    
+    // Only track if the main joints are known.
+    auto const & u = users_.front();
+    if (u.joints_.count(XN_SKEL_TORSO) == 0 ||
+        u.joints_.count(XN_SKEL_LEFT_SHOULDER) == 0 ||
+        u.joints_.count(XN_SKEL_RIGHT_SHOULDER) == 0)
+        return;
+        
+    // Track the left hand.
+    if (u.joints_.count(XN_SKEL_LEFT_HAND) > 0)
+    {
+        // Get the hand coordinates and transform them relative to the user plane position.
+        auto hand_pos = u.joints_.at(XN_SKEL_LEFT_HAND).real_position_;
+        auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
+        auto ret = u.transform_vector(hand_pos - torso);
+        ret.Y = 1.5 - ret.Y;
+        
+        // Update the hand positions.
+        if (hand_left_.empty())
+            hand_left_.push(ret);
+        else if (length(hand_left_.mean() - ret) > 0.04) // Stabilization: Only update if the hand moved a significant amount.
+            hand_left_.push(ret);
+    }
+    
+    // Track the right hand.
+    if (u.joints_.count(XN_SKEL_RIGHT_HAND) > 0)
+    {
+        // Get the hand coordinates and transform them relative to the user plane position.
+        auto hand_pos = u.joints_.at(XN_SKEL_RIGHT_HAND).real_position_;
+        auto torso = u.joints_.at(XN_SKEL_TORSO).real_position_;
+        auto ret = u.transform_vector(hand_pos - torso);
+        ret.Y = 1.5 - ret.Y;
+        
+        // Update the hand positions.
+        if (hand_right_.empty())
+            hand_right_.push(ret);
+        else if (length(hand_right_.mean() - ret) > 0.04) // Stabilization: Only update if the hand moved a significant amount.
+            hand_right_.push(ret);
+    }
+}
+
+XnVector3D KinectSensor::hand_left() const
+{
+    return hand_left_.mean();
+}
+
+XnVector3D KinectSensor::hand_right() const
+{
+    return hand_right_.mean();
+}
+
+/*XnVector3D KinectSensor::user_pos()
 {
     if (users_.size() > 0)
     {
@@ -574,7 +642,7 @@ XnVector3D KinectSensor::user_pos()
     r.Y = 0;
     r.Z = 0;
     return r;
-}
+}*/
 
 
 

@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         throw runtime_error("Wrong number of arguments.");
     string xml_filename = argv[1];
 
-    bool FULLSCREEN = false;
+    bool FULLSCREEN = true;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -237,10 +237,22 @@ int main(int argc, char** argv)
                 }
             }
 
-            // Get the hand position.
-            auto user_pos = k.user_pos();
-            auto mouse_x = (user_pos.X + 0.33) * WIDTH / 1.75;
-            auto mouse_y = (user_pos.Y - 0.7) * HEIGHT / 1.5;
+            // Get the hand positions.
+            auto hand_left = k.hand_left();
+            auto hand_right = k.hand_right();
+            float mouse_x;
+            float mouse_y;
+            //if (hand_left.Z > hand_right.Z)
+            if (false)
+            {
+                mouse_x = (hand_left.X - 0.33) * WIDTH / 1.75;
+                mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+            }
+            else
+            {
+                mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
+                mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+            }
             cursor_sprite.SetX(mouse_x);
             cursor_sprite.SetY(mouse_y);
 
