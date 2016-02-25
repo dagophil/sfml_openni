@@ -7,6 +7,7 @@
 
 #include "menu_overlay.hxx"
 #include "utility.hxx"
+#include "widgets.hxx"
 
 int main(int argc, char** argv)
 {
@@ -37,6 +38,30 @@ int main(int argc, char** argv)
     {
         call_command = "";
 
+
+
+        // TODO: REMOVE THIS
+        auto w0 = make_shared<kin::Widget>(10, 10, 200, 200, 0);
+        auto w1 = make_shared<kin::Widget>(0, 0, 50, 50, 0);
+        auto w2 = make_shared<kin::HoverclickWidget<kin::Widget> >(50, 0, 50, 50, 0);
+        auto w3 = make_shared<kin::Widget>(0, 50, 50, 50, 0);
+        auto w4 = make_shared<kin::Widget>(50, 50, 50, 50, 0);
+        w0->add_widget(w1);
+        w0->add_widget(w2);
+        w0->add_widget(w3);
+        w0->add_widget(w4);
+        w1->handle_mouse_enter_ = [](){ std::cout << "w1 enter" << std::endl; };
+        w2->handle_mouse_enter_ = [](){ std::cout << "w2 enter" << std::endl; };
+        w3->handle_mouse_enter_ = [](){ std::cout << "w3 enter" << std::endl; };
+        w4->handle_mouse_enter_ = [](){ std::cout << "w4 enter" << std::endl; };
+        w1->handle_mouse_leave_ = [](){ std::cout << "w1 leave" << std::endl; };
+        w2->handle_mouse_leave_ = [](){ std::cout << "w2 leave" << std::endl; };
+        w3->handle_mouse_leave_ = [](){ std::cout << "w3 leave" << std::endl; };
+        w4->handle_mouse_leave_ = [](){ std::cout << "w4 leave" << std::endl; };
+        w2->handle_click_ = [](int x, int y){ std::cout << "w2 click (" << x << ", " << y << ")" << std::endl; };
+
+
+
         // Create window.
         int mouse_x;
         int mouse_y;
@@ -60,9 +85,25 @@ int main(int argc, char** argv)
                 }
             }
 
+
+
+
+
+
+
+
+
             // Compute the fps.
             auto fps = fps_measure.update();
             auto elapsed_time = fps_measure.elapsed_time();
+
+
+
+            // TODO: REMOVE THIS
+            w0->hover(mouse_x, mouse_y);
+            w0->update(elapsed_time);
+
+
 
             // Update the menu (hover, etc...) and get the command that shall be executed.
             auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y, old_mouse_x, old_mouse_y);
