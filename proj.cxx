@@ -202,10 +202,7 @@ int main(int argc, char** argv)
             // Process the input.
             sf::Input const & input = window.GetInput();
             if (input.IsKeyDown(sf::Key::Escape))
-            {
                 window.Close();
-                break;
-            }
 
 
             ///////////////////////////////////////////////

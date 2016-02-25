@@ -5,6 +5,8 @@
 #include <memory>
 #include <algorithm>
 #include <functional>
+#include <string>
+#include <stdexcept>
 
 #include <SFML/Graphics.hpp>
 
@@ -131,7 +133,11 @@ public:
         if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
             std::sort(widgets_.begin(), widgets_.end(), comp);
         for (auto w : widgets_)
+        {
+            w->rect_.Offset(rect_.Left, rect_.Top);
             w->render(target);
+            w->rect_.Offset(-rect_.Left, -rect_.Top);
+        }
     }
 
     sf::Rect<DiffType> rect_; // position and size
@@ -216,26 +222,41 @@ private:
 };
 
 /**
- * @brief The ImageWidget class.
+ * @brief A widget that displays a single image.
  */
 class ImageWidget : public Widget
 {
 public:
 
+    template <typename... Args>
     ImageWidget(
-            DiffType x,
-            DiffType y,
-            DiffType width,
-            DiffType height,
-            int z_index
+            std::string const & filename,
+            Args... args
     )
         :
-          Widget(x, y, width, height, z_index)
-    {}
+          Widget(args...)
+    {
+        if (!image_.LoadFromFile(filename))
+            throw std::runtime_error("Could not load image " + filename);
+    }
+
+protected:
+
+    /**
+     * @brief Draw the stored image.
+     */
+    void render_impl(sf::RenderTarget & target)
+    {
+        sf::Vector2f const scale(Widget::rect_.GetWidth() / static_cast<float>(image_.GetWidth()),
+                                 Widget::rect_.GetHeight() / static_cast<float>(image_.GetHeight()));
+        sf::Vector2f const pos(Widget::rect_.Left, Widget::rect_.Top);
+        sf::Sprite spr(image_, pos, scale);
+        target.Draw(spr);
+    }
 
 private:
 
-
+    sf::Image image_; // the image
 
 };
 
