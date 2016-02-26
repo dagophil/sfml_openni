@@ -51,6 +51,7 @@ int main(int argc, char** argv)
         int mouse_x;
         int mouse_y;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu");
+        window.ShowMouseCursor(false);
         FPS fps_measure;
         overlay.handle_close_ = [&]()
         {

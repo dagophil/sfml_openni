@@ -7,6 +7,7 @@
 #include <functional>
 #include <string>
 #include <stdexcept>
+#include <fstream>
 
 #include <SFML/Graphics.hpp>
 
@@ -54,7 +55,8 @@ public:
           handle_mouse_enter_(detail::do_nothing0),
           handle_mouse_leave_(detail::do_nothing0),
           handle_hover_(detail::do_nothing2<DiffType, DiffType>),
-          hovered_(false)
+          hovered_(false),
+          hoverable_(true)
     {}
 
     /**
@@ -110,7 +112,7 @@ public:
             for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
             {
                 (*it)->hover(x, y, just_unhover);
-                if ((*it)->hovered())
+                if ((*it)->hovered() && (*it)->hoverable_)
                     just_unhover = true;
             }
         }
@@ -169,10 +171,10 @@ public:
 
     sf::Rect<DiffType> rect_; // position and size
     int z_index_; // the z index
-    float click_delay_; // the time that is needed in hovered state until a click occurs
     std::function<void()> handle_mouse_enter_; // callback for mouse enter events
     std::function<void()> handle_mouse_leave_; // callback for mouse leave events
     std::function<void(DiffType, DiffType)> handle_hover_; // callback for hover events
+    bool hoverable_; // whether the widget reacts for hovers
 
 protected:
 
@@ -258,6 +260,8 @@ protected:
             handle_click_(T::rect_.GetWidth()/2, T::rect_.GetHeight()/2);
             clicked_ = true;
         }
+
+        T::update_impl(elapsed_time);
     }
 
 private:
@@ -513,6 +517,202 @@ private:
     }
 
     sf::String text_obj_; // the text object that is rendered
+
+};
+
+/**
+ * @brief Index for sprites.
+ */
+class SpriteIndex
+{
+public:
+
+    explicit SpriteIndex(
+            size_t cols = 0,
+            size_t rows = 0
+    )   :
+          cols_(cols),
+          rows_(rows),
+          index(0)
+    {}
+
+    SpriteIndex & operator++()
+    {
+        index = (index+1) % (size());
+        return *this;
+    }
+
+    size_t col() const
+    {
+        return index % cols_;
+    }
+
+    size_t row() const
+    {
+        return index / cols_;
+    }
+
+    size_t size() const
+    {
+        return cols_ * rows_;
+    }
+
+    size_t cols_;
+    size_t rows_;
+    size_t index;
+
+};
+
+/**
+ * @brief Widget for animations.
+ */
+class AnimatedWidget : public Widget
+{
+public:
+
+    template <typename... Args>
+    AnimatedWidget(
+            std::string const & filename,
+            Args... args
+    )
+        :
+          Widget(args...),
+          i_(0),
+          runtime_(0),
+          running_(true)
+    {
+        std::ifstream f(filename);
+
+        // Read the image filename.
+        std::string image_filename;
+        f >> image_filename;
+        if (!image_.LoadFromFile(image_filename))
+            throw std::runtime_error("Could not load image " + image_filename);
+
+        // Read number of rows and columns.
+        f >> i_.rows_ >> i_.cols_;
+
+        // Read the frame times.
+        for (size_t i = 0; i < i_.size(); ++i)
+        {
+            float t;
+            f >> t;
+            frametimes_.push_back(t);
+        }
+    }
+
+    /**
+     * @brief Start the animation.
+     */
+    void start()
+    {
+        running_ = true;
+    }
+
+    /**
+     * @brief Reset the animation.
+     */
+    void reset()
+    {
+        runtime_ = 0;
+        i_.index = 0;
+    }
+
+    /**
+     * @brief Start the animation from the beginning.
+     */
+    void restart()
+    {
+        reset();
+        start();
+    }
+
+    /**
+     * @brief Stop the animation.
+     */
+    void stop()
+    {
+        running_ = false;
+    }
+
+protected:
+
+    /**
+     * @brief Update the runtime and eventually show the next frame.
+     */
+    void update_impl(float elapsed_time)
+    {
+        if (running_)
+        {
+            runtime_ += elapsed_time;
+            auto f = frametimes_[i_.index];
+            if (runtime_ > f)
+            {
+                ++i_;
+                runtime_ -= f;
+            }
+        }
+    }
+
+    /**
+     * @brief Draw the current frame.
+     */
+    void render_impl(sf::RenderTarget & target)
+    {
+        sf::Sprite spr(image_);
+        spr.SetSubRect(sf::IntRect(x(), y(), x()+width(), y()+height()));
+        spr.SetPosition(rect_.Left, rect_.Top);
+        spr.SetScale(compute_scale());
+        target.Draw(spr);
+    }
+
+private:
+
+    /**
+     * @brief Compute the scale.
+     */
+    sf::Vector2f compute_scale()
+    {
+        return {rect_.GetWidth() / (float)width(), rect_.GetHeight() / (float)height()};
+    }
+
+    /**
+     * @brief Return the image width (single frame, not the whole sprite).
+     */
+    size_t width() const
+    {
+        return image_.GetWidth() / i_.cols_;
+    }
+
+    /**
+     * @brief Return the image height (single frame, not the whole sprite).
+     */
+    size_t height() const
+    {
+        return image_.GetHeight() / i_.rows_;
+    }
+
+    /**
+     * @brief Return the current read x position.
+     */
+    size_t x() const
+    {
+        return i_.col() * width();
+    }
+
+    /**
+     * @brief Return the curent read y position.
+     */
+    size_t y() const
+    {
+        return i_.row() * height();
+    }
+
+    sf::Image image_; // the sprite image
+    std::vector<float> frametimes_; // the length (in seconds) of the single frames
+    SpriteIndex i_; // the sprite index
+    float runtime_; // the current runtime
+    bool running_; // whether the animation is currently running
 
 };
 

@@ -57,6 +57,9 @@ add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
 add_custom_command(TARGET proj PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/animations $<TARGET_FILE_DIR:testmenu>/animations)
+add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
 add_custom_command(TARGET proj PRE_BUILD
@@ -75,6 +78,9 @@ add_custom_command(TARGET testmenu PRE_BUILD
 add_custom_command(TARGET testmenu PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
+add_custom_command(TARGET testmenu PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/animations $<TARGET_FILE_DIR:testmenu>/animations)
 add_custom_command(TARGET testmenu PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)

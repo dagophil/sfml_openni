@@ -47,7 +47,7 @@ public:
         add_widget(img_w);
 
         // Create the text widget for the title.
-        title_w_ = std::make_shared<TextWidget>(title, image_width, 0, width-image_width, height, 0);
+        title_w_ = std::make_shared<TextWidget>(title, image_width, 0, width - image_width, height, 0);
         title_w_->align_x_ = TextWidget::AlignX::CenterX;
         title_w_->style_ = sf::String::Style::Bold;
         title_w_->color_ = sf::Color(0, 0, 0);
@@ -172,10 +172,12 @@ private:
 
     void create_default_menu_items(); // create some default menu items
     void load_xml_menu_items(std::string const & filename); // load the menu items from an xml file
+
     int const gap_; // distance between two menu items
     std::shared_ptr<Widget> item_container_; // the container for the menu items
     std::shared_ptr<ColorWidget> scroll_top_; // the top scroll button
     std::shared_ptr<ColorWidget> scroll_bottom_; // the bottom scroll button
+    std::shared_ptr<AnimatedWidget> mouse_; // the mouse
 
 };
 
@@ -228,6 +230,13 @@ MenuOverlay::MenuOverlay(
     close_button->handle_click_ = [&](DiffType x, DiffType y){
         handle_close_();
     };
+    close_button->handle_mouse_enter_ = [this](){
+        mouse_->restart();
+    };
+    close_button->handle_mouse_leave_ = [this](){
+        mouse_->reset();
+        mouse_->stop();
+    };
 
     // Create the top scroll button.
     sf::Color const gray(120, 120, 120);
@@ -257,6 +266,25 @@ MenuOverlay::MenuOverlay(
                 1
     );
     add_widget(scroll_bar);
+
+    // Create the mouse animation.
+    mouse_ = std::make_shared<AnimatedWidget>(
+                "animations/hand_load.pf",
+                screen_width, screen_height,
+                75, 75,
+                999
+    );
+    mouse_->hoverable_ = false;
+    mouse_->stop();
+    add_widget(mouse_);
+    handle_hover_ = [&](DiffType x, DiffType y)
+    {
+        auto old_x = mouse_->rect_.Left;
+        auto old_y = mouse_->rect_.Top;
+        auto w = mouse_->rect_.GetWidth();
+        auto h = mouse_->rect_.GetHeight();
+        mouse_->rect_.Offset(x-old_x - 0.45*w, y-old_y - 0.17*h);
+    };
 }
 
 void MenuOverlay::add_menu_item(
@@ -280,6 +308,13 @@ void MenuOverlay::add_menu_item(
     w->handle_click_ = [this, command](DiffType x, DiffType y)
     {
         handle_menu_item_click_(command);
+    };
+    w->handle_mouse_enter_ = [this](){
+        mouse_->restart();
+    };
+    w->handle_mouse_leave_ = [this](){
+        mouse_->reset();
+        mouse_->stop();
     };
     item_container_->add_widget(w);
 }

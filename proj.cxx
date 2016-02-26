@@ -184,6 +184,7 @@ int main(int argc, char** argv)
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
+        window.ShowMouseCursor(false);
         overlay.handle_close_ = [&]()
         {
             window.Close();
