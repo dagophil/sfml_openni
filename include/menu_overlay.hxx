@@ -3,135 +3,78 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
 #include <tinyxml2.h>
 
 #include "utility.hxx"
+#include "widgets.hxx"
 
 namespace kin
 {
-
-/**
- * @brief The ActionButton class represents a hoverable menu button.
- */
-class ActionButton
-{
-public:
-    ActionButton()
-        :
-          hover_time_(0),
-          event_sent_(false)
-    {}
-
-    bool hover(float elapsed_time)
-    {
-        hover_time_ += elapsed_time;
-        if (hover_time_ > 3 && event_sent_ == false)
-        {
-            event_sent_ = true;
-            return true;
-        }
-        return false;
-    }
-
-    void unhover()
-    {
-        event_sent_ = false;
-        hover_time_ = 0;
-    }
-
-private:
-    float hover_time_;
-    bool event_sent_;
-};
 
 
 
 /**
  * @brief The MenuItem class represents a single menu item with image and text.
  */
-class MenuItem : public ActionButton
+class MenuItem : public HoverclickWidget<ColorWidget>
 {
 public:
+
+    typedef HoverclickWidget<ColorWidget> Parent;
 
     explicit MenuItem(
             std::string const & img_filename = "",
             std::string const & title = "",
             std::string const & text = "",
-            std::string const & call_command = ""
+            DiffType x = 0,
+            DiffType y = 0,
+            DiffType width = 0,
+            DiffType height = 0
     )   :
-        title_(title),
-        text_(text),
-        call_command_(call_command)
+        Parent(sf::Color(200, 200, 200), x, y, width, height, 0)
     {
-        title_.SetSize(16);
-        title_.SetColor(sf::Color(0, 0, 0, 255));
-        text_.SetSize(16);
-        text_.SetColor(sf::Color(0, 0, 0, 255));
+        float image_width = 0.38 * width;
 
-        // Load image.
-        if (!img_.LoadFromFile(img_filename))
-            throw std::runtime_error("Could not load image " + img_filename);
+        // Create the image widget
+        auto img_w = std::make_shared<ImageWidget>(img_filename, 0, 0, image_width, height, 0);
+        img_w->scale_style_ = ImageWidget::ScaleStyle::Fit;
+        img_w->align_x_ = ImageWidget::AlignX::Right;
+        img_w->align_y_ = ImageWidget::AlignY::Top;
+        add_widget(img_w);
 
-        bg_ = sf::Shape::Rectangle(
-                    sf::Vector2f(0, 0),
-                    sf::Vector2f(1, 1),
-                    sf::Color(200, 200, 200, 255));
+        // Create the text widget for the title.
+        title_w_ = std::make_shared<TextWidget>(title, image_width, 0, width-image_width, height, 0);
+        title_w_->align_x_ = TextWidget::AlignX::CenterX;
+        title_w_->style_ = sf::String::Style::Bold;
+        title_w_->color_ = sf::Color(0, 0, 0);
+        add_widget(title_w_);
+
+        // Create the text widget for the description.
+        text_w_ = std::make_shared<TextWidget>(text, image_width, 0, width - image_width, height, 0);
+        text_w_->color_ = sf::Color(0, 0, 0);
+        text_w_->align_x_ = TextWidget::AlignX::CenterX;
+        add_widget(text_w_);
     }
 
-    void draw(
-            sf::RenderTarget & target,
-            sf::Font & font,
-            double offset_x,
-            double offset_y,
-            double width,
-            double height
-    ){
-        double const max_img_width = 0.38 * width;
-        double const max_text_width = 0.62 * width;
+protected:
 
-        // Draw the background.
-        bg_.SetPosition(sf::Vector2f(offset_x, offset_y));
-        bg_.SetScale(width, height);
-        target.Draw(bg_);
-
-        // Compute scale factor.
-        double factor = height / img_.GetHeight();
-        if (factor*img_.GetWidth() > max_img_width)
-            factor = width / img_.GetWidth();
-
-        // Draw the image.
-        sf::Sprite im_spr(img_, sf::Vector2f(max_img_width - factor*img_.GetWidth(), 0), sf::Vector2f(factor, factor));
-        im_spr.Move(offset_x, offset_y);
-        target.Draw(im_spr);
-
-        // Draw the text.
-        title_.SetFont(font);
-        title_.SetStyle(sf::String::Bold);
-        insert_line_breaks(title_, max_text_width-10);
-        title_.SetPosition(offset_x + max_img_width + max_text_width/2.0 - title_.GetRect().GetWidth()/2.0, offset_y);
-        target.Draw(title_);
-
-        text_.SetFont(font);
-        insert_line_breaks(text_, max_text_width-30);
-        text_.SetPosition(offset_x + max_img_width + max_text_width/2.0 - text_.GetRect().GetWidth()/2.0, offset_y + title_.GetRect().GetHeight() +10);
-        target.Draw(text_);
-    }
-
-
-    std::string const & get_call_command() const
+    /**
+     * @brief Align top of the description text with the bottom of the title text.
+     */
+    void render_impl(sf::RenderTarget & target)
     {
-        return call_command_;
+        ColorWidget::render_impl(target);
+        text_w_->rect_.Top = title_w_->text_height()+10;
     }
 
 private:
-    sf::String title_;
-    sf::String text_;
-    sf::Image img_;
-    std::string call_command_;
-    sf::Shape bg_;
+
+    std::shared_ptr<TextWidget> title_w_; // the title
+    std::shared_ptr<TextWidget> text_w_; // the text
 
 };
 
@@ -165,6 +108,9 @@ void check_xml_error(tinyxml2::XMLError error)
         throw std::runtime_error("XML Error: " + error_messages.at(error));
 }
 
+/**
+ * @brief Throws an exception if the given pointer is a null pointer and returns the pointer otherwise.
+ */
 tinyxml2::XMLElement * check_xml_element(tinyxml2::XMLElement * elt)
 {
     if (elt != nullptr)
@@ -173,6 +119,9 @@ tinyxml2::XMLElement * check_xml_element(tinyxml2::XMLElement * elt)
         throw std::runtime_error("XML Error: Could not find XML element.");
 }
 
+/**
+ * @brief Throws an exception if the given pointer is a null pointer and returns the pointer otherwise.
+ */
 tinyxml2::XMLElement const * check_xml_element(tinyxml2::XMLElement const * elt)
 {
     if (elt != nullptr)
@@ -184,7 +133,7 @@ tinyxml2::XMLElement const * check_xml_element(tinyxml2::XMLElement const * elt)
 /**
  * @brief The MenuOverlay class loads menu items from an xml file and draws them.
  */
-class MenuOverlay
+class MenuOverlay : public Widget
 {
 public:
 
@@ -200,108 +149,33 @@ public:
     );
 
     /**
-     * @brief Scroll the menu for the given amount.
+     * @brief Add a menu item to the container.
      */
-    void scroll(int amount, float scroll_time);
+    void add_menu_item(
+            std::string const & image,
+            std::string const & title,
+            std::string const & description,
+            std::string const & command
+    );
+
+    std::function<void(std::string const &)> handle_menu_item_click_; // the callback for a click on a menu item
+    std::function<void()> handle_close_; // the callback for the close event
+
+protected:
 
     /**
-     * @brief Update the menu item states and return the id of the menu item that shall be executed.
-     * @param elapsed_time elapsed time since last frame
-     * @param mouse_x mouse position x
-     * @param mouse_y mouse position y
-     * @param old_mouse_x mouse position x from the previous frame
-     * @param old_Mouse_y mouse position y from the previous frame
-     * @return id of the menu item that shall be executed
+     * @brief Do the scrolling of the top and bottom scroll button.
      */
-    int update(float elapsed_time, double mouse_x, double mouse_y, double old_mouse_x, double old_mouse_y);
-
-    /**
-     * @brief Draw the menu overlay on the given sprite.
-     */
-    void draw(sf::RenderTarget & target, sf::Font & font);
-
-    /**
-     * @brief Return the call command of the given menu item.
-     */
-    std::string get_call_command(int item) const;
-
-    /**
-     * @brief Return the rectangle of the i-th menu item.
-     */
-    Rect get_item_rect(int i) const
-    {
-        return Rect(0.04 * screen_width_,
-                    scroll_amount_ + i * (0.15*screen_height_ + gap_),
-                    0.7 * screen_width_,
-                    scroll_amount_ + i * (0.15*screen_height_ + gap_) + 0.15*screen_height_);
-    }
-
-    /**
-     * @brief Return the rectangle of the top scroll button.
-     */
-    Rect get_top_scroll_rect() const
-    {
-        return Rect(0.04 * screen_width_,
-                    0,
-                    0.7 * screen_width_,
-                    0.1 * screen_height_);
-    }
-
-    /**
-     * @brief Return the rectangle of the bottom scroll button.
-     */
-    Rect get_bottom_scroll_rect() const
-    {
-        return Rect(0.04 * screen_width_,
-                    0.9 * screen_height_,
-                    0.7 * screen_width_,
-                    screen_height_);
-    }
-
-    /**
-     * @brief Return the rectangle of the right scroll button.
-     */
-    Rect get_right_scroll_rect() const
-    {
-        return Rect(0.82 * screen_width_,
-                    get_top_scroll_rect().Bottom,
-                    screen_width_,
-                    screen_height_);
-    }
-
-    Rect get_close_button_rect() const
-    {
-        return Rect(get_right_scroll_rect().Left,
-                    0,
-                    screen_width_,
-                    get_right_scroll_rect().Top);
-    }
+    void update_impl(float elapsed_time);
 
 private:
 
-    size_t const screen_width_;
-
-    size_t const screen_height_;
-
-    int current_selection_;
-
-    double scroll_amount_;
-
-    std::vector<MenuItem> items_;
-
-    sf::Shape top_scroll_;
-
-    sf::Shape bottom_scroll_;
-
-    sf::Shape right_scroll_;
-
-    sf::Sprite close_button_spr_;
-    sf::Image close_button_img_;
-    ActionButton close_button_;
-
-    int const gap_;
-
-    std::vector<float> last_scroll_amounts_;
+    void create_default_menu_items(); // create some default menu items
+    void load_xml_menu_items(std::string const & filename); // load the menu items from an xml file
+    int const gap_; // distance between two menu items
+    std::shared_ptr<Widget> item_container_; // the container for the menu items
+    std::shared_ptr<ColorWidget> scroll_top_; // the top scroll button
+    std::shared_ptr<ColorWidget> scroll_bottom_; // the bottom scroll button
 
 };
 
@@ -310,200 +184,185 @@ MenuOverlay::MenuOverlay(
         size_t screen_width,
         size_t screen_height
 )   :
-      screen_width_(screen_width),
-      screen_height_(screen_height),
-      current_selection_(-1),
+      Widget(0, 0, screen_width, screen_height, 0),
+      handle_menu_item_click_(detail::do_nothing1<std::string const &>),
+      handle_close_(detail::do_nothing0),
       gap_(10)
 {
+    double const item_x = 0.04 * screen_width;
+    double const item_width = 0.66 * screen_width;
+    double const item_height = 0.15 * screen_height;
+    double const scroll_height = 0.1 * screen_height;
+    double const close_x = 0.82 * screen_width;
+
+    // Create the menu item container.
+    item_container_ = std::make_shared<Widget>(
+                item_x,
+                0.16 * screen_height,
+                item_width,
+                item_height,
+                0
+    );
+    add_widget(item_container_);
+
+    // Create the menu items.
     if (xml_filename == "")
     {
-        items_.emplace_back("images/mario.png", "Mario", "Mario game ist echt ein supertolles Spiel.", "gedit /home/philip/game0.txt");
-        items_.emplace_back("images/luigi.jpg", "Luigi", "Luigi game", "gedit /home/philip/game1.txt");
-        items_.emplace_back("images/mario.png", "Mario 2", "Mario game 2", "gedit /home/philip/game2.txt");
+        create_default_menu_items();
     }
     else
     {
-        // Open the xml file.
-        tinyxml2::XMLDocument doc;
-        check_xml_error(doc.LoadFile(xml_filename.c_str()));
-        auto root = doc.FirstChild();
-        if (std::string(root->Value()) != "MENU")
-            throw std::runtime_error("XML error: Root node should be MENU.");
-
-        // Loop over the menu items in the xml file.
-        for (auto elt = root->FirstChildElement("MENUITEM");
-             elt != nullptr;
-             elt = elt->NextSiblingElement("MENUITEM"))
-        {
-            auto img = check_xml_element(elt->FirstChildElement("IMAGE"));
-            auto title = check_xml_element(elt->FirstChildElement("TITLE"));
-            auto description = check_xml_element(elt->FirstChildElement("DESCRIPTION"));
-            auto command = check_xml_element(elt->FirstChildElement("COMMAND"));
-            items_.emplace_back(img->GetText(), title->GetText(), description->GetText(), command->GetText());
-        }
-        if (items_.size() == 0)
-        {
-            throw std::runtime_error("The menu is empty.");
-        }
+        load_xml_menu_items(xml_filename);
     }
-    scroll_amount_ = 0.16 * screen_height;
 
-    // Create the scroll buttons.
-    sf::Color gray(120, 120, 120);
-    auto tsr = get_top_scroll_rect();
-    top_scroll_ = sf::Shape::Rectangle(tsr.Left, tsr.Top, tsr.Right, tsr.Bottom, gray);
-    auto bsr = get_bottom_scroll_rect();
-    bottom_scroll_ = sf::Shape::Rectangle(bsr.Left, bsr.Top, bsr.Right, bsr.Bottom, gray);
-    auto rsr = get_right_scroll_rect();
-    right_scroll_ = sf::Shape::Rectangle(rsr.Left, rsr.Top, rsr.Right, rsr.Bottom, gray);
+    // Create the close button.
+    auto close_button = std::make_shared<HoverclickWidget<ImageWidget> >(
+                "images/exit_button.png",
+                close_x,
+                0,
+                screen_width-close_x,
+                scroll_height,
+                1
+    );
+    add_widget(close_button);
+    close_button->handle_click_ = [&](DiffType x, DiffType y){
+        handle_close_();
+    };
 
-    close_button_img_.LoadFromFile("images/exit_button.png");
-    close_button_spr_.SetImage(close_button_img_);
-    close_button_spr_.Resize(get_close_button_rect().GetWidth(),get_close_button_rect().GetHeight());
-    close_button_spr_.Move(get_close_button_rect().Left,get_close_button_rect().Top);
+    // Create the top scroll button.
+    sf::Color const gray(120, 120, 120);
+    scroll_top_ = std::make_shared<ColorWidget>(
+                gray,
+                item_x,
+                0,
+                item_width,
+                scroll_height,
+                1
+    );
+    add_widget(scroll_top_);
+
+    // Create the bottom scroll button.
+    scroll_bottom_ = std::make_shared<ColorWidget>(*scroll_top_);
+    scroll_bottom_->rect_.Top = screen_height - scroll_height;
+    scroll_bottom_->rect_.Bottom = screen_height;
+    add_widget(scroll_bottom_);
+
+    // Create the right scroll bar.
+    auto scroll_bar = std::make_shared<ColorWidget>(
+                gray,
+                close_x,
+                scroll_height,
+                screen_width-close_x,
+                screen_height-scroll_height,
+                1
+    );
+    add_widget(scroll_bar);
 }
 
-/**
- * @brief Check if something was hovered.
- * @return
- * -5: Right scroll bar was hovered,
- * -4: Close button was hovered,
- * -3: Top or bottom scroll button was hovered,
- * -2: Close button fired the exit event,
- * -1: Nothing was hovered,
- * else: return value is the id of the hovered menu item.
- */
-int MenuOverlay::update(
-        float elapsed_time,
-        double mouse_x,
-        double mouse_y,
-        double old_mouse_x,
-        double old_mouse_y
+void MenuOverlay::add_menu_item(
+        std::string const & image,
+        std::string const & title,
+        std::string const & description,
+        std::string const & command
 ){
-    int h = -3;
-    if (get_top_scroll_rect().Contains(mouse_x, mouse_y))
+    auto width = item_container_->rect_.GetWidth();
+    auto height = item_container_->rect_.GetHeight();
+    auto y = item_container_->widgets().size() * (height + gap_);
+    auto w = std::make_shared<MenuItem>(
+                image,
+                title,
+                description,
+                0,
+                y,
+                width,
+                height
+    );
+    w->handle_click_ = [this, command](DiffType x, DiffType y)
     {
-        scroll_amount_ += 100 * elapsed_time;
-        auto diff = get_bottom_scroll_rect().Top - get_item_rect(0).Bottom - gap_;
-        if (diff < 0)
-            scroll_amount_ += diff;
-    }
-    else if (get_bottom_scroll_rect().Contains(mouse_x, mouse_y))
-    {
-        scroll_amount_ -= 100 * elapsed_time;
-        auto diff = get_top_scroll_rect().Bottom - get_item_rect(items_.size()-1).Top + gap_;
-        if (diff > 0)
-            scroll_amount_ += diff;
-    }
-    else if (get_right_scroll_rect().Contains(mouse_x, mouse_y))
-    {
-        if (old_mouse_y != -1)
-            h = -5;
-    }
-    else if (get_close_button_rect().Contains(mouse_x, mouse_y))
-    {
-        h = -4;
-        if(close_button_.hover(elapsed_time))
-            h = -2;
-    }
-    else
-    {
-        h = -1;
-    }
+        handle_menu_item_click_(command);
+    };
+    item_container_->add_widget(w);
+}
 
-    // Scroll automatically if the right scroll bar was used.
-    if ((h != -5 && !last_scroll_amounts_.empty()) || last_scroll_amounts_.size() > 5)
+void MenuOverlay::create_default_menu_items()
+{
+    add_menu_item(
+                "images/mario.png",
+                "Mario",
+                "Mario game ist echt ein supertolles Spiel.",
+                "gedit /home/philip/game0.txt"
+    );
+    add_menu_item(
+                "images/luigi.jpg",
+                "Luigi",
+                "Luigi game",
+                "gedit /home/philip/game1.txt"
+    );
+    add_menu_item(
+                "images/mario.png",
+                "Mario 2",
+                "Mario game 2",
+                "gedit /home/philip/game2.txt"
+    );
+}
+
+void MenuOverlay::load_xml_menu_items(std::string const & filename)
+{
+    // Open the xml file.
+    tinyxml2::XMLDocument doc;
+    check_xml_error(doc.LoadFile(filename.c_str()));
+    auto root = doc.FirstChild();
+    if (std::string(root->Value()) != "MENU")
+        throw std::runtime_error("XML error: Root node should be MENU.");
+
+    // Loop over the menu items in the xml file.
+    bool found = false;
+    for (auto elt = root->FirstChildElement("MENUITEM");
+         elt != nullptr;
+         elt = elt->NextSiblingElement("MENUITEM"))
     {
-        auto & last = last_scroll_amounts_.back();
-        if (last > 0)
-        {
-            last -= 35;
-            if (last <= 0)
-                last_scroll_amounts_.clear();
-            else
-                scroll_amount_ += last * elapsed_time;
-        }
-        else
-        {
-            last += 35;
-            if (last > 0)
-                last_scroll_amounts_.clear();
-            else
-                scroll_amount_ += last * elapsed_time;
-        }
+        found = true;
+
+        auto img = check_xml_element(elt->FirstChildElement("IMAGE"));
+        auto title = check_xml_element(elt->FirstChildElement("TITLE"));
+        auto description = check_xml_element(elt->FirstChildElement("DESCRIPTION"));
+        auto command = check_xml_element(elt->FirstChildElement("COMMAND"));
+
+        add_menu_item(
+                    img->GetText(),
+                    title->GetText(),
+                    description->GetText(),
+                    command->GetText()
+        );
     }
-    else if (h == -5)
-    {
-        auto diff = mouse_y - old_mouse_y;
-        last_scroll_amounts_.push_back(diff / elapsed_time);
-        scroll_amount_ += diff;
-    }
+    if (!found)
+        throw std::runtime_error("The menu is empty.");
+}
+
+void MenuOverlay::update_impl(
+        float elapsed_time
+){
+    // Top scroll button.
+    if (scroll_top_->hovered())
+        item_container_->rect_.Offset(0, 100*elapsed_time);
+
+    // Bottom scroll button.
+    if (scroll_bottom_->hovered())
+        item_container_->rect_.Offset(0, -100*elapsed_time);
 
     // Make sure that we did not scroll to far.
-    auto diff = get_bottom_scroll_rect().Top - get_item_rect(0).Bottom - gap_;
+    auto pos = item_container_->rect_.Top + item_container_->widgets().front()->rect_.Bottom;
+    auto diff = scroll_bottom_->rect_.Top - pos - gap_;
     if (diff < 0)
     {
-        scroll_amount_ += diff;
-        last_scroll_amounts_.clear();
+        item_container_->rect_.Offset(0, diff);
     }
-    diff = get_top_scroll_rect().Bottom - get_item_rect(items_.size()-1).Top + gap_;
+    pos = item_container_->rect_.Top + item_container_->widgets().back()->rect_.Top;
+    diff = scroll_top_->rect_.Bottom - pos + gap_;
     if (diff > 0)
     {
-        scroll_amount_ += diff;
-        last_scroll_amounts_.clear();
+        item_container_->rect_.Offset(0, diff);
     }
-
-    // Something was hovered, so unhover all menu items.
-    if (h != -1)
-        for (auto & i : items_)
-            i.unhover();
-
-    // Close button was not hovered, so unhover it.
-    if (h != -4)
-        close_button_.unhover();
-
-    // Check if a menu item was hovered.
-    if (h == -1)
-    {
-        int hovered_item = -1;
-        for (size_t i = 0; i < items_.size(); ++i)
-        {
-            if (get_item_rect(i).Contains(mouse_x, mouse_y))
-            {
-                hovered_item = i;
-                if (items_[i].hover(elapsed_time))
-                {
-                    h = i;
-                }
-            }
-        }
-        for (size_t i = 0; i < items_.size(); ++i)
-        {
-            if (i != hovered_item)
-            {
-                items_[i].unhover();
-            }
-        }
-    }
-    return h;
-}
-
-void MenuOverlay::draw(sf::RenderTarget & target, sf::Font & font)
-{
-    for (size_t i = 0; i < items_.size(); ++i)
-    {
-        auto r = get_item_rect(i);
-        items_[i].draw(target, font, r.Left, r.Top, r.GetWidth(), r.GetHeight());
-    }
-    target.Draw(top_scroll_);
-    target.Draw(bottom_scroll_);
-    target.Draw(right_scroll_);
-    target.Draw(close_button_spr_);
-}
-
-std::string MenuOverlay::get_call_command(int item) const
-{
-    return items_[item].get_call_command();
 }
 
 

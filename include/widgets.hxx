@@ -28,6 +28,11 @@ namespace detail
 
 /**
  * @brief Parent class for all widgets.
+ *
+ * In each frame, the following methods should be called:
+ * hover(x, y)
+ * update(elapsed_time)
+ * render(target)
  */
 class Widget
 {
@@ -71,17 +76,46 @@ public:
     }
 
     /**
+     * @brief Return a const reference to the sub widgets.
+     */
+    std::vector<WidgetPointer> const & widgets() const
+    {
+        return widgets_;
+    }
+
+    /**
      * @brief Set the hovered state.
      */
-    void hover(DiffType x, DiffType y)
+    void hover(DiffType x, DiffType y, bool just_unhover = false)
     {
         auto previously_hovered = hovered_;
-        hovered_ = rect_.Contains(x, y);
-        x -= rect_.Left;
-        y -= rect_.Top;
-        for (auto w : widgets_)
-            w->hover(x, y);
 
+        if (just_unhover)
+        {
+            // Just unhover this and all sub widgets.
+            hovered_ = false;
+            x -= rect_.Left;
+            y -= rect_.Top;
+            for (auto w : widgets_)
+                w->hover(x, y, true);
+        }
+        else
+        {
+            // Check if the mouse is inside and set the hover state accordingly.
+            // If a sub widget is hovered, all other sub widgets cannot be hovered.
+            hovered_ = rect_.Contains(x, y);
+            x -= rect_.Left;
+            y -= rect_.Top;
+            sort_widgets();
+            for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
+            {
+                (*it)->hover(x, y, just_unhover);
+                if ((*it)->hovered())
+                    just_unhover = true;
+            }
+        }
+
+        // Raise the hover events.
         if (previously_hovered && !hovered_)
             handle_mouse_leave_();
         if (!previously_hovered && hovered_)
@@ -124,16 +158,7 @@ public:
         render_impl(target);
 
         // For correct rendering, widgets must be rendered with ascending z index.
-        // Since the widgets and their z index rarely change, the widgets
-        // are probably already sorted from the last call to render().
-        // Therefore calling both is_sorted and sort should be more efficient
-        // than always calling sort.
-        auto comp = [](WidgetPointer a, WidgetPointer b)
-        {
-            return a->z_index_ < b->z_index_;
-        };
-        if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
-            std::sort(widgets_.begin(), widgets_.end(), comp);
+        sort_widgets();
         for (auto w : widgets_)
         {
             w->rect_.Offset(rect_.Left, rect_.Top);
@@ -158,6 +183,24 @@ protected:
     {}
 
 private:
+
+    /**
+     * @brief Sort the widgets by ascending z index.
+     *
+     * This will be called very often. Since the widgets and their z index
+     * change only seldom, they will probably already be sorted. Therefore
+     * calling both is_sorted and sort should be more efficient than always
+     * calling sort.
+     */
+    void sort_widgets()
+    {
+        auto comp = [](WidgetPointer a, WidgetPointer b)
+        {
+            return a->z_index_ < b->z_index_;
+        };
+        if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
+            std::sort(widgets_.begin(), widgets_.end(), comp);
+    }
 
     std::vector<WidgetPointer> widgets_; // contained widgets
     bool hovered_; // whether the widget is hovered
@@ -263,17 +306,46 @@ class ImageWidget : public Widget
 {
 public:
 
+    enum ScaleStyle
+    {
+        Stretch,
+        Fit,
+        FitX,
+        FitY
+    };
+
+    enum AlignX
+    {
+        Left,
+        Right,
+        CenterX
+    };
+
+    enum AlignY
+    {
+        Top,
+        Bottom,
+        CenterY
+    };
+
     template <typename... Args>
     ImageWidget(
             std::string const & filename,
             Args... args
     )
         :
-          Widget(args...)
+          Widget(args...),
+          scale_style_(Stretch),
+          align_x_(Left),
+          align_y_(Top)
     {
         if (!image_.LoadFromFile(filename))
             throw std::runtime_error("Could not load image " + filename);
     }
+
+    ScaleStyle scale_style_; // the stretch style
+    AlignX align_x_; // the horizontal align
+    AlignY align_y_; // the vertical align
 
 protected:
 
@@ -282,14 +354,69 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        sf::Vector2f const scale(Widget::rect_.GetWidth() / static_cast<float>(image_.GetWidth()),
-                                 Widget::rect_.GetHeight() / static_cast<float>(image_.GetHeight()));
-        sf::Vector2f const pos(Widget::rect_.Left, Widget::rect_.Top);
+        auto const scale = compute_scale_factor();
+        auto const pos = compute_image_position(scale.x, scale.y);
         sf::Sprite spr(image_, pos, scale);
         target.Draw(spr);
     }
 
 private:
+
+    /**
+     * @brief Compute the scale in x and y direction.
+     */
+    sf::Vector2f compute_scale_factor() const
+    {
+        float width = rect_.GetWidth();
+        float height = rect_.GetHeight();
+        float image_width = image_.GetWidth();
+        float image_height = image_.GetHeight();
+        if (scale_style_ == Stretch)
+        {
+            return {width / image_width, height / image_height};
+        }
+        else if (scale_style_ == Fit)
+        {
+            float factor = height / image_height;
+            if (factor*image_width > rect_.GetWidth())
+                factor = rect_.GetWidth() / image_width;
+            return {factor, factor};
+        }
+        else if (scale_style_ == FitX)
+        {
+            float factor = width / image_width;
+            return {factor, factor};
+        }
+        else
+        {
+            float factor = height / image_height;
+            return {factor, factor};
+        }
+    }
+
+    /**
+     * @brief Compute the image position.
+     */
+    sf::Vector2f compute_image_position(float scale_x, float scale_y) const
+    {
+        float x = rect_.Left;
+        if (align_x_ == Left)
+            x += 0;
+        else if (align_x_ == Right)
+            x += rect_.GetWidth() - scale_x * image_.GetWidth();
+        else
+            x += (rect_.GetWidth() - scale_x * image_.GetWidth()) / 2.0;
+
+        float y = rect_.Top;
+        if (align_y_ == Top)
+            y += 0;
+        else if (align_y_ == Bottom)
+            y += rect_.GetHeight() - scale_y * image_.GetHeight();
+        else
+            y += (rect_.GetHeight() - scale_y * image_.GetHeight()) / 2.0;
+
+        return {x, y};
+    }
 
     sf::Image image_; // the image
 
@@ -302,6 +429,20 @@ class TextWidget : public Widget
 {
 public:
 
+    enum AlignX
+    {
+        Left,
+        Right,
+        CenterX
+    };
+
+    enum AlignY
+    {
+        Top,
+        Bottom,
+        CenterY
+    };
+
     template <typename... Args>
     TextWidget(
             std::string const & text,
@@ -312,12 +453,19 @@ public:
           text_(text),
           style_(sf::String::Style::Regular),
           font_size_(16),
-          color_({255, 255, 255})
+          color_({255, 255, 255}),
+          align_x_(Left),
+          align_y_(Top)
     {}
 
     void set_font(sf::Font const & font)
     {
         text_obj_.SetFont(font);
+    }
+
+    float text_height() const
+    {
+        return text_obj_.GetRect().GetHeight();
     }
 
     /**
@@ -330,7 +478,7 @@ public:
         text_obj_.SetStyle(style_);
         text_obj_.SetColor(color_);
         insert_line_breaks(text_obj_, rect_.GetWidth());
-        text_obj_.SetPosition(rect_.Left, rect_.Top);
+        set_position();
         target.Draw(text_obj_);
     }
 
@@ -338,8 +486,31 @@ public:
     sf::String::Style style_; // the text style
     double font_size_; // the font size
     sf::Color color_; // the text color
+    AlignX align_x_; // the horizontal align
+    AlignY align_y_; // the vertical align
 
 private:
+
+    void set_position()
+    {
+        float x  = rect_.Left;
+        if (align_x_ == Left)
+            x += 0;
+        else if (align_x_ == Right)
+            x += rect_.GetWidth() - text_obj_.GetRect().GetWidth();
+        else
+            x += (rect_.GetWidth() - text_obj_.GetRect().GetWidth()) / 2.0;
+
+        float y = rect_.Top;
+        if (align_y_ == Top)
+            y += 0;
+        else if (align_y_ == Bottom)
+            y += rect_.GetHeight() - text_obj_.GetRect().GetHeight();
+        else
+            y += (rect_.GetHeight() - text_obj_.GetRect().GetHeight()) / 2.0;
+
+        text_obj_.SetPosition(x, y);
+    }
 
     sf::String text_obj_; // the text object that is rendered
 

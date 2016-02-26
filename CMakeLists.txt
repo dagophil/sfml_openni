@@ -59,6 +59,9 @@ add_custom_command(TARGET proj PRE_BUILD
 add_custom_command(TARGET proj PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
+add_custom_command(TARGET proj PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu_small.xml $<TARGET_FILE_DIR:testmenu>/menu_small.xml)
                    
 # Test menu
 add_executable(testmenu testmenu.cxx tinyxml2.cpp)
@@ -75,5 +78,8 @@ add_custom_command(TARGET testmenu PRE_BUILD
 add_custom_command(TARGET testmenu PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
+add_custom_command(TARGET testmenu PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu_small.xml $<TARGET_FILE_DIR:testmenu>/menu_small.xml)
 
 

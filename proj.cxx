@@ -133,6 +133,15 @@ int main(int argc, char** argv)
     // Create the menu overlay.
     kin::MenuOverlay overlay(xml_filename, WIDTH, HEIGHT);
 
+    // Create the callback for the menu item clicks.
+    string call_command;
+    bool clicked_item = false;
+    overlay.handle_menu_item_click_ = [&](std::string const & s)
+    {
+        call_command = s;
+        clicked_item = true;
+    };
+
     // Measure the FPS.
     FPS fps_measure;
     sf::String fps_text;
@@ -162,18 +171,23 @@ int main(int argc, char** argv)
     cursor_sprite.SetScale(0.1, 0.1);
 
     // Window open/close loop.
-    string call_command;
     do
     {
+        // Reset the call command.
         call_command = "";
-        float mouse_x = 0;
-        float mouse_y = 0;
+        clicked_item = false;
 
         // Create the window and go into the main loop.
+        float mouse_x = 0;
+        float mouse_y = 0;
         auto style = sf::Style::Close;
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
+        overlay.handle_close_ = [&]()
+        {
+            window.Close();
+        };
         while (window.IsOpened())
         {
             ///////////////////////////////////////////////
@@ -237,8 +251,6 @@ int main(int argc, char** argv)
             }
 
             // Get the hand positions.
-            float old_mouse_x = mouse_x;
-            float old_mouse_y = mouse_y;
             auto hand_left = k.hand_left();
             auto hand_right = k.hand_right();
             bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.0;
@@ -262,7 +274,6 @@ int main(int argc, char** argv)
                 if (mouse_x < 0 || mouse_x >= WIDTH || mouse_y < 0 || mouse_y >= HEIGHT)
                     hand_visible = false;
             }
-
             if (hand_visible)
             {
                 cursor_sprite.SetX(mouse_x);
@@ -274,24 +285,13 @@ int main(int argc, char** argv)
                 mouse_y = -1;
             }
 
-            // Update the menu (hover, etc...) and get the command that shall be executed.
+            // Update the menu.
             if (draw_opts.draw_menu())
             {
-                auto call_id = overlay.update(elapsed_time, mouse_x, mouse_y, old_mouse_x, old_mouse_y);
-                if (call_id >= 0)
-                {
-                    call_command = overlay.get_call_command(call_id);
-
-                    // There is a command, so close the window, run the command, and reopen the window.
+                overlay.hover(mouse_x, mouse_y);
+                overlay.update(elapsed_time);
+                if (clicked_item)
                     window.Close();
-                    break;
-                }
-                else if (call_id==-2)
-                {
-                    call_command = "";
-                    window.Close();
-                    break;
-                }
             }
 
 
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 
             // Draw the menu.
             if (draw_opts.draw_menu())
-                overlay.draw(window, font);
+                overlay.render(window);
 
             // Draw the FPS text.
             if (draw_opts.draw_fps())
