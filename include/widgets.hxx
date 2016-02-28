@@ -27,6 +27,53 @@ namespace detail
     void do_nothing2(A const &, B const &) {} // default function for widget callbacks
 }
 
+class Widget;
+typedef std::shared_ptr<Widget> WidgetPointer;
+
+/**
+ * @brief Parent class for all actions.
+ */
+class Action
+{
+public:
+
+    Action()
+        :
+          handle_finished_(detail::do_nothing0),
+          finished_(false)
+    {}
+
+    /**
+     * @brief If not finished, perform the action. Return whether the action is finished.
+     */
+    bool act(Widget & w, float elapsed_time)
+    {
+        if (!finished_)
+        {
+            finished_ = act_impl(w, elapsed_time);
+            if (finished_)
+                handle_finished_();
+        }
+        return finished_;
+    }
+
+    std::function<void()> handle_finished_; // callback for the finish event
+
+protected:
+
+    virtual bool act_impl(Widget & w, float elapsed_time)
+    {
+        return true;
+    }
+
+private:
+
+    bool finished_; // whether the action is finished
+
+};
+
+typedef std::shared_ptr<Action> ActionPointer;
+
 /**
  * @brief Parent class for all widgets.
  *
@@ -39,7 +86,6 @@ class Widget
 {
 public:
 
-    typedef std::shared_ptr<Widget> WidgetPointer;
     typedef int DiffType;
 
     Widget(
@@ -48,38 +94,20 @@ public:
             DiffType width,
             DiffType height,
             int z_index
-    )
-        :
-          rect_(x, y, x+width, y+height),
-          z_index_(z_index),
-          handle_mouse_enter_(detail::do_nothing0),
-          handle_mouse_leave_(detail::do_nothing0),
-          handle_hover_(detail::do_nothing2<DiffType, DiffType>),
-          hovered_(false),
-          hoverable_(true),
-          visible_(true)
-    {}
+    );
 
     /**
      * @brief Store a new widget.
      */
-    void add_widget(WidgetPointer w)
-    {
-        widgets_.push_back(w);
-    }
+    void add_widget(WidgetPointer w);
 
     /**
      * @brief Remove a widget.
      */
-    void remove_widget(WidgetPointer w)
-    {
-        auto it = std::find(widgets_.begin(), widgets_.end(), w);
-        if (it != widgets_.end())
-            widgets_.erase(it);
-    }
+    void remove_widget(WidgetPointer w);
 
     /**
-     * @brief Return a const reference to the sub widgets.
+     * @brief Return the sub widgets.
      */
     std::vector<WidgetPointer> const & widgets() const
     {
@@ -87,57 +115,39 @@ public:
     }
 
     /**
+     * @brief Add a new action.
+     */
+    void add_action(ActionPointer a);
+
+    /**
+     * @brief Clear all actions.
+     */
+    void clear_actions();
+
+    /**
+     * @brief Return the actions.
+     */
+    std::vector<ActionPointer> const & actions() const
+    {
+        return actions_;
+    }
+
+    /**
      * @brief Set the hovered state.
      */
-    void hover(DiffType x, DiffType y, bool just_unhover = false)
-    {
-        auto previously_hovered = hovered_;
-
-        if (just_unhover)
-        {
-            // Just unhover this and all sub widgets.
-            hovered_ = false;
-            x -= rect_.Left;
-            y -= rect_.Top;
-            for (auto w : widgets_)
-                w->hover(x, y, true);
-        }
-        else
-        {
-            // Check if the mouse is inside and set the hover state accordingly.
-            // If a sub widget is hovered, all other sub widgets cannot be hovered.
-            hovered_ = rect_.Contains(x, y);
-            x -= rect_.Left;
-            y -= rect_.Top;
-            sort_widgets();
-            for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
-            {
-                auto & w = *it;
-                w->hover(x, y, just_unhover);
-                if (w->hovered() && w->hoverable_ && w->visible_)
-                    just_unhover = true;
-            }
-        }
-
-        // Raise the hover events.
-        if (visible_)
-        {
-            if (previously_hovered && !hovered_)
-                handle_mouse_leave_();
-            if (!previously_hovered && hovered_)
-                handle_mouse_enter_();
-            if (hovered_)
-                handle_hover_(x, y);
-        }
-    }
+    void hover(
+            DiffType x,
+            DiffType y,
+            bool just_unhover = false
+    );
 
     /**
      * @brief Whether the widget contains (x, y).
      */
-    bool contains(DiffType x, DiffType y) const
-    {
-        return rect_.Contains(x, y);
-    }
+    bool contains(
+            DiffType x,
+            DiffType y
+    ) const;
 
     /**
      * @brief Whether the widget is currently hovered.
@@ -150,31 +160,35 @@ public:
     /**
      * @brief Update the widgets.
      */
-    virtual void update(float elapsed_time)
-    {
-        update_impl(elapsed_time);
-        for (auto w : widgets_)
-            w->update(elapsed_time);
-    }
+    void update(float elapsed_time);
 
     /**
      * @brief Render the widget.
      */
-    virtual void render(sf::RenderTarget & target)
-    {
-        if (visible_)
-        {
-            render_impl(target);
+    void render(sf::RenderTarget & target);
 
-            // For correct rendering, widgets must be rendered with ascending z index.
-            sort_widgets();
-            for (auto w : widgets_)
-            {
-                w->rect_.Offset(rect_.Left, rect_.Top);
-                w->render(target);
-                w->rect_.Offset(-rect_.Left, -rect_.Top);
-            }
-        }
+    /**
+     * @brief Show the widget.
+     */
+    void show()
+    {
+        visible_ = true;
+    }
+
+    /**
+     * @brief Hide the widget.
+     */
+    void hide()
+    {
+        visible_ = false;
+    }
+
+    /**
+     * @brief Return whether the widget is visible.
+     */
+    bool visible() const
+    {
+        return visible_;
     }
 
     sf::Rect<DiffType> rect_; // position and size
@@ -183,7 +197,6 @@ public:
     std::function<void()> handle_mouse_leave_; // callback for mouse leave events
     std::function<void(DiffType, DiffType)> handle_hover_; // callback for hover events
     bool hoverable_; // whether the widget reacts for hovers
-    bool visible_; // whether the widget is visible
 
 protected:
 
@@ -203,20 +216,144 @@ private:
      * calling both is_sorted and sort should be more efficient than always
      * calling sort.
      */
-    void sort_widgets()
-    {
-        auto comp = [](WidgetPointer a, WidgetPointer b)
-        {
-            return a->z_index_ < b->z_index_;
-        };
-        if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
-            std::sort(widgets_.begin(), widgets_.end(), comp);
-    }
+    void sort_widgets();
 
     std::vector<WidgetPointer> widgets_; // contained widgets
     bool hovered_; // whether the widget is hovered
+    bool visible_; // whether the widget is visible
+    std::vector<ActionPointer> actions_; // the actions
 
 };
+
+Widget::Widget(
+        DiffType x,
+        DiffType y,
+        DiffType width,
+        DiffType height,
+        int z_index
+)
+    :
+      rect_(x, y, x+width, y+height),
+      z_index_(z_index),
+      handle_mouse_enter_(detail::do_nothing0),
+      handle_mouse_leave_(detail::do_nothing0),
+      handle_hover_(detail::do_nothing2<DiffType, DiffType>),
+      hoverable_(true),
+      hovered_(false),
+      visible_(true)
+{}
+
+void Widget::add_widget(WidgetPointer w)
+{
+    widgets_.push_back(w);
+}
+
+void Widget::remove_widget(WidgetPointer w)
+{
+    auto it = std::find(widgets_.begin(), widgets_.end(), w);
+    if (it != widgets_.end())
+        widgets_.erase(it);
+}
+
+void Widget::add_action(ActionPointer a)
+{
+    actions_.push_back(a);
+}
+
+void Widget::clear_actions()
+{
+    actions_.clear();
+}
+
+void Widget::hover(DiffType x, DiffType y, bool just_unhover)
+{
+    auto previously_hovered = hovered_;
+
+    if (just_unhover)
+    {
+        // Just unhover this and all sub widgets.
+        hovered_ = false;
+        x -= rect_.Left;
+        y -= rect_.Top;
+        for (auto w : widgets_)
+            w->hover(x, y, true);
+    }
+    else
+    {
+        // Check if the mouse is inside and set the hover state accordingly.
+        // If a sub widget is hovered, all other sub widgets cannot be hovered.
+        hovered_ = rect_.Contains(x, y);
+        x -= rect_.Left;
+        y -= rect_.Top;
+        sort_widgets();
+        for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
+        {
+            auto & w = *it;
+            w->hover(x, y, just_unhover);
+            if (w->hovered() && w->hoverable_ && w->visible())
+                just_unhover = true;
+        }
+    }
+
+    // Raise the hover events.
+    if (visible())
+    {
+        if (previously_hovered && !hovered_)
+            handle_mouse_leave_();
+        if (!previously_hovered && hovered_)
+            handle_mouse_enter_();
+        if (hovered_)
+            handle_hover_(x, y);
+    }
+}
+
+bool Widget::contains(DiffType x, DiffType y) const
+{
+    return rect_.Contains(x, y);
+}
+
+void Widget::update(float elapsed_time)
+{
+    update_impl(elapsed_time);
+    for (auto it = actions_.begin(); it != actions_.end();)
+    {
+//        (*it)->act(*this, elapsed_time);
+//        ++it;
+        if ((*it)->act(*this, elapsed_time))
+            it = actions_.erase(it);
+        else
+            ++it;
+    }
+    for (auto w : widgets_)
+        w->update(elapsed_time);
+}
+
+void Widget::render(sf::RenderTarget & target)
+{
+    if (visible_)
+    {
+        render_impl(target);
+
+        // For correct rendering, widgets must be rendered with ascending z index.
+        sort_widgets();
+        for (auto w : widgets_)
+        {
+            w->rect_.Offset(rect_.Left, rect_.Top);
+            w->render(target);
+            w->rect_.Offset(-rect_.Left, -rect_.Top);
+        }
+    }
+}
+
+void Widget::sort_widgets()
+{
+    auto comp = [](WidgetPointer a, WidgetPointer b)
+    {
+        return a->z_index_ < b->z_index_;
+    };
+    if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
+        std::sort(widgets_.begin(), widgets_.end(), comp);
+}
 
 /**
  * @brief Mixin to enable hoverclick on other widget classes.
@@ -279,6 +416,10 @@ private:
     bool clicked_; // whether a click event has been raised in the current hover phase
 
 };
+
+///////////////////////////////////////////////
+//           Widget implementations          //
+///////////////////////////////////////////////
 
 /**
  * @brief A widget that is filled with the given color.
@@ -529,48 +670,51 @@ private:
 
 };
 
-/**
- * @brief Index for sprites.
- */
-class SpriteIndex
+namespace detail
 {
-public:
-
-    explicit SpriteIndex(
-            size_t cols = 0,
-            size_t rows = 0
-    )   :
-          cols_(cols),
-          rows_(rows),
-          index(0)
-    {}
-
-    SpriteIndex & operator++()
+    /**
+     * @brief Index for sprites.
+     */
+    class SpriteIndex
     {
-        index = (index+1) % (size());
-        return *this;
-    }
+    public:
 
-    size_t col() const
-    {
-        return index % cols_;
-    }
+        explicit SpriteIndex(
+                size_t cols = 0,
+                size_t rows = 0
+        )   :
+              cols_(cols),
+              rows_(rows),
+              index(0)
+        {}
 
-    size_t row() const
-    {
-        return index / cols_;
-    }
+        SpriteIndex & operator++()
+        {
+            index = (index+1) % (size());
+            return *this;
+        }
 
-    size_t size() const
-    {
-        return cols_ * rows_;
-    }
+        size_t col() const
+        {
+            return index % cols_;
+        }
 
-    size_t cols_;
-    size_t rows_;
-    size_t index;
+        size_t row() const
+        {
+            return index / cols_;
+        }
 
-};
+        size_t size() const
+        {
+            return cols_ * rows_;
+        }
+
+        size_t cols_;
+        size_t rows_;
+        size_t index;
+
+    };
+} // namespace detail
 
 /**
  * @brief Widget for animations.
@@ -719,12 +863,32 @@ private:
 
     sf::Image image_; // the sprite image
     std::vector<float> frametimes_; // the length (in seconds) of the single frames
-    SpriteIndex i_; // the sprite index
+    detail::SpriteIndex i_; // the sprite index
     float runtime_; // the current runtime
     bool running_; // whether the animation is currently running
 
 };
 
+///////////////////////////////////////////////
+//           Action implementations          //
+///////////////////////////////////////////////
+
+/**
+ * @brief Hide the widget.
+ */
+class HideAction : public Action
+{
+protected:
+
+    /**
+     * @brief Hide the widget.
+     */
+    bool act_impl(Widget & w, float elapsed_time) override
+    {
+        w.hide();
+        return true;
+    }
+};
 
 
 }
