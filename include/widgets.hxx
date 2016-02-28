@@ -8,6 +8,7 @@
 #include <string>
 #include <stdexcept>
 #include <fstream>
+#include <stack>
 
 #include <SFML/Graphics.hpp>
 
@@ -874,21 +875,109 @@ private:
 ///////////////////////////////////////////////
 
 /**
+ * @brief Wait the given time, then perform the action.
+ */
+class DelayedAction : public Action
+{
+public:
+
+    DelayedAction(float delay, ActionPointer action)
+        :
+          elapsed_time_(0),
+          delay_(delay),
+          action_(action)
+    {}
+
+protected:
+
+    /**
+     * @brief If the delay is over, call the stored action.
+     */
+    bool act_impl(Widget & w, float elapsed_time)
+    {
+        elapsed_time_ += elapsed_time;
+        if (elapsed_time_ >= delay_)
+            return action_->act(w, elapsed_time);
+        else
+            return false;
+    }
+
+private:
+
+    float elapsed_time_; // the elapsed time
+    float const delay_; // the time until the action is performed
+    ActionPointer action_; // the action
+};
+
+/**
+ * @brief Perform the stored actions one after another.
+ */
+class ChainedAction : public Action
+{
+public:
+
+    ChainedAction()
+    {}
+
+    template <typename... Args>
+    ChainedAction(ActionPointer a, Args... args)
+        :
+          ChainedAction(args...)
+    {
+        actions_.push(a);
+    }
+
+protected:
+
+    /**
+     * @brief Act with the current action. Removed an action when it finished.
+     */
+    bool act_impl(Widget & w, float elapsed_time)
+    {
+        if (actions_.empty())
+        {
+            return true;
+        }
+        else
+        {
+            auto remove = actions_.top()->act(w, elapsed_time);
+            if (remove)
+                actions_.pop();
+            return actions_.empty();
+        }
+    }
+
+private:
+
+    std::stack<ActionPointer> actions_; // the actions
+};
+
+/**
  * @brief Hide the widget.
  */
 class HideAction : public Action
 {
 protected:
-
-    /**
-     * @brief Hide the widget.
-     */
-    bool act_impl(Widget & w, float elapsed_time) override
+    bool act_impl(Widget & w, float elapsed_time)
     {
         w.hide();
         return true;
     }
 };
+
+/**
+ * @brief Show the widget.
+ */
+class ShowAction : public Action
+{
+protected:
+    bool act_impl(Widget &w, float elapsed_time)
+    {
+        w.show();
+        return true;
+    }
+};
+
 
 
 }
