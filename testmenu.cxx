@@ -48,8 +48,8 @@ int main(int argc, char** argv)
         clicked_item = false;
 
         // Create the window.
-        int mouse_x;
-        int mouse_y;
+        int mouse_x = -1;
+        int mouse_y = -1;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu");
         window.ShowMouseCursor(false);
         FPS fps_measure;
@@ -98,6 +98,7 @@ int main(int argc, char** argv)
         }
 
         // Start the next command.
+        overlay.hide_mouse();
         if (call_command.size() > 0)
         {
             std::cout << "Starting: " << call_command << std::endl;

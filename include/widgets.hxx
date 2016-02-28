@@ -56,7 +56,8 @@ public:
           handle_mouse_leave_(detail::do_nothing0),
           handle_hover_(detail::do_nothing2<DiffType, DiffType>),
           hovered_(false),
-          hoverable_(true)
+          hoverable_(true),
+          visible_(true)
     {}
 
     /**
@@ -111,19 +112,23 @@ public:
             sort_widgets();
             for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
             {
-                (*it)->hover(x, y, just_unhover);
-                if ((*it)->hovered() && (*it)->hoverable_)
+                auto & w = *it;
+                w->hover(x, y, just_unhover);
+                if (w->hovered() && w->hoverable_ && w->visible_)
                     just_unhover = true;
             }
         }
 
         // Raise the hover events.
-        if (previously_hovered && !hovered_)
-            handle_mouse_leave_();
-        if (!previously_hovered && hovered_)
-            handle_mouse_enter_();
-        if (hovered_)
-            handle_hover_(x, y);
+        if (visible_)
+        {
+            if (previously_hovered && !hovered_)
+                handle_mouse_leave_();
+            if (!previously_hovered && hovered_)
+                handle_mouse_enter_();
+            if (hovered_)
+                handle_hover_(x, y);
+        }
     }
 
     /**
@@ -157,15 +162,18 @@ public:
      */
     virtual void render(sf::RenderTarget & target)
     {
-        render_impl(target);
-
-        // For correct rendering, widgets must be rendered with ascending z index.
-        sort_widgets();
-        for (auto w : widgets_)
+        if (visible_)
         {
-            w->rect_.Offset(rect_.Left, rect_.Top);
-            w->render(target);
-            w->rect_.Offset(-rect_.Left, -rect_.Top);
+            render_impl(target);
+
+            // For correct rendering, widgets must be rendered with ascending z index.
+            sort_widgets();
+            for (auto w : widgets_)
+            {
+                w->rect_.Offset(rect_.Left, rect_.Top);
+                w->render(target);
+                w->rect_.Offset(-rect_.Left, -rect_.Top);
+            }
         }
     }
 
@@ -175,6 +183,7 @@ public:
     std::function<void()> handle_mouse_leave_; // callback for mouse leave events
     std::function<void(DiffType, DiffType)> handle_hover_; // callback for hover events
     bool hoverable_; // whether the widget reacts for hovers
+    bool visible_; // whether the widget is visible
 
 protected:
 

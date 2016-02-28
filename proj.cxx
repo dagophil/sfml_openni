@@ -335,10 +335,6 @@ int main(int argc, char** argv)
                 window.Draw(fps_text);
             }
 
-            // Draw the cursor.
-            if (hand_visible)
-                window.Draw(cursor_sprite);
-
             // Show the drawed stuff on the window.
             window.Display();
         }

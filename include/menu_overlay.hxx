@@ -158,6 +158,11 @@ public:
             std::string const & command
     );
 
+    /**
+     * @brief Hide the mouse.
+     */
+    void hide_mouse();
+
     std::function<void(std::string const &)> handle_menu_item_click_; // the callback for a click on a menu item
     std::function<void()> handle_close_; // the callback for the close event
 
@@ -398,6 +403,16 @@ void MenuOverlay::update_impl(
     {
         item_container_->rect_.Offset(0, diff);
     }
+}
+
+void MenuOverlay::hide_mouse()
+{
+    // Move the mouse out of the visible part and stop the animation.
+    auto dx = rect_.Right - mouse_->rect_.Left + 1;
+    auto dy = rect_.Bottom - mouse_->rect_.Top + 1;
+    mouse_->rect_.Offset(dx, dy);
+    mouse_->stop();
+    mouse_->reset();
 }
 
 
