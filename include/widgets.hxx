@@ -194,8 +194,8 @@ public:
 
     sf::Rect<DiffType> rect_; // position and size
     int z_index_; // the z index
-    std::function<void()> handle_mouse_enter_; // callback for mouse enter events
-    std::function<void()> handle_mouse_leave_; // callback for mouse leave events
+    std::function<void(DiffType, DiffType)> handle_mouse_enter_; // callback for mouse enter events
+    std::function<void(DiffType, DiffType)> handle_mouse_leave_; // callback for mouse leave events
     std::function<void(DiffType, DiffType)> handle_hover_; // callback for hover events
     bool hoverable_; // whether the widget reacts for hovers
 
@@ -236,8 +236,8 @@ Widget::Widget(
     :
       rect_(x, y, x+width, y+height),
       z_index_(z_index),
-      handle_mouse_enter_(detail::do_nothing0),
-      handle_mouse_leave_(detail::do_nothing0),
+      handle_mouse_enter_(detail::do_nothing2<DiffType, DiffType>),
+      handle_mouse_leave_(detail::do_nothing2<DiffType, DiffType>),
       handle_hover_(detail::do_nothing2<DiffType, DiffType>),
       hoverable_(true),
       hovered_(false),
@@ -300,9 +300,9 @@ void Widget::hover(DiffType x, DiffType y, bool just_unhover)
     if (visible())
     {
         if (previously_hovered && !hovered_)
-            handle_mouse_leave_();
+            handle_mouse_leave_(x, y);
         if (!previously_hovered && hovered_)
-            handle_mouse_enter_();
+            handle_mouse_enter_(x, y);
         if (hovered_)
             handle_hover_(x, y);
     }
@@ -976,6 +976,75 @@ protected:
         w.show();
         return true;
     }
+};
+
+/**
+ * @brief Move the widget by the given amount in the given time.
+ */
+class MoveByAction : public Action
+{
+public:
+
+    enum Interpolation
+    {
+        Linear,
+        Quadratic
+//        AntiQuadratic
+    };
+
+    MoveByAction(sf::Vector2f delta, float time, Interpolation inter = Linear)
+        :
+          delta_(delta),
+          time_(time),
+          elapsed_time_(0),
+          current_delta_({0, 0}),
+          inter_(inter)
+    {}
+
+protected:
+
+    bool act_impl(Widget & w, float elapsed_time)
+    {
+        elapsed_time_ += elapsed_time;
+
+        float t;
+        if (inter_ == Linear)
+            t = elapsed_time_ / time_;
+        else if (inter_ == Quadratic)
+        {
+            t = (time_-elapsed_time_) / time_;
+            t = 1.0 - t*t;
+        }
+        else
+        {
+            throw std::runtime_error("Unknown interpolation.");
+        }
+
+        if (elapsed_time_ >= time_)
+        {
+            auto d = delta_ - current_delta_;
+            w.rect_.Offset(d.x, d.y);
+            return true;
+        }
+        else
+        {
+            auto delta = t * delta_;
+            delta.x = (int) delta.x;
+            delta.y = (int) delta.y;
+            auto d = delta - current_delta_;
+            w.rect_.Offset(d.x, d.y);
+            current_delta_ = delta;
+            return false;
+        }
+    }
+
+private:
+
+    sf::Vector2f const delta_; // the total move amount
+    float const time_; // the total move time
+    float elapsed_time_; // the elapsed time
+    sf::Vector2f current_delta_; // the move amount up to the current frame
+    Interpolation const inter_; // the interpolation
 };
 
 

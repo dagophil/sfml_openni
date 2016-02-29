@@ -20,11 +20,11 @@ namespace kin
 /**
  * @brief The MenuItem class represents a single menu item with image and text.
  */
-class MenuItem : public HoverclickWidget<ColorWidget>
+class MenuItem : public HoverclickWidget<Widget>
 {
 public:
 
-    typedef HoverclickWidget<ColorWidget> Parent;
+    typedef HoverclickWidget<Widget> Parent;
 
     explicit MenuItem(
             std::string const & img_filename = "",
@@ -35,12 +35,12 @@ public:
             DiffType width = 0,
             DiffType height = 0
     )   :
-        Parent(sf::Color(200, 200, 200), x, y, width, height, 0)
+        Parent(x, y, width, height, 0)
     {
         float image_width = 0.38 * width;
 
         // Create the image widget
-        auto img_w = std::make_shared<ImageWidget>(img_filename, 0, 0, image_width, height, 0);
+        auto img_w = std::make_shared<ImageWidget>(img_filename, 0, 1, image_width, height-1, 0);
         img_w->scale_style_ = ImageWidget::ScaleStyle::Fit;
         img_w->align_x_ = ImageWidget::AlignX::Right;
         img_w->align_y_ = ImageWidget::AlignY::Top;
@@ -58,6 +58,18 @@ public:
         text_w_->color_ = sf::Color(0, 0, 0);
         text_w_->align_x_ = TextWidget::AlignX::CenterX;
         add_widget(text_w_);
+
+        {
+            float x = -0.0187 * width;
+            float y = -0.162 * height;
+            float w = 1.0491 * width;
+            float h = 1.362 * height;
+            auto imw = std::make_shared<ImageWidget>("images/menu_item_bg.png", x, y, w, h, -1);
+            add_widget(imw);
+
+        }
+
+
     }
 
 protected:
@@ -67,7 +79,7 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        ColorWidget::render_impl(target);
+        Parent::render_impl(target);
         text_w_->rect_.Top = title_w_->text_height()+10;
     }
 
@@ -133,7 +145,7 @@ tinyxml2::XMLElement const * check_xml_element(tinyxml2::XMLElement const * elt)
 /**
  * @brief The MenuOverlay class loads menu items from an xml file and draws them.
  */
-class MenuOverlay : public Widget
+class MenuOverlay : public ColorWidget
 {
 public:
 
@@ -183,6 +195,9 @@ private:
     std::shared_ptr<ColorWidget> scroll_top_; // the top scroll button
     std::shared_ptr<ColorWidget> scroll_bottom_; // the bottom scroll button
     std::shared_ptr<AnimatedWidget> mouse_; // the mouse
+    std::shared_ptr<Widget> actual_scroll_bar_; // the actual scroll widget
+    sf::Vector2f scroll_wheel_; // mouse coordinates for the scroll wheel
+    float scroll_movement_time_; // time that is currently used to scroll
 
 };
 
@@ -191,10 +206,11 @@ MenuOverlay::MenuOverlay(
         size_t screen_width,
         size_t screen_height
 )   :
-      Widget(0, 0, screen_width, screen_height, 0),
+      ColorWidget(sf::Color(255, 255, 255), 0, 0, screen_width, screen_height, 0),
       handle_menu_item_click_(detail::do_nothing1<std::string const &>),
       handle_close_(detail::do_nothing0),
-      gap_(10)
+      gap_(screen_height / 20),
+      scroll_movement_time_(0)
 {
     double const item_x = 0.04 * screen_width;
     double const item_width = 0.66 * screen_width;
@@ -235,10 +251,10 @@ MenuOverlay::MenuOverlay(
     close_button->handle_click_ = [&](DiffType x, DiffType y){
         handle_close_();
     };
-    close_button->handle_mouse_enter_ = [this](){
+    close_button->handle_mouse_enter_ = [this](DiffType x, DiffType y){
         mouse_->restart();
     };
-    close_button->handle_mouse_leave_ = [this](){
+    close_button->handle_mouse_leave_ = [this](DiffType x, DiffType y){
         mouse_->reset();
         mouse_->stop();
     };
@@ -246,7 +262,7 @@ MenuOverlay::MenuOverlay(
     // Create the top scroll button.
     sf::Color const gray(120, 120, 120);
     scroll_top_ = std::make_shared<ColorWidget>(
-                gray,
+                sf::Color(170, 191, 212),
                 item_x,
                 0,
                 item_width,
@@ -263,7 +279,7 @@ MenuOverlay::MenuOverlay(
 
     // Create the right scroll bar.
     auto scroll_bar = std::make_shared<ColorWidget>(
-                gray,
+                sf::Color(170, 191, 212),
                 close_x,
                 scroll_height,
                 screen_width-close_x,
@@ -271,6 +287,23 @@ MenuOverlay::MenuOverlay(
                 1
     );
     add_widget(scroll_bar);
+    actual_scroll_bar_ = std::make_shared<Widget>(
+                0,
+                0.4 * scroll_bar->rect_.GetHeight(),
+                scroll_bar->rect_.GetWidth(),
+                0.2 * scroll_bar->rect_.GetHeight(),
+                2
+    );
+    actual_scroll_bar_->handle_mouse_enter_ = [&](DiffType x, DiffType y) {
+        scroll_wheel_.x = x;
+        scroll_wheel_.y = y;
+        scroll_movement_time_ = 0;
+    };
+    actual_scroll_bar_->handle_mouse_leave_ = [&](DiffType x, DiffType y) {
+        scroll_wheel_.x = x - scroll_wheel_.x;
+        scroll_wheel_.y = y - scroll_wheel_.y;
+    };
+    scroll_bar->add_widget(actual_scroll_bar_);
 
     // Create the mouse animation.
     mouse_ = std::make_shared<AnimatedWidget>(
@@ -314,10 +347,10 @@ void MenuOverlay::add_menu_item(
     {
         handle_menu_item_click_(command);
     };
-    w->handle_mouse_enter_ = [this](){
+    w->handle_mouse_enter_ = [this](DiffType x, DiffType y){
         mouse_->restart();
     };
-    w->handle_mouse_leave_ = [this](){
+    w->handle_mouse_leave_ = [this](DiffType x, DiffType y){
         mouse_->reset();
         mouse_->stop();
     };
@@ -384,23 +417,45 @@ void MenuOverlay::update_impl(
 ){
     // Top scroll button.
     if (scroll_top_->hovered())
-        item_container_->rect_.Offset(0, 100*elapsed_time);
+        item_container_->rect_.Offset(0, elapsed_time * rect_.GetHeight() / 3);
+
 
     // Bottom scroll button.
     if (scroll_bottom_->hovered())
-        item_container_->rect_.Offset(0, -100*elapsed_time);
+        item_container_->rect_.Offset(0, -elapsed_time * rect_.GetHeight() / 3);
+
+    // Scroll bar.
+    if (actual_scroll_bar_->hovered())
+    {
+        scroll_movement_time_ += elapsed_time;
+    }
+    else if (scroll_movement_time_ > 0)
+    {
+        auto strength = rect_.GetHeight() * scroll_wheel_.y / (1000 * scroll_movement_time_);
+        if (std::abs(strength) > 1000)
+        {
+            if (item_container_->actions().empty())
+                item_container_->add_action(std::make_shared<MoveByAction>(sf::Vector2f(0, strength), 1.5, MoveByAction::Interpolation::Quadratic));
+            else
+                item_container_->clear_actions();
+        }
+
+        scroll_movement_time_ = 0;
+    }
 
     // Make sure that we did not scroll to far.
     auto pos = item_container_->rect_.Top + item_container_->widgets().front()->rect_.Bottom;
     auto diff = scroll_bottom_->rect_.Top - pos - gap_;
     if (diff < 0)
     {
+        item_container_->clear_actions();
         item_container_->rect_.Offset(0, diff);
     }
     pos = item_container_->rect_.Top + item_container_->widgets().back()->rect_.Top;
     diff = scroll_top_->rect_.Bottom - pos + gap_;
     if (diff > 0)
     {
+        item_container_->clear_actions();
         item_container_->rect_.Offset(0, diff);
     }
 }

@@ -289,7 +289,10 @@ int main(int argc, char** argv)
             // Update the menu.
             if (draw_opts.draw_menu())
             {
-                overlay.hover(mouse_x, mouse_y);
+                if (mouse_x == -1 || mouse_y == -1)
+                    overlay.hide_mouse();
+                else
+                    overlay.hover(mouse_x, mouse_y);
                 overlay.update(elapsed_time);
                 if (clicked_item)
                     window.Close();
