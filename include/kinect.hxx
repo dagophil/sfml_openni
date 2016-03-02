@@ -10,7 +10,6 @@
 
 #include "platform_support.hxx"
 #include <XnCppWrapper.h>
-#include <XnVNite.h>
 
 #include "ndarray.hxx"
 #include "utility.hxx"
@@ -127,7 +126,7 @@ public:
      */
     XnVector3D transform_vector(XnVector3D const & v) const
     {
-        XnV3DVector ret;
+        XnVector3D ret;
         ret.X = base_change_(0, 0) * v.X + base_change_(0, 1) * v.Y + base_change_(0, 2) * v.Z;
         ret.Y = base_change_(1, 0) * v.X + base_change_(1, 1) * v.Y + base_change_(1, 2) * v.Z;
         ret.Z = base_change_(2, 0) * v.X + base_change_(2, 1) * v.Y + base_change_(2, 2) * v.Z;

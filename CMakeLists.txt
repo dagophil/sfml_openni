@@ -39,53 +39,41 @@ include_directories(${SFML_INCLUDE_DIR})
 find_package(OpenNI REQUIRED)
 include_directories(${OPENNI_INCLUDE_DIRS})
 
-# NITE
-find_package(NITE REQUIRED)
-include_directories(${NITE_INCLUDE_DIRS})
+## NITE
+#find_package(NITE REQUIRED)
+#include_directories(${NITE_INCLUDE_DIRS})
+
+# The target for copying files.
+add_custom_target(copy)
+add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/fonts ${CMAKE_BINARY_DIR}/fonts)
+add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/images ${CMAKE_BINARY_DIR}/images)
+add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/animations ${CMAKE_BINARY_DIR}/animations)
+add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu.xml ${CMAKE_BINARY_DIR}/menu.xml)
+add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/menu_small.xml ${CMAKE_BINARY_DIR}/menu_small.xml)
 
 # The executables
 add_executable(proj proj.cxx tinyxml2.cpp)
 target_link_libraries(proj
     ${SFML_LIBRARIES}
     ${OPENNI_LIBRARIES}
-    ${NITE_LIBRARIES}
+#    ${NITE_LIBRARIES}
 )
-add_custom_command(TARGET proj PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:proj>/fonts)
-add_custom_command(TARGET proj PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
-add_custom_command(TARGET proj PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/animations $<TARGET_FILE_DIR:testmenu>/animations)
-add_custom_command(TARGET proj PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy
-                   ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
-add_custom_command(TARGET proj PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy
-                   ${CMAKE_SOURCE_DIR}/menu_small.xml $<TARGET_FILE_DIR:testmenu>/menu_small.xml)
-                   
+add_dependencies(proj copy)
+
 # Test menu
 add_executable(testmenu testmenu.cxx tinyxml2.cpp)
 target_link_libraries(testmenu
     ${SFML_LIBRARIES}
     ${TINYXML2_LIBRARIES}
 )
-add_custom_command(TARGET testmenu PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:testmenu>/fonts)
-add_custom_command(TARGET testmenu PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/images $<TARGET_FILE_DIR:testmenu>/images)
-add_custom_command(TARGET testmenu PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/animations $<TARGET_FILE_DIR:testmenu>/animations)
-add_custom_command(TARGET testmenu PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy
-                   ${CMAKE_SOURCE_DIR}/menu.xml $<TARGET_FILE_DIR:testmenu>/menu.xml)
-add_custom_command(TARGET testmenu PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy
-                   ${CMAKE_SOURCE_DIR}/menu_small.xml $<TARGET_FILE_DIR:testmenu>/menu_small.xml)
-
-
+add_dependencies(testmenu copy)
