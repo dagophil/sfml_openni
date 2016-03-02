@@ -61,19 +61,23 @@ add_custom_command(TARGET copy PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu_small.xml ${CMAKE_BINARY_DIR}/menu_small.xml)
 
-# The executables
-add_executable(proj proj.cxx tinyxml2.cpp)
+# Library: tinyxml2
+add_library(tinyxml2 STATIC tinyxml2.cpp)
+
+# Executable: The kinect menu.
+add_executable(proj proj.cxx)
 target_link_libraries(proj
     ${SFML_LIBRARIES}
     ${OPENNI_LIBRARIES}
 #    ${NITE_LIBRARIES}
+    tinyxml2
 )
 add_dependencies(proj copy)
 
-# Test menu
-add_executable(testmenu testmenu.cxx tinyxml2.cpp)
+# Executable: The test menu.
+add_executable(testmenu testmenu.cxx)
 target_link_libraries(testmenu
     ${SFML_LIBRARIES}
-    ${TINYXML2_LIBRARIES}
+    tinyxml2
 )
 add_dependencies(testmenu copy)
