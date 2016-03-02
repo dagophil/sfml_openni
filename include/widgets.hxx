@@ -17,17 +17,6 @@
 namespace kin
 {
 
-namespace detail
-{
-    void do_nothing0() {} // default function for widget callbacks
-
-    template <typename A>
-    void do_nothing1(A const &) {} // default function for widget callbacks
-
-    template <typename A, typename B>
-    void do_nothing2(A const &, B const &) {} // default function for widget callbacks
-}
-
 class Widget;
 typedef std::shared_ptr<Widget> WidgetPointer;
 
@@ -106,6 +95,14 @@ public:
      * @brief Remove a widget.
      */
     void remove_widget(WidgetPointer w);
+
+    /**
+     * @brief Clear all widgets.
+     */
+    void clear_widgets()
+    {
+        widgets_.clear();
+    }
 
     /**
      * @brief Return the sub widgets.
@@ -610,7 +607,8 @@ public:
           font_size_(16),
           color_({255, 255, 255}),
           align_x_(Left),
-          align_y_(Top)
+          align_y_(Top),
+          bg_color_({0, 0, 0, 0})
     {}
 
     void set_font(sf::Font const & font)
@@ -634,6 +632,9 @@ public:
         text_obj_.SetColor(color_);
         insert_line_breaks(text_obj_, rect_.GetWidth());
         set_position();
+
+        auto bg = sf::Shape::Rectangle(rect_.Left, rect_.Top, rect_.Right, rect_.Bottom, bg_color_);
+        target.Draw(bg);
         target.Draw(text_obj_);
     }
 
@@ -643,6 +644,7 @@ public:
     sf::Color color_; // the text color
     AlignX align_x_; // the horizontal align
     AlignY align_y_; // the vertical align
+    sf::Color bg_color_; // the background color
 
 private:
 

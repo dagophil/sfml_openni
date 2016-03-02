@@ -5,6 +5,7 @@
 #include "options.hxx"
 #include "utility.hxx"
 #include "hdm.hxx"
+#include "events.hxx"
 
 int main(int argc, char** argv)
 {

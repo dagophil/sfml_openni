@@ -319,4 +319,18 @@ XnVector3D operator/(XnVector3D const & a, float b)
     return r;
 }
 
+namespace kin
+{
+namespace detail
+{
+    void do_nothing0() {} // default function for widget callbacks
+
+    template <typename A>
+    void do_nothing1(A const &) {} // default function for widget callbacks
+
+    template <typename A, typename B>
+    void do_nothing2(A const &, B const &) {} // default function for widget callbacks
+}
+}
+
 #endif
