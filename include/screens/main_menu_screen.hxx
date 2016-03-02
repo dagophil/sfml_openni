@@ -13,7 +13,11 @@ class MainMenuScreen : public Widget
 public:
 
     template <typename... Args>
-    MainMenuScreen(EventManager & event_manager, T mouse, Args... args)
+    MainMenuScreen(
+            EventManager & event_manager,
+            T mouse,
+            Args... args
+    )
         :
           Widget(args...),
           event_manager_(event_manager),

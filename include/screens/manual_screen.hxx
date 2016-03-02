@@ -15,7 +15,11 @@ class ManualScreen : public Widget
 public:
 
     template <typename... Args>
-    ManualScreen(EventManager & event_manager, T mouse, Args... args)
+    ManualScreen(
+            EventManager & event_manager,
+            T mouse,
+            Args... args
+    )
         :
           Widget(args...),
           event_manager_(event_manager),
