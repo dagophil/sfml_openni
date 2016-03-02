@@ -263,9 +263,9 @@ MenuOverlay::MenuOverlay(
     };
 
     // Create the top scroll button.
-    sf::Color const gray(120, 120, 120);
+    sf::Color const scroll_color(170, 191, 212, 190);
     scroll_top_ = std::make_shared<ColorWidget>(
-                sf::Color(170, 191, 212),
+                scroll_color,
                 item_x,
                 0,
                 item_width,
@@ -282,7 +282,7 @@ MenuOverlay::MenuOverlay(
 
     // Create the right scroll bar.
     auto scroll_bar = std::make_shared<ColorWidget>(
-                sf::Color(170, 191, 212),
+                scroll_color,
                 close_x,
                 scroll_height,
                 screen_width-close_x,
