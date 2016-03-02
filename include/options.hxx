@@ -1,6 +1,8 @@
 #ifndef OPTIONS_HXX
 #define OPTIONS_HXX
 
+#include <stdexcept>
+
 #include <SFML/Graphics.hpp>
 
 namespace kin
