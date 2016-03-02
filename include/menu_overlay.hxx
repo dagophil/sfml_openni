@@ -243,7 +243,7 @@ MenuOverlay::MenuOverlay(
 
     // Create the close button.
     auto close_button = std::make_shared<HoverclickWidget<ImageWidget> >(
-                "images/exit_button.png",
+                "images/exit_symbol.png",
                 close_x,
                 0,
                 screen_width-close_x,
@@ -310,7 +310,7 @@ MenuOverlay::MenuOverlay(
 
     // Create the mouse animation.
     mouse_ = std::make_shared<AnimatedWidget>(
-                "animations/hand_load.pf",
+                "animations/hand_load_2s.pf",
                 screen_width, screen_height,
                 75, 75,
                 999

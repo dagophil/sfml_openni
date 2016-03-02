@@ -17,7 +17,11 @@ public:
     enum ScreenID
     {
         SplashScreen,
-        MainMenu
+        MainMenuScreen,
+        HighscoreScreen,
+        ManualScreen,
+        CreditsScreen,
+        GameScreen
     };
 
     struct ChangeScreenEvent
@@ -25,13 +29,11 @@ public:
         ScreenID screen_id;
     };
 
-    struct TickEvent
-    {};
-
     enum EventType
     {
         ChangeScreen,
-        Tick
+        Tick,
+        Close
     };
 
     Event(EventType type)

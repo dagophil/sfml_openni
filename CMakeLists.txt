@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/config)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Fix for Qt Creator to list the hxx files.
-file(GLOB HEADERS "include/*.hxx")
+file(GLOB HEADERS "include/*.hxx" "include/*/*.hxx")
 add_custom_target(headerfiles SOURCES ${HEADERS})
 
 # Choose Release build by default

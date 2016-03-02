@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <numeric>
+#include <memory>
 #include <ndarray.hxx>
 
 #include <SFML/System.hpp>
@@ -317,6 +318,19 @@ XnVector3D operator/(XnVector3D const & a, float b)
     r.Y=a.Y/b;
     r.Z=a.Z/b;
     return r;
+}
+
+template <typename T, typename W>
+void attach_mouse_events(std::shared_ptr<T> m, std::shared_ptr<W> w)
+{
+    typedef typename W::DiffType DiffType;
+    w->handle_mouse_enter_ = [m, w](DiffType x, DiffType y){
+        m->restart();
+    };
+    w->handle_mouse_leave_ = [m, w](DiffType x, DiffType y){
+        m->reset();
+        m->stop();
+    };
 }
 
 namespace kin

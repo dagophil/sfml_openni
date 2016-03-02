@@ -18,13 +18,17 @@ int main(int argc, char** argv)
     // Load the default font.
     kin::opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
 
-    // Create the game class.
-    kin::HDMGame game(WIDTH, HEIGHT);
-
     // Create the window.
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Hau den Maulwurf");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole");
     window.ShowMouseCursor(false);
     FPS fps_measure;
+
+    // Create the game class.
+    kin::HDMGame game(WIDTH, HEIGHT);
+    game.handle_close_ = [&](){
+        window.Close();
+    };
+
     while (window.IsOpened())
     {
         // Handle window events.

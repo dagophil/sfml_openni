@@ -313,14 +313,15 @@ bool Widget::contains(DiffType x, DiffType y) const
 void Widget::update(float elapsed_time)
 {
     update_impl(elapsed_time);
-    for (auto it = actions_.begin(); it != actions_.end();)
+    auto action_copy = actions_;
+    for (auto a : action_copy)
     {
-//        (*it)->act(*this, elapsed_time);
-//        ++it;
-        if ((*it)->act(*this, elapsed_time))
-            it = actions_.erase(it);
-        else
-            ++it;
+        if (a->act(*this, elapsed_time))
+        {
+            auto it = std::find(actions_.begin(), actions_.end(), a);
+            if (it != actions_.end())
+                actions_.erase(it);
+        }
     }
     for (auto w : widgets_)
         w->update(elapsed_time);
@@ -373,7 +374,7 @@ public:
         :
           T(args...),
           handle_click_(detail::do_nothing2<DiffType, DiffType>),
-          click_delay_(3.0),
+          click_delay_(2.0),
           hover_time_(0.0),
           clicked_(false)
     {}
@@ -733,6 +734,7 @@ public:
     )
         :
           Widget(args...),
+          repeatable_(true),
           i_(0),
           runtime_(0),
           running_(true)
@@ -791,6 +793,8 @@ public:
         running_ = false;
     }
 
+    bool repeatable_;
+
 protected:
 
     /**
@@ -805,6 +809,8 @@ protected:
             if (runtime_ > f)
             {
                 ++i_;
+                if (i_.index == 0 && !repeatable_)
+                    stop();
                 runtime_ -= f;
             }
         }

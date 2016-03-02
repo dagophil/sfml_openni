@@ -1,9 +1,9 @@
 <MENU>
     <MENUITEM>
-        <IMAGE>images/mario.png</IMAGE>
-        <TITLE>Mario 1</TITLE>
-        <DESCRIPTION>Mario Game 1 Description</DESCRIPTION>
-        <COMMAND>gedit /home/philip/game0.txt</COMMAND>
+        <IMAGE>images/pow_01.png</IMAGE>
+        <TITLE>Hau den Maulwurf</TITLE>
+        <DESCRIPTION>Super awesome Hau den Maulwurf game.</DESCRIPTION>
+        <COMMAND>./hdm</COMMAND>
     </MENUITEM>
     <MENUITEM>
         <IMAGE>images/luigi.jpg</IMAGE>
