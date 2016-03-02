@@ -11,6 +11,7 @@
 
 #include "utility.hxx"
 #include "widgets.hxx"
+#include "options.hxx"
 
 namespace kin
 {
@@ -51,12 +52,14 @@ public:
         title_w_->align_x_ = TextWidget::AlignX::CenterX;
         title_w_->style_ = sf::String::Style::Bold;
         title_w_->color_ = sf::Color(0, 0, 0);
+        title_w_->set_font(opts.default_font());
         add_widget(title_w_);
 
         // Create the text widget for the description.
         text_w_ = std::make_shared<TextWidget>(text, image_width, 0, width - image_width, height, 0);
         text_w_->color_ = sf::Color(0, 0, 0);
         text_w_->align_x_ = TextWidget::AlignX::CenterX;
+        text_w_->set_font(opts.default_font());
         add_widget(text_w_);
 
         {

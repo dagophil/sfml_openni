@@ -8,6 +8,7 @@
 #include "menu_overlay.hxx"
 #include "utility.hxx"
 #include "widgets.hxx"
+#include "options.hxx"
 
 int main(int argc, char** argv)
 {
@@ -25,9 +26,7 @@ int main(int argc, char** argv)
     size_t const HEIGHT = 600;
 
     // Load the default font.
-    sf::Font font;
-    if (!font.LoadFromFile("fonts/opensans/OpenSans-Regular.ttf"))
-        throw runtime_error("Could not load font.");
+    kin::opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
 
     // Create the menu overlay.
     kin::MenuOverlay overlay(xml_filename, WIDTH, HEIGHT);

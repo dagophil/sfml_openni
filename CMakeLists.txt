@@ -81,3 +81,10 @@ target_link_libraries(testmenu
     tinyxml2
 )
 add_dependencies(testmenu copy)
+
+# Executable: The game.
+add_executable(hdm hdm.cxx)
+target_link_libraries(hdm
+    ${SFML_LIBRARIES}
+)
+add_dependencies(hdm copy)
