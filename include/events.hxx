@@ -26,6 +26,10 @@ public:
 
     struct ChangeScreenEvent
     {
+        ChangeScreenEvent(ScreenID id)
+            :
+              screen_id(id)
+        {}
         ScreenID screen_id;
     };
 
@@ -39,6 +43,12 @@ public:
     Event(EventType type)
         :
           type_(type)
+    {}
+
+    Event(ChangeScreenEvent const & other)
+        :
+          type_(ChangeScreen),
+          change_screen_(other)
     {}
 
     EventType const type_;

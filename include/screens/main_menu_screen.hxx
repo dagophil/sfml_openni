@@ -2,6 +2,7 @@
 #define MAIN_MENU_SCREEN_HXX
 
 #include "../events.hxx"
+#include "../widgets.hxx"
 
 namespace kin
 {
@@ -25,74 +26,29 @@ public:
         auto n = 5;
         auto y = (rect_.GetHeight() - n*h - (n-1)*gap) / 2;
 
-        // Create the buttons.
-        auto btn0 = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/start_button.png",
-                    x, y,
-                    w, h,
-                    1
-        );
-        attach_mouse_events(mouse_, btn0);
-        add_widget(btn0);
-        btn0->handle_click_ = [&](DiffType x, DiffType y){
-            Event ev(Event::ChangeScreen);
-            ev.change_screen_.screen_id = Event::GameScreen;
-            event_manager_.post(ev);
+        std::vector<std::pair<std::string, Event> > v {
+            {"images/start_button.png", Event::ChangeScreenEvent(Event::GameScreen)},
+            {"images/highscore_button.png", Event::ChangeScreenEvent(Event::HighscoreScreen)},
+            {"images/manual_button.png", Event::ChangeScreenEvent(Event::ManualScreen)},
+            {"images/credits_button.png", Event::ChangeScreenEvent(Event::CreditsScreen)},
+            {"images/exit_button.png", Event(Event::Close)}
         };
 
-        auto btn1 = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/highscore_button.png",
-                    x, y + h+gap,
-                    w, h,
-                    1
-        );
-        attach_mouse_events(mouse_, btn1);
-        add_widget(btn1);
-        btn1->handle_click_ = [&](DiffType x, DiffType y){
-            Event ev(Event::ChangeScreen);
-            ev.change_screen_.screen_id = Event::HighscoreScreen;
-            event_manager_.post(ev);
-        };
-
-        auto btn2 = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/manual_button.png",
-                    x, y + 2*(h+gap),
-                    w, h,
-                    1
-        );
-        attach_mouse_events(mouse_, btn2);
-        add_widget(btn2);
-        btn2->handle_click_ = [&](DiffType x, DiffType y){
-            Event ev(Event::ChangeScreen);
-            ev.change_screen_.screen_id = Event::ManualScreen;
-            event_manager_.post(ev);
-        };
-
-        auto btn3 = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/credits_button.png",
-                    x, y + 3*(h+gap),
-                    w, h,
-                    1
-        );
-        attach_mouse_events(mouse_, btn3);
-        add_widget(btn3);
-        btn3->handle_click_ = [&](DiffType x, DiffType y){
-            Event ev(Event::ChangeScreen);
-            ev.change_screen_.screen_id = Event::CreditsScreen;
-            event_manager_.post(ev);
-        };
-
-        auto btn4 = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/exit_button.png",
-                    x, y + 4*(h+gap),
-                    w, h,
-                    1
-        );
-        attach_mouse_events(mouse_, btn4);
-        add_widget(btn4);
-        btn4->handle_click_ = [&](DiffType x, DiffType y){
-            event_manager_.post(Event(Event::Close));
-        };
+        for (size_t i = 0; i < v.size(); ++i)
+        {
+            auto const & p = v[i];
+            auto btn = std::make_shared<HoverclickWidget<ImageWidget> >(
+                        p.first,
+                        x, y + i*(h+gap),
+                        w, h,
+                        1
+            );
+            attach_mouse_events(mouse_, btn);
+            add_widget(btn);
+            btn->handle_click_ = [&, p](DiffType x, DiffType y){
+                event_manager.post(p.second);
+            };
+        }
     }
 
 private:
