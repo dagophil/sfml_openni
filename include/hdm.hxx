@@ -39,7 +39,6 @@ private:
 
     MouseType mouse_; // the mouse widget
     std::shared_ptr<Widget> container_; // the main container
-    EventManager event_manager_; // the event manager
     std::shared_ptr<Listener> listener_; // the main listener
 
 };
@@ -89,7 +88,7 @@ HDMGame::HDMGame(
     {
         notify(event);
     };
-    event_manager_.register_listener(listener_);
+    event_manager.register_listener(listener_);
 
     // Load the splash screen.
     load_screen(Event::SplashScreen);
@@ -97,7 +96,7 @@ HDMGame::HDMGame(
 
 void HDMGame::update_impl(float elapsed_time)
 {
-    event_manager_.post(Event(Event::Tick));
+    event_manager.post(Event(Event::Tick));
 }
 
 /**
@@ -105,7 +104,6 @@ void HDMGame::update_impl(float elapsed_time)
  */
 template <typename T>
 std::shared_ptr<Widget> create_screen(
-        EventManager & event_manager,
         HDMGame::MouseType mouse,
         HDMGame::DiffType x,
         HDMGame::DiffType y,
@@ -113,14 +111,13 @@ std::shared_ptr<Widget> create_screen(
         HDMGame::DiffType height,
         int z_index
 ){
-    return std::make_shared<T>(event_manager, mouse, x, y, width, height, z_index);
+    return std::make_shared<T>(mouse, x, y, width, height, z_index);
 }
 
 /**
  * @brief std::function type of the create_screen function.
  */
 typedef std::function<std::shared_ptr<Widget>(
-        EventManager &,
         HDMGame::MouseType,
         HDMGame::DiffType,
         HDMGame::DiffType,
@@ -147,7 +144,6 @@ void HDMGame::load_screen(Event::ScreenID id)
     {
         auto const & f = it->second;
         auto screen = f(
-                    event_manager_,
                     mouse_,
                     0, 0,
                     container_->rect_.GetWidth(),

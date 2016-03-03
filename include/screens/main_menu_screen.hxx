@@ -14,13 +14,11 @@ public:
 
     template <typename... Args>
     MainMenuScreen(
-            EventManager & event_manager,
             T mouse,
             Args... args
     )
         :
           Widget(args...),
-          event_manager_(event_manager),
           mouse_(mouse)
     {
         // Fill the vector with the images and the according events.
@@ -61,7 +59,6 @@ public:
 
 private:
 
-    EventManager & event_manager_;
     T mouse_;
 
 };

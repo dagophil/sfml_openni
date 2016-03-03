@@ -14,13 +14,11 @@ public:
 
     template <typename... Args>
     SplashScreen(
-            EventManager & event_manager,
             T mouse,
             Args... args
     )
         :
           Widget(args...),
-          event_manager_(event_manager),
           mouse_(mouse)
     {
         auto width = rect_.GetWidth();
@@ -52,7 +50,7 @@ public:
         );
         attach_mouse_events(mouse_, mole);
         mole->handle_click_ = [&](DiffType x, DiffType y) {
-            event_manager_.post(Event(Event::MainMenuScreen));
+            event_manager.post(Event(Event::MainMenuScreen));
         };
         add_widget(mole);
 
@@ -73,7 +71,6 @@ public:
 
 private:
 
-    EventManager & event_manager_;
     T mouse_;
 
 };

@@ -131,6 +131,8 @@ private:
 
 };
 
+EventManager event_manager; // the global event manager
+
 }
 
 #endif

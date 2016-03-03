@@ -16,13 +16,11 @@ public:
 
     template <typename... Args>
     ManualScreen(
-            EventManager & event_manager,
             T mouse,
             Args... args
     )
         :
           Widget(args...),
-          event_manager_(event_manager),
           mouse_(mouse)
     {
         auto w = 100;
@@ -63,14 +61,13 @@ public:
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             Event ev(Event::ChangeScreen);
             ev.change_screen_.screen_id = Event::MainMenuScreen;
-            event_manager_.post(ev);
+            event_manager.post(ev);
         };
         add_widget(back_button);
     }
 
 private:
 
-    EventManager & event_manager_;
     T mouse_;
 
 };
