@@ -6,17 +6,30 @@
 #include "utility.hxx"
 #include "hdm.hxx"
 #include "events.hxx"
+#include "widgets.hxx"
 
 int main(int argc, char** argv)
 {
     using namespace std;
+    using namespace kin;
 
     // Window width and height.
     size_t const WIDTH = 800;
     size_t const HEIGHT = 600;
 
     // Load the default font.
-    kin::opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+    opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+
+    // Create the mouse widget.
+    opts.mouse_ = std::make_shared<AnimatedWidget>(
+                "animations/hand_load_2s.pf",
+                WIDTH, HEIGHT,
+                75, 75,
+                999
+    );
+    opts.mouse_->hoverable_ = false;
+    opts.mouse_->stop();
+    opts.mouse_->repeatable_ = false;
 
     // Create the window.
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole");
@@ -24,10 +37,11 @@ int main(int argc, char** argv)
     FPS fps_measure;
 
     // Create the game class.
-    kin::HDMGame game(WIDTH, HEIGHT);
+    HDMGame game(WIDTH, HEIGHT);
     game.handle_close_ = [&](){
         window.Close();
     };
+    game.add_widget(opts.mouse_);
 
     while (window.IsOpened())
     {

@@ -5,23 +5,21 @@
 
 #include "../events.hxx"
 #include "../utility.hxx"
+#include "../options.hxx"
 
 namespace kin
 {
 
-template <typename T>
 class ManualScreen : public Widget
 {
 public:
 
     template <typename... Args>
     ManualScreen(
-            T mouse,
             Args... args
     )
         :
-          Widget(args...),
-          mouse_(mouse)
+          Widget(args...)
     {
         auto w = 100;
         auto h = 77;
@@ -35,7 +33,7 @@ public:
                     w, h,
                     0
         );
-        attach_mouse_events(mouse_, arrow_right);
+        attach_mouse_events(opts.mouse_, arrow_right);
         add_widget(arrow_right);
 
         auto arrow_left = std::make_shared<HoverclickWidget<ImageWidget> >(
@@ -44,7 +42,7 @@ public:
                     w, h,
                     0
         );
-        attach_mouse_events(mouse_, arrow_left);
+        attach_mouse_events(opts.mouse_, arrow_left);
         add_widget(arrow_left);
 
         w = 240;
@@ -57,7 +55,7 @@ public:
                     w, h,
                     0
         );
-        attach_mouse_events(mouse_, back_button);
+        attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             Event ev(Event::ChangeScreen);
             ev.change_screen_.screen_id = Event::MainMenuScreen;
@@ -65,11 +63,6 @@ public:
         };
         add_widget(back_button);
     }
-
-private:
-
-    T mouse_;
-
 };
 
 } // namespace kin

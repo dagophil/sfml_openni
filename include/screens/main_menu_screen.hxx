@@ -3,23 +3,21 @@
 
 #include "../events.hxx"
 #include "../widgets.hxx"
+#include "../options.hxx"
 
 namespace kin
 {
 
-template <typename T>
 class MainMenuScreen : public Widget
 {
 public:
 
     template <typename... Args>
     MainMenuScreen(
-            T mouse,
             Args... args
     )
         :
-          Widget(args...),
-          mouse_(mouse)
+          Widget(args...)
     {
         // Fill the vector with the images and the according events.
         std::vector<std::pair<std::string, Event> > v {
@@ -49,18 +47,13 @@ public:
                         w, h,
                         1
             );
-            attach_mouse_events(mouse_, btn);
+            attach_mouse_events(opts.mouse_, btn);
             add_widget(btn);
             btn->handle_click_ = [&, ev](DiffType x, DiffType y){
                 event_manager.post(ev);
             };
         }
     }
-
-private:
-
-    T mouse_;
-
 };
 
 } // namespace kin

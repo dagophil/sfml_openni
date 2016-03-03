@@ -3,23 +3,21 @@
 
 #include "../events.hxx"
 #include "../widgets.hxx"
+#include "../options.hxx"
 
 namespace kin
 {
 
-template <typename T>
 class SplashScreen : public Widget
 {
 public:
 
     template <typename... Args>
     SplashScreen(
-            T mouse,
             Args... args
     )
         :
-          Widget(args...),
-          mouse_(mouse)
+          Widget(args...)
     {
         auto width = rect_.GetWidth();
         auto height = rect_.GetHeight();
@@ -48,7 +46,7 @@ public:
                     h,
                     1
         );
-        attach_mouse_events(mouse_, mole);
+        attach_mouse_events(opts.mouse_, mole);
         mole->handle_click_ = [&](DiffType x, DiffType y) {
             event_manager.post(Event(Event::MainMenuScreen));
         };
@@ -68,10 +66,6 @@ public:
         );
         add_widget(splash_text);
     }
-
-private:
-
-    T mouse_;
 
 };
 

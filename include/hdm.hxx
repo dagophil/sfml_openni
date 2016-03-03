@@ -19,8 +19,6 @@ class HDMGame : public Widget
 {
 public:
 
-    typedef std::shared_ptr<AnimatedWidget> MouseType;
-
     HDMGame(size_t width, size_t height);
 
     std::function<void()> handle_close_;
@@ -37,7 +35,6 @@ private:
     void notify(Event const & event); // callback for events
     void load_screen(Event::ScreenID id); // the load function for the screens
 
-    MouseType mouse_; // the mouse widget
     std::shared_ptr<Widget> container_; // the main container
     std::shared_ptr<Listener> listener_; // the main listener
 
@@ -50,24 +47,13 @@ HDMGame::HDMGame(
       Widget(0, 0, width, height, 0),
       handle_close_(detail::do_nothing0)
 {
-    // Load the mouse.
-    mouse_ = std::make_shared<AnimatedWidget>(
-                "animations/hand_load_2s.pf",
-                width, height,
-                75, 75,
-                999
-    );
-    mouse_->hoverable_ = false;
-    mouse_->stop();
-    mouse_->repeatable_ = false;
-    add_widget(mouse_);
     handle_hover_ = [&](DiffType x, DiffType y)
     {
-        auto old_x = mouse_->rect_.Left;
-        auto old_y = mouse_->rect_.Top;
-        auto w = mouse_->rect_.GetWidth();
-        auto h = mouse_->rect_.GetHeight();
-        mouse_->rect_.Offset(x-old_x - 0.45*w, y-old_y - 0.17*h);
+        auto old_x = opts.mouse_->rect_.Left;
+        auto old_y = opts.mouse_->rect_.Top;
+        auto w = opts.mouse_->rect_.GetWidth();
+        auto h = opts.mouse_->rect_.GetHeight();
+        opts.mouse_->rect_.Offset(x-old_x - 0.45*w, y-old_y - 0.17*h);
     };
 
     // Add the background image.
@@ -104,21 +90,19 @@ void HDMGame::update_impl(float elapsed_time)
  */
 template <typename T>
 std::shared_ptr<Widget> create_screen(
-        HDMGame::MouseType mouse,
         HDMGame::DiffType x,
         HDMGame::DiffType y,
         HDMGame::DiffType width,
         HDMGame::DiffType height,
         int z_index
 ){
-    return std::make_shared<T>(mouse, x, y, width, height, z_index);
+    return std::make_shared<T>(x, y, width, height, z_index);
 }
 
 /**
  * @brief std::function type of the create_screen function.
  */
 typedef std::function<std::shared_ptr<Widget>(
-        HDMGame::MouseType,
         HDMGame::DiffType,
         HDMGame::DiffType,
         HDMGame::DiffType,
@@ -133,9 +117,9 @@ void HDMGame::load_screen(Event::ScreenID id)
 
     // Fill the map with the screen functions.
     std::map<Event::ScreenID, ScreenFunction> m {
-        {Event::SplashScreen, ScreenFunction(create_screen<SplashScreen<MouseType> >)},
-        {Event::MainMenuScreen, ScreenFunction(create_screen<MainMenuScreen<MouseType> >)},
-        {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen<MouseType> >)}
+        {Event::SplashScreen, ScreenFunction(create_screen<SplashScreen>)},
+        {Event::MainMenuScreen, ScreenFunction(create_screen<MainMenuScreen>)},
+        {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen>)}
     };
 
     // Get the correct screen function to create the screen and add it to the widget container.
@@ -144,7 +128,6 @@ void HDMGame::load_screen(Event::ScreenID id)
     {
         auto const & f = it->second;
         auto screen = f(
-                    mouse_,
                     0, 0,
                     container_->rect_.GetWidth(),
                     container_->rect_.GetHeight(),
