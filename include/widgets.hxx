@@ -694,7 +694,16 @@ namespace detail
 
         SpriteIndex & operator++()
         {
-            index = (index+1) % (size());
+            index = (index+1) % size();
+            return *this;
+        }
+
+        SpriteIndex & operator--()
+        {
+            if (index == 0)
+                index = size()-1;
+            else
+                --index;
             return *this;
         }
 
@@ -735,6 +744,8 @@ public:
         :
           Widget(args...),
           repeatable_(true),
+          backwards_(false),
+          freeze_finish_(false),
           i_(0),
           runtime_(0),
           running_(true)
@@ -755,7 +766,10 @@ public:
         {
             float t;
             f >> t;
-            frametimes_.push_back(t);
+            if (f.fail())
+                frametimes_.push_back(frametimes_.back());
+            else
+                frametimes_.push_back(t);
         }
     }
 
@@ -793,7 +807,25 @@ public:
         running_ = false;
     }
 
-    bool repeatable_;
+    /**
+     * @brief Set the direction to backwards.
+     */
+    void backwards(bool b)
+    {
+        backwards_ = true;
+        i_.index = i_.size()-1;
+    }
+
+    /**
+     * @brief Return whether we run backwards.
+     */
+    bool backwards() const
+    {
+        return backwards_;
+    }
+
+    bool repeatable_; // whether the animations is repeated
+    bool freeze_finish_; // whether the animation finishs at the last frame
 
 protected:
 
@@ -808,9 +840,22 @@ protected:
             auto f = frametimes_[i_.index];
             if (runtime_ > f)
             {
-                ++i_;
-                if (i_.index == 0 && !repeatable_)
-                    stop();
+                if (backwards_)
+                {
+                    --i_;
+                    if (i_.index == i_.size()-1 && !repeatable_)
+                    {
+                        stop_backwards();
+                    }
+                }
+                else
+                {
+                    ++i_;
+                    if (i_.index == 0 && !repeatable_)
+                    {
+                        stop_forwards();
+                    }
+                }
                 runtime_ -= f;
             }
         }
@@ -829,6 +874,31 @@ protected:
     }
 
 private:
+
+    /**
+     * @brief Stop the animation (running backwards).
+     */
+    void stop_backwards()
+    {
+        stop();
+        if (freeze_finish_)
+            i_.index = 0;
+        else
+            i_.index = i_.size()-1;
+    }
+
+    /**
+     * @brief Stop the animation (running forwards).
+     */
+    void stop_forwards()
+    {
+        stop();
+        if (freeze_finish_)
+            i_.index = i_.size()-1;
+        else
+            i_.index = 0;
+
+    }
 
     /**
      * @brief Compute the scale.
@@ -875,6 +945,7 @@ private:
     detail::SpriteIndex i_; // the sprite index
     float runtime_; // the current runtime
     bool running_; // whether the animation is currently running
+    bool backwards_; // whether the animation runs backwards
 
 };
 

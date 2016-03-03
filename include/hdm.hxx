@@ -11,6 +11,7 @@
 #include "screens/manual_screen.hxx"
 #include "screens/main_menu_screen.hxx"
 #include "screens/splash_screen.hxx"
+#include "screens/game_screen.hxx"
 
 namespace kin
 {
@@ -119,7 +120,8 @@ void HDMGame::load_screen(Event::ScreenID id)
     std::map<Event::ScreenID, ScreenFunction> m {
         {Event::SplashScreen, ScreenFunction(create_screen<SplashScreen>)},
         {Event::MainMenuScreen, ScreenFunction(create_screen<MainMenuScreen>)},
-        {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen>)}
+        {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen>)},
+        {Event::GameScreen, ScreenFunction(create_screen<GameScreen>)}
     };
 
     // Get the correct screen function to create the screen and add it to the widget container.
