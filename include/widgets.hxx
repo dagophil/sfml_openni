@@ -787,7 +787,10 @@ public:
     void reset()
     {
         runtime_ = 0;
-        i_.index = 0;
+        if (backwards_)
+            i_.index = i_.size()-1;
+        else
+            i_.index = 0;
     }
 
     /**
@@ -812,8 +815,7 @@ public:
      */
     void backwards(bool b)
     {
-        backwards_ = true;
-        i_.index = i_.size()-1;
+        backwards_ = b;
     }
 
     /**

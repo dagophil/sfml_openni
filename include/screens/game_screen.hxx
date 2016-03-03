@@ -1,6 +1,8 @@
 #ifndef GAME_SCREEN_HXX
 #define GAME_SCREEN_HXX
 
+#include <random>
+
 #include "../widgets.hxx"
 #include "../events.hxx"
 #include "../options.hxx"
@@ -19,8 +21,13 @@ public:
             Args... args
     )
         :
-          Widget(args...)
+          Widget(args...),
+          rand_engine_(std::random_device()()),
+          running_(false)
     {
+        // Set all moles to "in".
+        mole_out_.resize(9, false);
+
         auto height = rect_.GetHeight();
         auto width = rect_.GetWidth();
         auto sprites_top = 0.25 * height;
@@ -52,7 +59,8 @@ public:
                     (width-score_width)/2, 0,
                     score_width, score_height,
                     1);
-        add_widget(s);
+        // TODO: Show the scoreboard.
+//        add_widget(s);
 
         // Create the widgets for the 3-2-1 counter.
         auto h = height/4;
@@ -83,39 +91,125 @@ public:
         });
         event_manager.add_delayed_call(4.0, [&, go](){
             remove_widget(go);
+            running_ = true;
         });
+
+        // Create the back button.
+        w = 240;
+        h = 80;
+        auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >(
+                    "images/back_button.png",
+                    (width-w)/2, 5,
+                    w, h,
+                    2
+        );
+        attach_mouse_events(opts.mouse_, back_button);
+        back_button->handle_click_ = [&](DiffType x, DiffType y){
+            event_manager.post(Event(Event::MainMenuScreen));
+        };
+        add_widget(back_button);
     }
 
 protected:
 
     void update_impl(float elapsed_time)
     {
-        if (opts.mouse_clicked_)
+        if (running_)
         {
-            auto m = hovered_mole();
-            if (m == nullptr)
+            // Check if a new mole wave should be started.
+            bool mole_out = false;
+            for (auto b : mole_out_)
+                if (b)
+                    mole_out = true;
+            if (!mole_out)
             {
-                std::cout << "daneben" << std::endl;
+                start_wave();
             }
-            else
+
+            // Check if a mole was hit.
+            if (opts.mouse_clicked_)
             {
-                std::cout << "treffer" << std::endl;
+                auto m = hovered_mole();
+                if (m < 0)
+                {
+                    std::cout << "daneben" << std::endl;
+                }
+                else
+                {
+                    std::cout << "treffer" << std::endl;
+                }
             }
         }
     }
 
 private:
 
-    MolePointer hovered_mole()
+    /**
+     * @brief Show 1-3 moles at random positions.
+     */
+    void start_wave()
     {
-        for (auto m : moles_)
-            if (m->hovered())
-                return m;
+        // Set all moles to "in".
+        std::fill(mole_out_.begin(), mole_out_.end(), false);
 
-        return nullptr;
+        // Fine the number of moles for this wave.
+        std::uniform_int_distribution<int> mole_count(1, 3);
+        int c = mole_count(rand_engine_);
+
+        // Randomly select the moles.
+        for (int i = 0; i < c; ++i)
+        {
+            std::uniform_int_distribution<int> rand_int(0, 8);
+            int mole_index;
+            do
+            {
+                mole_index = rand_int(rand_engine_);
+            } while (mole_out_[mole_index]);
+            mole_out_[mole_index] = true;
+        }
+
+        // Show the moles.
+        for (size_t i = 0; i < mole_out_.size(); ++i)
+            if (mole_out_[i])
+                show_mole(i);
     }
 
-    std::vector<MolePointer> moles_;
+    /**
+     * @brief Show the mole with index i.
+     */
+    void show_mole(int i)
+    {
+        auto m = moles_[i];
+        m->backwards(false);
+        m->restart();
+        std::uniform_real_distribution<float> rand(2.0, 3.5);
+        float t = rand(rand_engine_);
+        event_manager.add_delayed_call(t-0.5, [m](){
+            m->backwards(true);
+            m->restart();
+        });
+        event_manager.add_delayed_call(t, [&, i](){
+            mole_out_[i] = false;
+        });
+
+
+    }
+
+    /**
+     * @brief Return index of the hovered mole (or -1 of no mole is hovered).
+     */
+    int hovered_mole()
+    {
+        for (int i = 0; i < moles_.size(); ++i)
+            if (moles_[i]->hovered())
+                return i;
+        return -1;
+    }
+
+    std::vector<MolePointer> moles_; // the mole widgets
+    std::vector<bool> mole_out_; // the moles that are currently out
+    std::mt19937 rand_engine_; // the random engine
+    bool running_; // whether the game started
 
 };
 
