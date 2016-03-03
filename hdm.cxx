@@ -47,10 +47,18 @@ int main(int argc, char** argv)
     {
         // Handle window events.
         sf::Event event;
+        opts.mouse_clicked_ = false;
         while (window.GetEvent(event))
         {
             if (event.Type == sf::Event::Closed)
+            {
                 window.Close();
+            }
+            else if (event.Type == sf::Event::MouseButtonPressed)
+            {
+                if (event.MouseButton.Button == sf::Mouse::Button::Left)
+                    opts.mouse_clicked_ = true;
+            }
         }
 
         // Process the input.

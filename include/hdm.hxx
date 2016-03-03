@@ -83,7 +83,9 @@ HDMGame::HDMGame(
 
 void HDMGame::update_impl(float elapsed_time)
 {
-    event_manager.post(Event(Event::Tick));
+    Event tick(Event::Tick);
+    tick.tick_.elapsed_time_ = elapsed_time;
+    event_manager.post(tick);
 }
 
 /**
@@ -147,7 +149,7 @@ void HDMGame::notify(Event const & event)
 {
     if (event.type_ == Event::ChangeScreen)
     {
-        load_screen(event.change_screen_.screen_id);
+        load_screen(event.change_screen_.screen_id_);
     }
     else if (event.type_ == Event::Close)
     {

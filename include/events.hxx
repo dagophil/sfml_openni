@@ -10,6 +10,17 @@
 namespace kin
 {
 
+struct DelayedCall
+{
+    DelayedCall(float delay, std::function<void()> f)
+        :
+          delay_(delay),
+          f_(f)
+    {}
+    float delay_;
+    std::function<void()> f_;
+};
+
 class Event
 {
 public:
@@ -28,9 +39,18 @@ public:
     {
         ChangeScreenEvent(ScreenID id)
             :
-              screen_id(id)
+              screen_id_(id)
         {}
-        ScreenID screen_id;
+        ScreenID screen_id_;
+    };
+
+    struct TickEvent
+    {
+        TickEvent(float elapsed_time)
+            :
+              elapsed_time_(elapsed_time)
+        {}
+        float elapsed_time_;
     };
 
     enum EventType
@@ -56,6 +76,7 @@ public:
     union
     {
         ChangeScreenEvent change_screen_;
+        TickEvent tick_;
     };
 
 };
@@ -105,10 +126,36 @@ public:
 //            listeners_.erase(it);
 //    }
 
+    void add_delayed_call(float delay, std::function<void()> f)
+    {
+        delayed_calls_.emplace_back(delay, f);
+    }
+
     void post(Event event)
     {
         if (event.type_ == Event::Tick)
         {
+            // Check if a delayed event should be fired.
+            for (auto & e : delayed_calls_)
+            {
+                e.delay_ -= event.tick_.elapsed_time_;
+                if (e.delay_ <= 0)
+                {
+                    e.f_();
+                }
+            }
+            delayed_calls_.erase(
+                std::remove_if(
+                            delayed_calls_.begin(),
+                            delayed_calls_.end(),
+                            [](DelayedCall const & e){
+                                return e.delay_ <= 0;
+                            }
+                ),
+                delayed_calls_.end()
+            );
+
+            // Pass all events to the listeners.
             while (!queue_.empty())
             {
                 for (auto l : listeners_)
@@ -128,6 +175,7 @@ private:
 
     std::vector<ListenerPointer> listeners_;
     std::queue<Event> queue_;
+    std::vector<DelayedCall> delayed_calls_;
 
 };
 

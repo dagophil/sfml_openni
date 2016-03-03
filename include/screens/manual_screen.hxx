@@ -57,9 +57,7 @@ public:
         );
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
-            Event ev(Event::ChangeScreen);
-            ev.change_screen_.screen_id = Event::MainMenuScreen;
-            event_manager.post(ev);
+            event_manager.post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
     }

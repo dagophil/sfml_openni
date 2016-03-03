@@ -17,6 +17,11 @@ class Globals
 {
 public:
 
+    Globals()
+        :
+          mouse_clicked_(false)
+    {}
+
     /**
      * @brief Load and set the default font.
      */
@@ -35,6 +40,7 @@ public:
     }
 
     std::shared_ptr<AnimatedWidget> mouse_;
+    bool mouse_clicked_;
 
 private:
 

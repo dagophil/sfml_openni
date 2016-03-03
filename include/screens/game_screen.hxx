@@ -11,6 +11,9 @@ namespace kin
 class GameScreen :public Widget
 {
 public:
+
+    typedef std::shared_ptr<AnimatedWidget> MolePointer;
+
     template <typename... Args>
     GameScreen(
             Args... args
@@ -30,7 +33,7 @@ public:
         auto score_width = 0.8 * width;
         auto score_height = 0.24 * height;
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; ++i)
         {
             auto w = std::make_shared<AnimatedWidget>(
                     "animations/mole.pf",
@@ -41,6 +44,7 @@ public:
             add_widget(w);
             w->repeatable_ = false;
             w->freeze_finish_ = true;
+            w->stop();
         }
 
         auto s = std::make_shared<ImageWidget>(
@@ -49,11 +53,69 @@ public:
                     score_width, score_height,
                     1);
         add_widget(s);
+
+        // Create the widgets for the 3-2-1 counter.
+        auto h = height/4;
+        auto w = 1.0 * h;
+        auto timer = std::make_shared<AnimatedWidget>(
+                    "animations/timer.pf",
+                    (width-w)/2, (height-h)/2,
+                    w, h,
+                    50
+        );
+        timer->hoverable_ = false;
+        timer->repeatable_ = false;
+        timer->freeze_finish_ = true;
+        add_widget(timer);
+        h = height/3.5;
+        w = 1.659 * h;
+        auto go = std::make_shared<ImageWidget>(
+                    "images/timer0.png",
+                    (width-w)/2, (height-h)/2,
+                    w, h,
+                    50
+        );
+
+        // Show / hide the 3-2-1 counter.
+        event_manager.add_delayed_call(3.0, [&, timer, go](){
+            remove_widget(timer);
+            add_widget(go);
+        });
+        event_manager.add_delayed_call(4.0, [&, go](){
+            remove_widget(go);
+        });
+    }
+
+protected:
+
+    void update_impl(float elapsed_time)
+    {
+        if (opts.mouse_clicked_)
+        {
+            auto m = hovered_mole();
+            if (m == nullptr)
+            {
+                std::cout << "daneben" << std::endl;
+            }
+            else
+            {
+                std::cout << "treffer" << std::endl;
+            }
+        }
     }
 
 private:
 
-    std::vector<std::shared_ptr<AnimatedWidget> > moles_;
+    MolePointer hovered_mole()
+    {
+        for (auto m : moles_)
+            if (m->hovered())
+                return m;
+
+        return nullptr;
+    }
+
+    std::vector<MolePointer> moles_;
 
 };
 
