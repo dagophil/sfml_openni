@@ -117,6 +117,7 @@ void HDMGame::load_screen(Event::ScreenID id)
 {
     // Remove the current widgets.
     container_->clear_widgets();
+    event_manager.clear_delayed_calls();
 
     // Fill the map with the screen functions.
     std::map<Event::ScreenID, ScreenFunction> m {

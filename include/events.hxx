@@ -171,6 +171,11 @@ public:
         }
     }
 
+    void clear_delayed_calls()
+    {
+        delayed_calls_.clear();
+    }
+
 private:
 
     std::vector<ListenerPointer> listeners_;
