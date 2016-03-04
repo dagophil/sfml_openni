@@ -16,14 +16,37 @@ class HDMSoundController : public Listener
 {
 public:
 
+    enum SoundEffects
+    {
+        WilhelmScream,
+        Punch
+    };
+
+    struct Sound
+    {
+        sf::SoundBuffer buffer;
+        sf::Sound sound;
+
+        void Play()
+        {
+            sound.Play();
+        }
+    };
+
     /**
      * @brief Load the sound files.
      */
     HDMSoundController()
     {
-        if (!wilhelm_buffer_.LoadFromFile("sounds/wilhelm_scream.ogg"))
+        // Load the sounds.
+        if (!sounds_[WilhelmScream].buffer.LoadFromFile("sounds/wilhelm_scream.ogg"))
             throw std::runtime_error("Could not load sound: Wilhelm scream.");
-        wilhelm_sound_.SetBuffer(wilhelm_buffer_);
+
+        // Assign the buffers to the sounds.
+        for (auto & p : sounds_)
+        {
+            p.second.sound.SetBuffer(p.second.buffer);
+        }
     }
 
 protected:
@@ -38,14 +61,13 @@ protected:
             std::uniform_int_distribution<int> r(0, 9);
             int sound = r(opts.rand_engine_);
             if (sound == 0)
-                wilhelm_sound_.Play();
+                sounds_[WilhelmScream].Play();
         }
     }
 
 private:
 
-    sf::SoundBuffer wilhelm_buffer_; // buffer for the wilhelm scream
-    sf::Sound wilhelm_sound_; // the wilhelm sound
+    std::map<SoundEffects, Sound> sounds_; // the sounds
 
 };
 
