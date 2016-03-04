@@ -3,6 +3,7 @@
 
 #include <random>
 #include <memory>
+#include <string>
 
 #include "../widgets.hxx"
 #include "../events.hxx"
@@ -30,8 +31,9 @@ public:
         mole_out_.resize(9, false);
         mole_hit_.resize(9, false);
 
-        auto height = rect_.GetHeight();
-        auto width = rect_.GetWidth();
+        // Add the mole widgets.
+        auto const height = rect_.GetHeight();
+        auto const width = rect_.GetWidth();
         auto sprites_top = 0.25 * height;
         auto sprites_height = 0.22 * height;
         auto sprite_distance_y = 0.25 * height;
@@ -41,7 +43,6 @@ public:
         auto sprites_left = (width - sprite_total_width) / 2;
         auto score_width = 0.8 * width;
         auto score_height = 0.24 * height;
-
         for (int i = 0; i < 9; ++i)
         {
             auto w = std::make_shared<AnimatedWidget>(
@@ -56,6 +57,7 @@ public:
             w->stop();
         }
 
+        // Add the scoreboard.
         auto s = std::make_shared<ImageWidget>(
                     "images/scoreboard.png",
                     (width-score_width)/2, 0,
@@ -76,31 +78,29 @@ public:
         timer->hoverable_ = false;
         timer->repeatable_ = false;
         timer->freeze_finish_ = true;
+        add_widget(timer);
 
+        // Create the shrink actions for the timer.
         auto f0 = std::make_shared<ShrinkAction>(1);
         auto f1 = std::make_shared<ShrinkAction>(1);
         auto f2 = std::make_shared<ShrinkAction>(1);
 
+        // Create the resize actions for the timer.
         auto func = [width,w,height,h](Widget &wid, float elapsed_time){
-
             wid.rect_.Left = (width-w)/2;
             wid.rect_.Right = (width-w)/2 + w;
             wid.rect_.Top  = (height-h)/2;
             wid.rect_.Bottom = (height-h)/2 + h;
-
             return true;
         };
-
         auto resize_action1 = std::make_shared<FunctionAction>(func);
-
         auto resize_action2 = std::make_shared<FunctionAction>(func);
 
+        // Chain the actions together.
         auto chain = std::make_shared<ChainedAction>(f0,resize_action1, f1,resize_action2,f2);
-
         timer->add_action(chain);
 
-
-        add_widget(timer);
+        // Create the "go" widget after the timer.
         h = height/3.5;
         w = 1.659 * h;
         auto go = std::make_shared<ImageWidget>(
@@ -167,18 +167,59 @@ private:
     void miss()
     {
         // TODO: What happens on a miss?
-        std::cout << "daneben" << std::endl;
     }
 
+    /**
+     * @brief Hide the mole that was hit.
+     */
     void hit(int i)
     {
+        // Post the hit-event.
+        event_manager.post(Event(Event::MoleHit));
+
         // Start the hide animation.
         moles_[i]->clear_actions();
         hide_mole(i);
         mole_hit_[i] = true;
 
-        // TODO: What else happens on a hit?
-        std::cout << "treffer auf " << i << std::endl;
+        // Show the pow animation.
+        std::uniform_int_distribution<int> rand_int(0, 1);
+        int pow_index = rand_int(rand_engine_);
+        std::string animation;
+        float w_factor;
+        if (pow_index == 0)
+        {
+            animation = "animations/pow.pf";
+            w_factor = 1.417;
+        }
+        else
+        {
+            animation = "animations/hit.pf";
+            w_factor = 1.109;
+        }
+        auto h = 0.568 * moles_[i]->rect_.GetHeight();
+        auto w = w_factor * h;
+        auto x = moles_[i]->rect_.Left + (moles_[i]->rect_.GetWidth()-w)/2;
+        auto y = moles_[i]->rect_.Top + (moles_[i]->rect_.GetHeight())/2 - h;
+        auto pow = std::make_shared<AnimatedWidget>(
+                    animation,
+                    x, y,
+                    w, h,
+                    6
+        );
+        add_widget(pow);
+        event_manager.add_delayed_call(1.0, [&, pow](){
+            remove_widget(pow);
+        });
+
+        // Add some movement to the pow animation.
+        float move_top = 0.267 * h;
+        float move_right = rand_int(rand_engine_) == 0 ? -1 : 1;
+        move_right *= move_top;
+        auto moveact = std::make_shared<MoveByAction>(sf::Vector2f(move_right, -move_top), 1.0f);
+        auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
+        pow->add_action(moveact);
+        pow->add_action(shrinkact);
     }
 
     /**
