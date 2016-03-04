@@ -819,11 +819,19 @@ public:
     }
 
     /**
-     * @brief Return whether we run backwards.
+     * @brief Return whether the animation run backwards.
      */
     bool backwards() const
     {
         return backwards_;
+    }
+
+    /**
+     * @brief Return whether the animation currently runs.
+     */
+    bool running() const
+    {
+        return running_;
     }
 
     bool repeatable_; // whether the animations is repeated
@@ -988,6 +996,25 @@ private:
     float elapsed_time_; // the elapsed time
     float const delay_; // the time until the action is performed
     ActionPointer action_; // the action
+};
+
+/**
+ * @brief Act with the given function.
+ */
+class FunctionAction : public Action
+{
+public:
+    FunctionAction(std::function<bool(Widget &, float)> f)
+        :
+          f_(f)
+    {}
+protected:
+    bool act_impl(Widget &w, float elapsed_time)
+    {
+        return f_(w, elapsed_time);
+    }
+private:
+    std::function<bool(Widget &, float)> f_;
 };
 
 /**
