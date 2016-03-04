@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(30),
+          total_time_(60),
           remaining_time_(total_time_)
     {
         // Set all moles to "in".
@@ -77,7 +77,7 @@ public:
         auto w = 1.0 * h;
         auto timer = std::make_shared<AnimatedWidget>(
                     "animations/timer.pf",
-                    (width-w)/2, (height-h)/2,
+                    (width-w-timebar_width)/2, (height-h)/2,
                     w, h,
                     50
         );
@@ -92,9 +92,9 @@ public:
         auto f2 = std::make_shared<ShrinkAction>(1);
 
         // Create the resize actions for the timer.
-        auto func = [width,w,height,h](Widget &wid, float elapsed_time){
-            wid.rect_.Left = (width-w)/2;
-            wid.rect_.Right = (width-w)/2 + w;
+        auto func = [width,w,height,h,timebar_width](Widget &wid, float elapsed_time){
+            wid.rect_.Left = (width-w-timebar_width)/2;
+            wid.rect_.Right = (width-w-timebar_width)/2 + w;
             wid.rect_.Top  = (height-h)/2;
             wid.rect_.Bottom = (height-h)/2 + h;
             return true;
@@ -111,7 +111,7 @@ public:
         w = 1.659 * h;
         auto go = std::make_shared<ImageWidget>(
                     "images/timer0.png",
-                    (width-w)/2, (height-h)/2,
+                    (width-w-timebar_width)/2, (height-h)/2,
                     w, h,
                     50
         );
@@ -337,7 +337,7 @@ private:
         auto w = 1.6 * h;
         auto timeup = std::make_shared<ImageWidget>(
                     "images/time_up.png",
-                    (width-w)/2, (height-h)/2,
+                    (width-w-timefill_->rect_.GetWidth())/2, (height-h)/2,
                     w, h,
                     99
         );
