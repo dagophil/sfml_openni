@@ -1086,10 +1086,14 @@ protected:
     }
 };
 
+/**
+ * @brief Shrink a widget in a given time.
+ */
 class ShrinkAction : public Action
 {
 
 public:
+
     ShrinkAction(float time)
         :
           elapsed_time_(0),
@@ -1097,7 +1101,9 @@ public:
           width_original_(0),
           first_frame_(true)
     {}
+
 protected:
+
     bool act_impl(Widget &w, float elapsed_time)
     {
         if(first_frame_)
@@ -1126,15 +1132,19 @@ protected:
             w.rect_.Bottom -= int_delta_height/2;
 
             return false;
+
         }else
+
             return true;
     }
+
 private:
-    float time_;
-    float elapsed_time_;
-    int width_original_;
-    int height_original_;
-    bool first_frame_;
+
+    float time_; //the given time.
+    float elapsed_time_; //the already elapsed time.
+    int width_original_; // the beginning widget width.
+    int height_original_; //the beginning widget height.
+    bool first_frame_; //frist frame to save beginning sizes.
 };
 
 /**
