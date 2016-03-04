@@ -27,6 +27,7 @@ public:
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
+        mole_hit_.resize(9, false);
 
         auto height = rect_.GetHeight();
         auto width = rect_.GetWidth();
@@ -122,27 +123,38 @@ protected:
                 if (b)
                     mole_out = true;
             if (!mole_out)
-            {
                 start_wave();
-            }
 
             // Check if a mole was hit.
             if (opts.mouse_clicked_)
             {
                 auto m = hovered_mole();
-                if (m < 0)
-                {
-                    std::cout << "daneben" << std::endl;
-                }
+                if (m < 0 || !mole_out_[m] || mole_hit_[m])
+                    miss();
                 else
-                {
-                    std::cout << "treffer" << std::endl;
-                }
+                    hit(m);
             }
         }
     }
 
 private:
+
+    void miss()
+    {
+        // TODO: What happens on a miss?
+        std::cout << "daneben" << std::endl;
+    }
+
+    void hit(int i)
+    {
+        // Start the hide animation.
+        moles_[i]->clear_actions();
+        hide_mole(i);
+        mole_hit_[i] = true;
+
+        // TODO: What else happens on a hit?
+        std::cout << "treffer auf " << i << std::endl;
+    }
 
     /**
      * @brief Show 1-3 moles at random positions.
@@ -151,6 +163,7 @@ private:
     {
         // Set all moles to "in".
         std::fill(mole_out_.begin(), mole_out_.end(), false);
+        std::fill(mole_hit_.begin(), mole_hit_.end(), false);
 
         // Fine the number of moles for this wave.
         std::uniform_int_distribution<int> mole_count(1, 3);
@@ -165,13 +178,8 @@ private:
             {
                 mole_index = rand_int(rand_engine_);
             } while (mole_out_[mole_index]);
-            mole_out_[mole_index] = true;
+            show_mole(mole_index);
         }
-
-        // Show the moles.
-        for (size_t i = 0; i < mole_out_.size(); ++i)
-            if (mole_out_[i])
-                show_mole(i);
     }
 
     /**
@@ -179,20 +187,36 @@ private:
      */
     void show_mole(int i)
     {
-        auto m = moles_[i];
-        m->backwards(false);
-        m->restart();
+        // Start the animation.
+        mole_out_[i] = true;
+        moles_[i]->backwards(false);
+        moles_[i]->restart();
+
+        // Add an action that hides the mole after t seconds.
         std::uniform_real_distribution<float> rand(2.0, 3.5);
         float t = rand(rand_engine_);
-        event_manager.add_delayed_call(t-0.5, [m](){
-            m->backwards(true);
-            m->restart();
+        auto hide_action = std::make_shared<FunctionAction>([&, i](Widget & w, float elapsed_time){
+                hide_mole(i);
+                return true;
         });
-        event_manager.add_delayed_call(t, [&, i](){
-            mole_out_[i] = false;
-        });
+        auto delay = std::make_shared<DelayedAction>(t-0.5, hide_action);
+        moles_[i]->add_action(delay);
+    }
 
-
+    /**
+     * @brief Hide the mole with index i.
+     */
+    void hide_mole(int i)
+    {
+        bool already_hiding = moles_[i]->running() && moles_[i]->backwards();
+        if (!already_hiding)
+        {
+            moles_[i]->backwards(true);
+            moles_[i]->restart();
+            event_manager.add_delayed_call(0.5, [&, i]() {
+                mole_out_[i] = false;
+            });
+        }
     }
 
     /**
@@ -208,6 +232,7 @@ private:
 
     std::vector<MolePointer> moles_; // the mole widgets
     std::vector<bool> mole_out_; // the moles that are currently out
+    std::vector<bool> mole_hit_; // whether a mole was hit in the current wave
     std::mt19937 rand_engine_; // the random engine
     bool running_; // whether the game started
 
