@@ -57,7 +57,8 @@ public:
     {
         ChangeScreen,
         Tick,
-        Close
+        Close,
+        MoleHit
     };
 
     Event(EventType type)
