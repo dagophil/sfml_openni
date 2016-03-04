@@ -1059,6 +1059,57 @@ protected:
     }
 };
 
+class ShrinkAction : public Action
+{
+
+public:
+    ShrinkAction(float time)
+        :
+          elapsed_time_(0),
+          time_(time),
+          width_original_(0),
+          first_frame_(true)
+    {}
+protected:
+    bool act_impl(Widget &w, float elapsed_time)
+    {
+        if(first_frame_)
+        {
+            width_original_ = w.rect_.GetWidth();
+            height_original_ = w.rect_.GetHeight();
+            first_frame_ = false;
+        }
+
+        elapsed_time_ += elapsed_time;
+
+        if(elapsed_time_ < time_)
+        {
+
+            float t = 1 - elapsed_time_ / time_;
+
+            auto delta_height = w.rect_.GetHeight() - t * height_original_;
+            auto delta_width = w.rect_.GetWidth() - t * width_original_;
+
+            auto int_delta_height = int(delta_height);
+            auto int_delta_width = int(delta_width);
+
+            w.rect_.Left += int_delta_width/2;
+            w.rect_.Right -= int_delta_width/2;
+            w.rect_.Top += int_delta_height/2;
+            w.rect_.Bottom -= int_delta_height/2;
+
+            return false;
+        }else
+            return true;
+    }
+private:
+    float time_;
+    float elapsed_time_;
+    int width_original_;
+    int height_original_;
+    bool first_frame_;
+};
+
 /**
  * @brief Move the widget by the given amount in the given time.
  */

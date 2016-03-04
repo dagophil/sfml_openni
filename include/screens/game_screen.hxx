@@ -2,6 +2,7 @@
 #define GAME_SCREEN_HXX
 
 #include <random>
+#include <memory>
 
 #include "../widgets.hxx"
 #include "../events.hxx"
@@ -74,6 +75,13 @@ public:
         timer->hoverable_ = false;
         timer->repeatable_ = false;
         timer->freeze_finish_ = true;
+        auto f0 = std::make_shared<ShrinkAction>(1);
+        auto f1 = std::make_shared<ShrinkAction>(1);
+        auto f2 = std::make_shared<ShrinkAction>(1);
+
+        timer->add_action(f);
+
+
         add_widget(timer);
         h = height/3.5;
         w = 1.659 * h;
