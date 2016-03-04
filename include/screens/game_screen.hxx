@@ -76,31 +76,29 @@ public:
         timer->hoverable_ = false;
         timer->repeatable_ = false;
         timer->freeze_finish_ = true;
+        add_widget(timer);
 
+        // Create the shrink actions for the timer.
         auto f0 = std::make_shared<ShrinkAction>(1);
         auto f1 = std::make_shared<ShrinkAction>(1);
         auto f2 = std::make_shared<ShrinkAction>(1);
 
+        // Create the resize actions for the timer.
         auto func = [width,w,height,h](Widget &wid, float elapsed_time){
-
             wid.rect_.Left = (width-w)/2;
             wid.rect_.Right = (width-w)/2 + w;
             wid.rect_.Top  = (height-h)/2;
             wid.rect_.Bottom = (height-h)/2 + h;
-
             return true;
         };
-
         auto resize_action1 = std::make_shared<FunctionAction>(func);
-
         auto resize_action2 = std::make_shared<FunctionAction>(func);
 
+        // Chain the actions together.
         auto chain = std::make_shared<ChainedAction>(f0,resize_action1, f1,resize_action2,f2);
-
         timer->add_action(chain);
 
-
-        add_widget(timer);
+        // Create the "go" widget after the timer.
         h = height/3.5;
         w = 1.659 * h;
         auto go = std::make_shared<ImageWidget>(
