@@ -41,6 +41,8 @@ public:
         // Load the sounds.
         if (!sounds_[WilhelmScream].buffer.LoadFromFile("sounds/wilhelm_scream.ogg"))
             throw std::runtime_error("Could not load sound: Wilhelm scream.");
+        if (!sounds_[Punch].buffer.LoadFromFile("sounds/punch.ogg"))
+            throw std::runtime_error("Could not load sound: Punch.");
 
         // Assign the buffers to the sounds.
         for (auto & p : sounds_)
@@ -58,10 +60,12 @@ protected:
     {
         if (event.type_ == Event::MoleHit)
         {
-            std::uniform_int_distribution<int> r(0, 9);
+            std::uniform_int_distribution<int> r(0, 4);
             int sound = r(opts.rand_engine_);
             if (sound == 0)
                 sounds_[WilhelmScream].Play();
+            else
+                sounds_[Punch].Play();
         }
     }
 

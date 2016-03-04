@@ -4,6 +4,7 @@
 #include <random>
 #include <memory>
 #include <string>
+#include <cmath>
 
 #include "../widgets.hxx"
 #include "../events.hxx"
@@ -24,7 +25,9 @@ public:
     )
         :
           Widget(args...),
-          running_(false)
+          running_(false),
+          total_time_(30),
+          remaining_time_(total_time_)
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -33,13 +36,17 @@ public:
         // Add the mole widgets.
         auto const height = rect_.GetHeight();
         auto const width = rect_.GetWidth();
+
+        auto timebar_height = height;
+        auto timebar_width = std::ceil(0.194 * timebar_height);
+
         auto sprites_top = 0.25 * height;
         auto sprites_height = 0.22 * height;
         auto sprite_distance_y = 0.25 * height;
         auto sprites_width = 1.314*sprites_height;
         auto sprite_distance_x = sprites_width + 0.03 * width;
         auto sprite_total_width = 2 * sprite_distance_x + sprites_width;
-        auto sprites_left = (width - sprite_total_width) / 2;
+        auto sprites_left = (width - sprite_total_width) / 2 - timebar_width/2;
         auto score_width = 0.8 * width;
         auto score_height = 0.24 * height;
         for (int i = 0; i < 9; ++i)
@@ -124,7 +131,7 @@ public:
         h = 80;
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >(
                     "images/back_button.png",
-                    (width-w)/2, 5,
+                    (width-w-timebar_width)/2, 5,
                     w, h,
                     2
         );
@@ -133,6 +140,25 @@ public:
             event_manager.post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
+
+        // Show the time bar.
+        auto timebar = std::make_shared<ImageWidget>(
+                    "images/timebar_frame.png",
+                    width-timebar_width, 0,
+                    timebar_width, timebar_height,
+                    5);
+        add_widget(timebar);
+        timefill_original_top_ = std::ceil(0.00729 * timebar_height);
+        timefill_original_height_ = std::ceil(0.985 * timebar_height);
+        timefill_ = std::make_shared<ColorWidget>(
+                    sf::Color(255, 149, 14),
+                    width-timebar_width + std::ceil(0.0472*timebar_width),
+                    timefill_original_top_,
+                    std::ceil(0.913 * timebar_width),
+                    timefill_original_height_,
+                    6
+        );
+        add_widget(timefill_);
     }
 
 protected:
@@ -153,20 +179,24 @@ protected:
             if (opts.mouse_clicked_)
             {
                 auto m = hovered_mole();
-                if (m < 0 || !mole_out_[m] || mole_hit_[m])
-                    miss();
-                else
+                if (m >= 0 && mole_out_[m] && !mole_hit_[m])
                     hit(m);
             }
+
+            // Update the timer.
+            remaining_time_ -= elapsed_time;
+            if (remaining_time_ <= 0)
+            {
+                remaining_time_ = 0;
+                time_up();
+            }
+            auto t = 1.0 - remaining_time_ / total_time_;
+            auto delta = t * timefill_original_height_;
+            timefill_->rect_.Top = timefill_original_top_ + delta;
         }
     }
 
 private:
-
-    void miss()
-    {
-        // TODO: What happens on a miss?
-    }
 
     /**
      * @brief Hide the mole that was hit.
@@ -295,10 +325,37 @@ private:
         return -1;
     }
 
+    /**
+     * @brief Stop the game and show the score when the time is up.
+     */
+    void time_up()
+    {
+        running_ = false;
+        auto width = rect_.GetWidth();
+        auto height = rect_.GetHeight();
+        auto h = 0.5 * height;
+        auto w = 1.6 * h;
+        auto timeup = std::make_shared<ImageWidget>(
+                    "images/time_up.png",
+                    (width-w)/2, (height-h)/2,
+                    w, h,
+                    99
+        );
+        add_widget(timeup);
+        event_manager.add_delayed_call(2.0, [&, timeup](){
+            remove_widget(timeup);
+        });
+    }
+
     std::vector<MolePointer> moles_; // the mole widgets
     std::vector<bool> mole_out_; // the moles that are currently out
     std::vector<bool> mole_hit_; // whether a mole was hit in the current wave
     bool running_; // whether the game started
+    float const total_time_; // the total time
+    float remaining_time_; // the remaining time
+    std::shared_ptr<ColorWidget> timefill_; // the time fill widget
+    int timefill_original_height_; // the original height of the timefill widget
+    int timefill_original_top_; // the original top position of the timefill widget
 
 };
 
