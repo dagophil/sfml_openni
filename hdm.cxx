@@ -7,6 +7,7 @@
 #include "hdm.hxx"
 #include "events.hxx"
 #include "widgets.hxx"
+#include "sound_controller.hxx"
 
 int main(int argc, char** argv)
 {
@@ -42,6 +43,10 @@ int main(int argc, char** argv)
         window.Close();
     };
     game.add_widget(opts.mouse_);
+
+    // Create the sound controller.
+    auto sound_controller = std::make_shared<HDMSoundController>();
+    event_manager.register_listener(sound_controller);
 
     while (window.IsOpened())
     {

@@ -24,7 +24,6 @@ public:
     )
         :
           Widget(args...),
-          rand_engine_(std::random_device()()),
           running_(false)
     {
         // Set all moles to "in".
@@ -184,7 +183,7 @@ private:
 
         // Show the pow animation.
         std::uniform_int_distribution<int> rand_int(0, 1);
-        int pow_index = rand_int(rand_engine_);
+        int pow_index = rand_int(opts.rand_engine_);
         std::string animation;
         float w_factor;
         if (pow_index == 0)
@@ -214,7 +213,7 @@ private:
 
         // Add some movement to the pow animation.
         float move_top = 0.267 * h;
-        float move_right = rand_int(rand_engine_) == 0 ? -1 : 1;
+        float move_right = rand_int(opts.rand_engine_) == 0 ? -1 : 1;
         move_right *= move_top;
         auto moveact = std::make_shared<MoveByAction>(sf::Vector2f(move_right, -move_top), 1.0f);
         auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
@@ -233,7 +232,7 @@ private:
 
         // Fine the number of moles for this wave.
         std::uniform_int_distribution<int> mole_count(1, 3);
-        int c = mole_count(rand_engine_);
+        int c = mole_count(opts.rand_engine_);
 
         // Randomly select the moles.
         for (int i = 0; i < c; ++i)
@@ -242,7 +241,7 @@ private:
             int mole_index;
             do
             {
-                mole_index = rand_int(rand_engine_);
+                mole_index = rand_int(opts.rand_engine_);
             } while (mole_out_[mole_index]);
             show_mole(mole_index);
         }
@@ -260,7 +259,7 @@ private:
 
         // Add an action that hides the mole after t seconds.
         std::uniform_real_distribution<float> rand(2.0, 3.5);
-        float t = rand(rand_engine_);
+        float t = rand(opts.rand_engine_);
         auto hide_action = std::make_shared<FunctionAction>([&, i](Widget & w, float elapsed_time){
                 hide_mole(i);
                 return true;
@@ -299,7 +298,6 @@ private:
     std::vector<MolePointer> moles_; // the mole widgets
     std::vector<bool> mole_out_; // the moles that are currently out
     std::vector<bool> mole_hit_; // whether a mole was hit in the current wave
-    std::mt19937 rand_engine_; // the random engine
     bool running_; // whether the game started
 
 };

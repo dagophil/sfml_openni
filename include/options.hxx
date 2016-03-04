@@ -2,6 +2,7 @@
 #define OPTIONS_HXX
 
 #include <stdexcept>
+#include <random>
 
 #include <SFML/Graphics.hpp>
 
@@ -19,7 +20,8 @@ public:
 
     Globals()
         :
-          mouse_clicked_(false)
+          mouse_clicked_(false),
+          rand_engine_(std::random_device()())
     {}
 
     /**
@@ -39,8 +41,9 @@ public:
         return default_font_;
     }
 
-    std::shared_ptr<AnimatedWidget> mouse_;
-    bool mouse_clicked_;
+    std::shared_ptr<AnimatedWidget> mouse_; // the mouse widget
+    bool mouse_clicked_; // whether a mouse was clicked in the current frame
+    std::mt19937 rand_engine_; // the random engine
 
 private:
 

@@ -55,6 +55,9 @@ add_custom_command(TARGET copy PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/animations ${CMAKE_BINARY_DIR}/animations)
 add_custom_command(TARGET copy PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/sounds ${CMAKE_BINARY_DIR}/sounds)
+add_custom_command(TARGET copy PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy
                    ${CMAKE_SOURCE_DIR}/menu.xml ${CMAKE_BINARY_DIR}/menu.xml)
 add_custom_command(TARGET copy PRE_BUILD
