@@ -33,8 +33,8 @@ public:
           gmole_position_(0),
           gmole_wave_(0),
           score_(0),
-          combo_count_(0)
-
+          combo_count_(0),
+          perfect_game_(true)
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -189,10 +189,6 @@ public:
         add_widget(gmole_);
     }
 
-
-
-
-
 protected:
 
     void update_impl(float elapsed_time)
@@ -213,7 +209,8 @@ protected:
                 auto m = hovered_mole();
                 if (m >= 0 && mole_out_[m] && !mole_hit_[m])
                     hit(m);
-                std::cout << "Current Score: " << score_ << std::endl;
+                else
+                    miss();
             }
 
             // Update the timer.
@@ -233,26 +230,41 @@ protected:
 private:
 
     /**
+     * @brief Reset the combo counter.
+     */
+    void miss()
+    {
+        combo_count_ = 0;
+        perfect_game_ = false;
+    }
+
+    /**
      * @brief Hide the mole that was hit.
      */
     void hit(int i)
     {
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
+        combo_count_ += 1;
 
         // Start the hide animation.
-        moles_[i]->clear_actions();
-        hide_mole(i);
-
+        int points = 1;
         if(gmole_wave_ == -1 && gmole_position_ == i)
         {
             hide_gmole();
-            score_+=5;
+            points = 5;
         }
-        else{
-            score_++;
+        else
+        {
+            moles_[i]->clear_actions();
+            hide_mole(i);
         }
         mole_hit_[i] = true;
+
+        // Add the points to the score.
+        if (combo_count_ >= 10)
+            points *= 2;
+        score_ += points;
 
         // Show the pow animation.
         std::uniform_int_distribution<int> rand_int(0, 1);
@@ -314,9 +326,7 @@ private:
             c--;
             show_gmole();
         }
-
         gmole_wave_--;
-
 
         // Randomly select the moles.
         for (int i = 0; i < c; ++i)
@@ -364,6 +374,8 @@ private:
             moles_[i]->restart();
             event_manager.add_delayed_call(0.5, [&, i]() {
                 mole_out_[i] = false;
+                if (!mole_hit_[i])
+                    perfect_game_ = false;
             });
         }
     }
@@ -375,7 +387,7 @@ private:
         mole_out_[gmole_position_] = true;
 
         std::uniform_real_distribution<float> rand(moletime_min_, moletime_max_);
-        float t = rand(opts.rand_engine_);
+        float t = rand(opts.rand_engine_) / 2.0;
         auto hide_action = std::make_shared<FunctionAction>([&](Widget &w, float elapsed_time){
                 hide_gmole();
                 return true;
@@ -388,12 +400,18 @@ private:
 
     void hide_gmole()
     {
-        gmole_->backwards(true);
-        gmole_->restart();
-        event_manager.add_delayed_call(0.5,[&](){
-            mole_out_[gmole_position_] = false;
-            remove_widget(gmole_);
-        });
+        bool already_hiding = gmole_->running() && gmole_->backwards();
+        if (!already_hiding)
+        {
+            gmole_->backwards(true);
+            gmole_->restart();
+            event_manager.add_delayed_call(0.5,[&](){
+                mole_out_[gmole_position_] = false;
+                remove_widget(gmole_);
+                if (!mole_hit_[gmole_position_])
+                    perfect_game_ = false;
+            });
+        }
     }
 
     /**
@@ -414,6 +432,13 @@ private:
      */
     void time_up()
     {
+        std::cout << "TIME UP!" << std::endl;
+        if (perfect_game_)
+            std::cout << "Perfect game" << std::endl;
+        else
+            std::cout << "Not perfect game" << std::endl;
+        std::cout << "Score: " << score_ << std::endl;
+
         running_ = false;
         auto width = rect_.GetWidth();
         auto height = rect_.GetHeight();
@@ -447,6 +472,7 @@ private:
     int gmole_wave_; // the wave the gmole will appear
     float moletime_min_; // min amount of time a mole is outside
     float moletime_max_; // max amount of time a mole is outside
+    bool perfect_game_; // whether the user played a perfect game
 };
 
 
