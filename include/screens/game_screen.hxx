@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(5),
+          total_time_(60),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
@@ -149,7 +149,6 @@ public:
         };
         add_widget(back_button);
 
-
         // Show the time bar.
         auto timebar = std::make_shared<ImageWidget>(
                     "images/timebar_frame.png",
@@ -169,14 +168,14 @@ public:
         );
         add_widget(timefill_);
 
-        std::uniform_int_distribution<int> gmole_index(0,8);
+        // Find the position and wave of the golden mole.
+        std::uniform_int_distribution<int> gmole_index(0, 8);
         gmole_position_ = gmole_index(opts.rand_engine_);
-
-        int max_wave = std::floor(total_time_  / moletime_max_);
-        std::uniform_int_distribution<int> gmole_wave_index(0,max_wave);
+        int max_wave = std::floor(total_time_ / moletime_max_);
+        std::uniform_int_distribution<int> gmole_wave_index(0, max_wave);
         gmole_wave_ = gmole_wave_index(opts.rand_engine_);
 
-        //Make golden mole widget.
+        // Make golden mole widget.
         gmole_ = std::make_shared<AnimatedWidget>(
                     "animations/mole_golden.pf",
                     sprites_left+(gmole_position_%3)*sprite_distance_x,
@@ -223,7 +222,6 @@ protected:
             auto t = 1.0 - remaining_time_ / total_time_;
             auto delta = t * timefill_original_height_;
             timefill_->rect_.Top = timefill_original_top_ + delta;
-
         }
     }
 
@@ -394,8 +392,6 @@ private:
         });
         auto delay = std::make_shared<DelayedAction>(t-0.5, hide_action);
         gmole_->add_action(delay);
-
-
     }
 
     void hide_gmole()
