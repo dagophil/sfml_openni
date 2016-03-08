@@ -26,8 +26,15 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(60),
-          remaining_time_(total_time_)
+          total_time_(5),
+          remaining_time_(total_time_),
+          moletime_min_(2.0),
+          moletime_max_(3.5),
+          gmole_position_(0),
+          gmole_wave_(0),
+          score_(0),
+          combo_count_(0)
+
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -49,6 +56,7 @@ public:
         auto sprites_left = (width - sprite_total_width) / 2 - timebar_width/2;
         auto score_width = 0.8 * width;
         auto score_height = 0.24 * height;
+
         for (int i = 0; i < 9; ++i)
         {
             auto w = std::make_shared<AnimatedWidget>(
@@ -141,6 +149,7 @@ public:
         };
         add_widget(back_button);
 
+
         // Show the time bar.
         auto timebar = std::make_shared<ImageWidget>(
                     "images/timebar_frame.png",
@@ -159,7 +168,30 @@ public:
                     6
         );
         add_widget(timefill_);
+
+        std::uniform_int_distribution<int> gmole_index(0,8);
+        gmole_position_ = gmole_index(opts.rand_engine_);
+
+        int max_wave = std::floor(total_time_  / moletime_max_);
+        std::uniform_int_distribution<int> gmole_wave_index(0,max_wave);
+        gmole_wave_ = gmole_wave_index(opts.rand_engine_);
+
+        //Make golden mole widget.
+        gmole_ = std::make_shared<AnimatedWidget>(
+                    "animations/mole_golden.pf",
+                    sprites_left+(gmole_position_%3)*sprite_distance_x,
+                    sprites_top+(gmole_position_/3)*sprite_distance_y,
+                    sprites_width,sprites_height,
+                    6);
+        gmole_->repeatable_ = false;
+        gmole_->freeze_finish_ = true;
+        gmole_->stop();
+        add_widget(gmole_);
     }
+
+
+
+
 
 protected:
 
@@ -181,6 +213,7 @@ protected:
                 auto m = hovered_mole();
                 if (m >= 0 && mole_out_[m] && !mole_hit_[m])
                     hit(m);
+                std::cout << "Current Score: " << score_ << std::endl;
             }
 
             // Update the timer.
@@ -193,6 +226,7 @@ protected:
             auto t = 1.0 - remaining_time_ / total_time_;
             auto delta = t * timefill_original_height_;
             timefill_->rect_.Top = timefill_original_top_ + delta;
+
         }
     }
 
@@ -209,6 +243,15 @@ private:
         // Start the hide animation.
         moles_[i]->clear_actions();
         hide_mole(i);
+
+        if(gmole_wave_ == -1 && gmole_position_ == i)
+        {
+            hide_gmole();
+            score_+=5;
+        }
+        else{
+            score_++;
+        }
         mole_hit_[i] = true;
 
         // Show the pow animation.
@@ -260,9 +303,20 @@ private:
         std::fill(mole_out_.begin(), mole_out_.end(), false);
         std::fill(mole_hit_.begin(), mole_hit_.end(), false);
 
+
         // Fine the number of moles for this wave.
         std::uniform_int_distribution<int> mole_count(1, 3);
         int c = mole_count(opts.rand_engine_);
+
+        //check if it is the golden mole wave.
+        if(gmole_wave_== 0)
+        {
+            c--;
+            show_gmole();
+        }
+
+        gmole_wave_--;
+
 
         // Randomly select the moles.
         for (int i = 0; i < c; ++i)
@@ -288,7 +342,7 @@ private:
         moles_[i]->restart();
 
         // Add an action that hides the mole after t seconds.
-        std::uniform_real_distribution<float> rand(2.0, 3.5);
+        std::uniform_real_distribution<float> rand(moletime_min_, moletime_max_);
         float t = rand(opts.rand_engine_);
         auto hide_action = std::make_shared<FunctionAction>([&, i](Widget & w, float elapsed_time){
                 hide_mole(i);
@@ -314,6 +368,34 @@ private:
         }
     }
 
+    void show_gmole()
+    {
+        gmole_->backwards(false);
+        gmole_->restart();
+        mole_out_[gmole_position_] = true;
+
+        std::uniform_real_distribution<float> rand(moletime_min_, moletime_max_);
+        float t = rand(opts.rand_engine_);
+        auto hide_action = std::make_shared<FunctionAction>([&](Widget &w, float elapsed_time){
+                hide_gmole();
+                return true;
+        });
+        auto delay = std::make_shared<DelayedAction>(t-0.5, hide_action);
+        gmole_->add_action(delay);
+
+
+    }
+
+    void hide_gmole()
+    {
+        gmole_->backwards(true);
+        gmole_->restart();
+        event_manager.add_delayed_call(0.5,[&](){
+            mole_out_[gmole_position_] = false;
+            remove_widget(gmole_);
+        });
+    }
+
     /**
      * @brief Return index of the hovered mole (or -1 of no mole is hovered).
      */
@@ -322,6 +404,8 @@ private:
         for (int i = 0; i < moles_.size(); ++i)
             if (moles_[i]->hovered())
                 return i;
+        if (gmole_->hovered())
+            return gmole_position_;
         return -1;
     }
 
@@ -356,7 +440,13 @@ private:
     std::shared_ptr<ColorWidget> timefill_; // the time fill widget
     int timefill_original_height_; // the original height of the timefill widget
     int timefill_original_top_; // the original top position of the timefill widget
-
+    size_t combo_count_;// the combo count of hitting moles, missing resets it to 0.
+    int score_; //The current user score
+    MolePointer gmole_;
+    int gmole_position_; // the gmole position
+    int gmole_wave_; // the wave the gmole will appear
+    float moletime_min_; // min amount of time a mole is outside
+    float moletime_max_; // max amount of time a mole is outside
 };
 
 
