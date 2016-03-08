@@ -762,14 +762,22 @@ public:
         f >> i_.rows_ >> i_.cols_;
 
         // Read the frame times.
+        bool found_frametime = false;
         for (size_t i = 0; i < i_.size(); ++i)
         {
             float t;
             f >> t;
             if (f.fail())
+            {
+                if (!found_frametime)
+                    throw std::runtime_error("Error in animation " + filename);
                 frametimes_.push_back(frametimes_.back());
+            }
             else
+            {
                 frametimes_.push_back(t);
+                found_frametime = true;
+            }
         }
     }
 
@@ -832,6 +840,18 @@ public:
     bool running() const
     {
         return running_;
+    }
+
+    /**
+     * @brief Go to the next frame.
+     * @warning repeatable and freeze_finish will be ignored.
+     */
+    void next_frame()
+    {
+        if (backwards_)
+            --i_;
+        else
+            ++i_;
     }
 
     bool repeatable_; // whether the animations is repeated

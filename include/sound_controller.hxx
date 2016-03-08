@@ -64,8 +64,7 @@ protected:
             int sound = r(opts.rand_engine_);
             if (sound == 0)
                 sounds_[WilhelmScream].Play();
-            else
-                sounds_[Punch].Play();
+            sounds_[Punch].Play();
         }
     }
 

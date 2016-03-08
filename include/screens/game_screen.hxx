@@ -53,7 +53,7 @@ public:
         auto sprites_width = 1.314*sprites_height;
         auto sprite_distance_x = sprites_width + 0.03 * width;
         auto sprite_total_width = 2 * sprite_distance_x + sprites_width;
-        auto sprites_left = (width - sprite_total_width) / 2 - timebar_width/2;
+        auto sprites_left = (width - sprite_total_width) / 2;
         auto score_width = 0.8 * width;
         auto score_height = 0.24 * height;
 
@@ -85,7 +85,7 @@ public:
         auto w = 1.0 * h;
         auto timer = std::make_shared<AnimatedWidget>(
                     "animations/timer.pf",
-                    (width-w-timebar_width)/2, (height-h)/2,
+                    (width-w)/2, (height-h)/2,
                     w, h,
                     50
         );
@@ -101,8 +101,8 @@ public:
 
         // Create the resize actions for the timer.
         auto func = [width,w,height,h,timebar_width](Widget &wid, float elapsed_time){
-            wid.rect_.Left = (width-w-timebar_width)/2;
-            wid.rect_.Right = (width-w-timebar_width)/2 + w;
+            wid.rect_.Left = (width-w)/2;
+            wid.rect_.Right = (width-w)/2 + w;
             wid.rect_.Top  = (height-h)/2;
             wid.rect_.Bottom = (height-h)/2 + h;
             return true;
@@ -119,7 +119,7 @@ public:
         w = 1.659 * h;
         auto go = std::make_shared<ImageWidget>(
                     "images/timer0.png",
-                    (width-w-timebar_width)/2, (height-h)/2,
+                    (width-w)/2, (height-h)/2,
                     w, h,
                     50
         );
@@ -139,7 +139,7 @@ public:
         h = 80;
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >(
                     "images/back_button.png",
-                    (width-w-timebar_width)/2, 5,
+                    (width-w)/2, 5,
                     w, h,
                     2
         );
@@ -186,6 +186,61 @@ public:
         gmole_->freeze_finish_ = true;
         gmole_->stop();
         add_widget(gmole_);
+
+        // Add the combo counter.
+        auto starbar = std::make_shared<ImageWidget>(
+                    "images/combobar_frame.png",
+                    0, 0,
+                    timebar_width, timebar_height,
+                    5);
+        add_widget(starbar);
+        {
+            auto n_stars = 5;
+            auto star_total_height = 0.65 * height;
+            auto star_height = star_total_height / 3.5;
+            auto star_width = 1.333 * star_height;
+            auto star_x_offset = (timebar_width - star_width) / 2.0;
+            auto star_y_offset = (height - star_total_height) / 2.0;
+            for (int i = 0; i < n_stars; ++i)
+            {
+                auto y = i * (star_total_height - star_height) / (n_stars-1.0) + star_y_offset;
+                auto star_gray = std::make_shared<ImageWidget>(
+                            "images/star_gray.png",
+                            star_x_offset, y,
+                            star_width, star_height,
+                            2
+                );
+                starbar->add_widget(star_gray);
+                auto star_gold = std::make_shared<AnimatedWidget>(
+                            "animations/star.pf",
+                            star_x_offset, y,
+                            star_width, star_height,
+                            3
+                );
+                star_gold->freeze_finish_ = true;
+                star_gold->repeatable_ = false;
+                star_gold->stop();
+                star_gold->hide();
+                starbar->add_widget(star_gold);
+            }
+
+            auto combo_width = 1.2 * timebar_width;
+            auto combo_height = 0.752 * combo_width;
+            auto combo_x = (timebar_width - combo_width) / 2.0;
+            auto combo_y = star_y_offset-0.8*combo_height;
+            combo_counter_ = std::make_shared<AnimatedWidget>(
+                        "animations/multi_sheet.pf",
+                        combo_x, combo_y,
+                        combo_width, combo_height,
+                        1);
+            combo_counter_->stop();
+            starbar->add_widget(combo_counter_);
+        }
+
+
+
+
+
     }
 
 protected:
@@ -233,7 +288,7 @@ private:
     void miss()
     {
         combo_count_ = 0;
-        perfect_game_ = false;
+//        perfect_game_ = false;
     }
 
     /**
@@ -241,6 +296,9 @@ private:
      */
     void hit(int i)
     {
+        combo_counter_->next_frame();
+
+
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
         combo_count_ += 1;
@@ -474,6 +532,9 @@ private:
     float moletime_min_; // min amount of time a mole is outside
     float moletime_max_; // max amount of time a mole is outside
     bool perfect_game_; // whether the user played a perfect game
+
+    std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
+
 };
 
 
