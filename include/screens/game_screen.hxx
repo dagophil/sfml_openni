@@ -430,9 +430,14 @@ private:
     {
         std::cout << "TIME UP!" << std::endl;
         if (perfect_game_)
+        {
             std::cout << "Perfect game" << std::endl;
+            score_ *= 2;
+        }
         else
+        {
             std::cout << "Not perfect game" << std::endl;
+        }
         std::cout << "Score: " << score_ << std::endl;
 
         running_ = false;

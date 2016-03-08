@@ -14,9 +14,17 @@ int main(int argc, char** argv)
     using namespace std;
     using namespace kin;
 
+    bool FULLSCREEN = true;
+
     // Window width and height.
-    size_t const WIDTH = 800;
-    size_t const HEIGHT = 600;
+    size_t WIDTH = 800;
+    size_t HEIGHT = 600;
+    if (FULLSCREEN)
+    {
+        auto mode = sf::VideoMode::GetDesktopMode();
+        WIDTH = mode.Width;
+        HEIGHT = mode.Height;
+    }
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
@@ -33,7 +41,10 @@ int main(int argc, char** argv)
     opts.mouse_->repeatable_ = false;
 
     // Create the window.
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole");
+    auto style = sf::Style::Close;
+    if (FULLSCREEN)
+        style = sf::Style::Fullscreen;
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole", style);
     window.ShowMouseCursor(false);
     FPS fps_measure;
 
@@ -58,6 +69,11 @@ int main(int argc, char** argv)
             if (event.Type == sf::Event::Closed)
             {
                 window.Close();
+            }
+            else if (event.Type == sf::Event::KeyPressed)
+            {
+                if (event.Key.Code == sf::Key::Escape)
+                    window.Close();
             }
             else if (event.Type == sf::Event::MouseButtonPressed)
             {
