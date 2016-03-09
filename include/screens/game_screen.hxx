@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(60),
+          total_time_(4),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
@@ -497,6 +497,7 @@ private:
             std::cout << "Not perfect game" << std::endl;
         }
         std::cout << "Score: " << score_ << std::endl;
+        check_highscore();
 
         running_ = false;
         auto width = rect_.GetWidth();
@@ -513,6 +514,63 @@ private:
         event_manager.add_delayed_call(2.0, [&, timeup](){
             remove_widget(timeup);
         });
+
+
+    }
+
+    void check_highscore()
+    {
+        if(!dir_exist("highscore"))
+        {
+            mkdir("highscore",777);
+            std::ofstream h("highscore/highscore.txt");
+
+            for (size_t i = 0; i < 5; i++)
+                h << 0 << "\n";
+        }
+
+        std::ifstream f("highscore/highscore.txt");
+
+        if(!f.is_open())
+        {
+            f.close();
+
+            std::ofstream h("highscore/highscore.txt");
+            for (size_t i = 0; i < 5; i++)
+                h << 0 << "\n";
+        }
+
+        std::vector<size_t> current_score;
+        bool new_highscore = false;
+
+        for(size_t i = 0; i < 5; ++i)
+        {
+            size_t t;
+            f >> t;
+
+            if (score_ > t && !new_highscore)
+            {
+                new_highscore = true;
+
+            }
+            current_score.push_back(t);
+        }
+
+        f.close();
+
+        if(new_highscore)
+        {
+            std::ofstream h("highscore/highscore.txt", std::ofstream::trunc);
+
+            current_score.push_back(score_);
+            std::sort(current_score.begin(),current_score.end());
+            std::reverse(current_score.begin(), current_score.end());
+
+            for (size_t i = 0; i < 5; ++i)
+                h << current_score[i] << "\n";
+
+            h.close();
+        }
     }
 
     std::vector<MolePointer> moles_; // the mole widgets
@@ -532,6 +590,7 @@ private:
     float moletime_min_; // min amount of time a mole is outside
     float moletime_max_; // max amount of time a mole is outside
     bool perfect_game_; // whether the user played a perfect game
+
 
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
 
