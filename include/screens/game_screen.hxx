@@ -299,6 +299,7 @@ private:
         combo_counter_->next_frame();
 
 
+
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
         combo_count_ += 1;
@@ -522,7 +523,7 @@ private:
     {
         if(!dir_exist("highscore"))
         {
-            mkdir("highscore",777);
+            mkdir("highscore", S_IRWXU|S_IRWXG);
             std::ofstream h("highscore/highscore.txt");
 
             for (size_t i = 0; i < 5; i++)
@@ -549,10 +550,8 @@ private:
             f >> t;
 
             if (score_ > t && !new_highscore)
-            {
                 new_highscore = true;
 
-            }
             current_score.push_back(t);
         }
 
