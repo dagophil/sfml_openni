@@ -498,7 +498,7 @@ private:
             std::cout << "Not perfect game" << std::endl;
         }
         std::cout << "Score: " << score_ << std::endl;
-        check_highscore();
+
 
         running_ = false;
         auto width = rect_.GetWidth();
@@ -512,10 +512,10 @@ private:
                     99
         );
         add_widget(timeup);
-        event_manager.add_delayed_call(2.0, [&, timeup](){
+        event_manager.add_delayed_call(1.5, [&, timeup](){
             remove_widget(timeup);
         });
-
+        check_highscore();
 
     }
 
@@ -559,11 +559,29 @@ private:
 
         if(new_highscore)
         {
-            std::ofstream h("highscore/highscore.txt", std::ofstream::trunc);
+
+            auto width = rect_.GetWidth();
+            auto height = rect_.GetHeight();
+            auto h1 = 0.5 * height;
+            auto w = 1.6 * h1;
+            auto high_ani = std::make_shared<AnimatedWidget>(
+                        "animations/highscore.pf",
+                        (width-w)/2, (height-h1)/2,
+                        w, h1,
+                        99
+                        );
+            event_manager.add_delayed_call(1.6, [&, high_ani](){
+                add_widget(high_ani);
+            });
+
+            event_manager.add_delayed_call(5.4, [&, high_ani](){
+                remove_widget(high_ani);
+            });
 
             current_score.push_back(score_);
             std::sort(current_score.begin(),current_score.end());
             std::reverse(current_score.begin(), current_score.end());
+            std::ofstream h("highscore/highscore.txt", std::ofstream::trunc);
 
             for (size_t i = 0; i < 5; ++i)
                 h << current_score[i] << "\n";
