@@ -4,14 +4,15 @@
 #include <stdexcept>
 #include <numeric>
 #include <memory>
-#include <ndarray.hxx>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
-
-#include "platform_support.hxx"
 #include <XnCppWrapper.h>
 
+#include "platform_support.hxx"
+#include "ndarray.hxx"
 
 
 /**
@@ -332,6 +333,29 @@ namespace detail
     template <typename A, typename B>
     void do_nothing2(A const &, B const &) {} // default function for widget callbacks
 }
+}
+
+
+bool dir_exist(std::string const & f)
+{
+    struct stat info;
+    if(stat(f.c_str(),&info) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return true;
+    else
+        return false;
+}
+
+bool file_exist(std::string const & f)
+{
+    struct stat info;
+    if (stat(f.c_str(), &info) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return false;
+    else
+        return true;
 }
 
 #endif

@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(60),
+          total_time_(15),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
@@ -212,6 +212,7 @@ public:
                 star_gold->repeatable_ = false;
                 star_gold->stop();
                 star_gold->hide();
+                stars_.push_back(star_gold);
                 starbar->add_widget(star_gold);
             }
 
@@ -279,6 +280,11 @@ private:
     void miss()
     {
         combo_count_ = 0;
+        for (auto star : stars_)
+            star->hide();
+        combo_mult_ = 0;
+        combo_counter_->reset();
+
 //        perfect_game_ = false;
     }
 
@@ -287,12 +293,42 @@ private:
      */
     void hit(int i)
     {
-        combo_counter_->next_frame();
 
 
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
         combo_count_ += 1;
+
+        if (combo_count_ <= 10)
+        {
+            auto show_stars = 0;
+            if(combo_count_ % stars_.size() == 0)
+                show_stars = 5;
+            else
+                show_stars = combo_count_ % stars_.size();
+
+            if (combo_count_ == 6)
+                for (auto star : stars_)
+                    star->hide();
+
+            for(auto i = 0; i < show_stars; ++i)
+            {
+                stars_[i]->show();
+                stars_[i]->restart();
+            }
+        }
+
+        if(combo_count_ == 5)
+        {
+            combo_mult_++;
+            combo_counter_->next_frame();
+
+        }
+        else if(combo_count_ == 10)
+        {
+            combo_mult_++;
+            combo_counter_->next_frame();
+        }
 
         // Start the hide animation.
         int points = 1;
@@ -488,6 +524,7 @@ private:
         }
         std::cout << "Score: " << score_ << std::endl;
 
+
         running_ = false;
         auto width = render_rect_.GetWidth();
         auto height = render_rect_.GetHeight();
@@ -499,9 +536,82 @@ private:
         timeup->set_width(w);
         timeup->set_height(h);
         add_widget(timeup);
-        event_manager.add_delayed_call(2.0, [&, timeup](){
+        event_manager.add_delayed_call(1.5, [&, timeup](){
             remove_widget(timeup);
         });
+        check_highscore();
+
+    }
+
+    void check_highscore()
+    {
+        if(!dir_exist("highscore"))
+        {
+            mkdir("highscore", S_IRWXU|S_IRWXG);
+            std::ofstream h("highscore/highscore.txt");
+
+            for (size_t i = 0; i < 5; i++)
+                h << 0 << "\n";
+        }
+
+        std::ifstream f("highscore/highscore.txt");
+
+        if(!f.is_open())
+        {
+            f.close();
+
+            std::ofstream h("highscore/highscore.txt");
+            for (size_t i = 0; i < 5; i++)
+                h << 0 << "\n";
+        }
+
+        std::vector<size_t> current_score;
+        bool new_highscore = false;
+
+        for(size_t i = 0; i < 5; ++i)
+        {
+            size_t t;
+            f >> t;
+
+            if (score_ > t && !new_highscore)
+                new_highscore = true;
+
+            current_score.push_back(t);
+        }
+
+        f.close();
+
+        if(new_highscore)
+        {
+
+            auto width = rect_.GetWidth();
+            auto height = rect_.GetHeight();
+            auto h1 = 0.5 * height;
+            auto w = 1.6 * h1;
+            auto high_ani = std::make_shared<AnimatedWidget>(
+                        "animations/highscore.pf",
+                        (width-w)/2, (height-h1)/2,
+                        w, h1,
+                        99
+                        );
+            event_manager.add_delayed_call(1.6, [&, high_ani](){
+                add_widget(high_ani);
+            });
+
+            event_manager.add_delayed_call(5.4, [&, high_ani](){
+                remove_widget(high_ani);
+            });
+
+            current_score.push_back(score_);
+            std::sort(current_score.begin(),current_score.end());
+            std::reverse(current_score.begin(), current_score.end());
+            std::ofstream h("highscore/highscore.txt", std::ofstream::trunc);
+
+            for (size_t i = 0; i < 5; ++i)
+                h << current_score[i] << "\n";
+
+            h.close();
+        }
     }
 
     std::vector<MolePointer> moles_; // the mole widgets
@@ -513,7 +623,7 @@ private:
     std::shared_ptr<ColorWidget> timefill_; // the time fill widget
     int timefill_original_height_; // the original height of the timefill widget
     int timefill_original_top_; // the original top position of the timefill widget
-    size_t combo_count_;// the combo count of hitting moles, missing resets it to 0.
+    size_t combo_count_;// the combo count of hitting moles, missing resets it to 0
     int score_; //The current user score
     MolePointer gmole_;
     int gmole_position_; // the gmole position
@@ -521,6 +631,9 @@ private:
     float moletime_min_; // min amount of time a mole is outside
     float moletime_max_; // max amount of time a mole is outside
     bool perfect_game_; // whether the user played a perfect game
+    std::vector<MolePointer> stars_; //The golden stars
+    size_t combo_mult_; // the current point multiplier
+
 
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
 
