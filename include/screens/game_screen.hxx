@@ -584,8 +584,8 @@ private:
         if(new_highscore)
         {
 
-            auto width = rect_.GetWidth();
-            auto height = rect_.GetHeight();
+            auto width = render_rect_.GetWidth();
+            auto height = render_rect_.GetHeight();
             auto h1 = 0.5 * height;
             auto w = 1.6 * h1;
             auto high_ani = std::make_shared<AnimatedWidget>(
