@@ -34,7 +34,8 @@ public:
           gmole_wave_(0),
           score_(0),
           combo_count_(0),
-          perfect_game_(true)
+          perfect_game_(true),
+          combo_mult_(0)
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
