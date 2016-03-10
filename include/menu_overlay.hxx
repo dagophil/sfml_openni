@@ -194,7 +194,6 @@ private:
     std::shared_ptr<Widget> item_container_; // the container for the menu items
     std::shared_ptr<ColorWidget> scroll_top_; // the top scroll button
     std::shared_ptr<ColorWidget> scroll_bottom_; // the bottom scroll button
-    std::shared_ptr<AnimatedWidget> mouse_; // the mouse
     std::shared_ptr<Widget> actual_scroll_bar_; // the actual scroll widget
     sf::Vector2f scroll_wheel_; // mouse coordinates for the scroll wheel
     float scroll_movement_time_; // time that is currently used to scroll
@@ -283,6 +282,7 @@ MenuOverlay::MenuOverlay(
     add_widget(opts.mouse_);
     handle_hover_ = [&](DiffType x, DiffType y)
     {
+        opts.mouse_->show();
         DiffType w = opts.mouse_->get_absolute_rectangle().GetWidth();
         DiffType h = opts.mouse_->get_absolute_rectangle().GetHeight();
         DiffType xx = x-0.45*w;
@@ -418,13 +418,9 @@ void MenuOverlay::update_impl(
 
 void MenuOverlay::hide_mouse()
 {
-//    // Move the mouse out of the visible part and stop the animation.
-//    auto dx = get_x() + get_width() - mouse_->get_x() + 1;
-//    auto dy = get_y() + get_height() - mouse_->get_y() + 1;
-//    mouse_->set_x(mouse_->get_x() + dx);
-//    mouse_->set_y(mouse_->get_y() + dy);
-//    mouse_->stop();
-//    mouse_->reset();
+    opts.mouse_->stop();
+    opts.mouse_->reset();
+    opts.mouse_->hide();
 }
 
 

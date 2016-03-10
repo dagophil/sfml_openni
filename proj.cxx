@@ -277,12 +277,7 @@ int main(int argc, char** argv)
                 if (mouse_x < 0 || mouse_x >= WIDTH || mouse_y < 0 || mouse_y >= HEIGHT)
                     hand_visible = false;
             }
-            if (hand_visible)
-            {
-//                cursor_sprite.SetX(mouse_x);
-//                cursor_sprite.SetY(mouse_y);
-            }
-            else
+            if (!hand_visible)
             {
                 mouse_x = -1;
                 mouse_y = -1;
