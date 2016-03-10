@@ -35,7 +35,7 @@ public:
           score_(0),
           combo_count_(0),
           perfect_game_(true),
-          combo_mult_(0)
+          combo_mult_(1)
     {
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -240,10 +240,8 @@ private:
         combo_count_ = 0;
         for (auto star : stars_)
             star->hide();
-        combo_mult_ = 0;
+        combo_mult_ = 1;
         combo_counter_->reset();
-
-//        perfect_game_ = false;
     }
 
     /**
@@ -304,8 +302,7 @@ private:
         mole_hit_[i] = true;
 
         // Add the points to the score.
-        if (combo_count_ >= 10)
-            points *= 2;
+        points *= combo_mult_;
         score_ += points;
 
         // Show the pow animation.
@@ -528,8 +525,8 @@ private:
         if(new_highscore)
         {
             auto high_ani = std::make_shared<AnimatedWidget>("animations/highscore.pf", 50);
-            high_ani->set_height(0.5);
-            high_ani->scale_ = ScaleInX;
+            high_ani->set_width(0.5);
+            high_ani->scale_ = ScaleInY;
             high_ani->align_x_ = CenterX;
             high_ani->align_y_ = CenterY;
             event_manager.add_delayed_call(1.6, [&, high_ani](){
