@@ -590,11 +590,11 @@ private:
             auto h1 = 0.5 * height;
             auto w = 1.6 * h1;
             auto high_ani = std::make_shared<AnimatedWidget>(
-                        "animations/highscore.pf",
-                        (width-w)/2, (height-h1)/2,
-                        w, h1,
-                        99
-                        );
+                        "animations/highscore.pf", 99);
+            high_ani->set_height(0.5);
+            high_ani->scale_ = ScaleInX;
+            high_ani->align_x_ = CenterX;
+            high_ani->align_y_ = CenterY;
             event_manager.add_delayed_call(1.6, [&, high_ani](){
                 add_widget(high_ani);
             });
