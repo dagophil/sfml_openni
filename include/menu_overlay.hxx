@@ -232,6 +232,11 @@ MenuOverlay::MenuOverlay(
     double const scroll_height = 0.1 * screen_height;
     double const close_x = 0.82 * screen_width;
 
+    auto grid_ptr = std::make_shared<GridWidget>(2,1);
+    auto &grid = *grid_ptr;
+    add_widget(grid_ptr);
+    grid.set_x_sizes(0.82, 0.18);
+
     // Create the menu item container.
     item_container_ = std::make_shared<Widget>();
     item_container_->set_x(item_x);
@@ -252,10 +257,11 @@ MenuOverlay::MenuOverlay(
 
     // Create the close button.
     auto close_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/exit_symbol.png", 1);
-    close_button->set_x(close_x);
+    close_button->set_x(0.82);
     close_button->set_y(0);
-    close_button->set_width(screen_width-close_x);
-    close_button->set_height(scroll_height);
+    close_button->set_width(0.18);
+    close_button->set_height(0.1);
+    close_button->align_y_ = Top;
     add_widget(close_button);
     close_button->handle_click_ = [&](DiffType x, DiffType y){
         handle_close_();
@@ -271,16 +277,20 @@ MenuOverlay::MenuOverlay(
     // Create the top scroll button.
     sf::Color const scroll_color(170, 191, 212, 190);
     scroll_top_ = std::make_shared<ColorWidget>(scroll_color, 1);
-    scroll_top_->set_x(item_x);
+//    scroll_top_->set_x(0.5);
     scroll_top_->set_y(0);
-    scroll_top_->set_width(item_width);
-    scroll_top_->set_height(scroll_height);
-    add_widget(scroll_top_);
+    scroll_top_->set_width(0.8);
+    scroll_top_->set_height(0.1);
+    scroll_top_->scale_= None;
+    scroll_top_->align_x_ = CenterX;
+    scroll_top_->align_y_ = Top;
+    grid(0)->add_widget(scroll_top_);
+//    add_widget(scroll_top_);
 
     // Create the bottom scroll button.
     scroll_bottom_ = std::make_shared<ColorWidget>(*scroll_top_);
     scroll_bottom_->set_height(scroll_height);
-    add_widget(scroll_bottom_);
+//    add_widget(scroll_bottom_);
 
     // Create the right scroll bar.
     auto scroll_bar = std::make_shared<ColorWidget>(scroll_color, 1);

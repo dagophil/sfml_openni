@@ -583,6 +583,15 @@ public:
           grid_(n_x, n_y, nullptr)
     {
         hoverable_ = false;
+
+        for (auto y = 0; y < n_y; ++y)
+        {
+          for(auto x = 0; x < n_x; ++x)
+          {
+              grid_(x,y) = std::make_shared<Widget>();
+              grid_(x,y)->hoverable_ = false;
+          }
+        }
     }
 
     /**
