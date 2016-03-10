@@ -95,6 +95,13 @@ target_link_libraries(hdm
 )
 add_dependencies(hdm copy)
 
+# Executable: The game with kinect.
+add_executable(hdm_kinect hdm_kinect.cxx)
+target_link_libraries(hdm_kinect
+    ${SFML_LIBRARIES}
+)
+add_dependencies(hdm_kinect copy)
+
 # Executable: The widget test.
 add_executable(test_widgets test_widgets.cxx)
 target_link_libraries(test_widgets
