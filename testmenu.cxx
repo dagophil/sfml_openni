@@ -13,6 +13,7 @@
 int main(int argc, char** argv)
 {
     using namespace std;
+    using namespace kin;
 
     // Read the xml file from command line.
     if (argc != 2)
@@ -26,15 +27,22 @@ int main(int argc, char** argv)
     size_t const HEIGHT = 600;
 
     // Load the default font.
-    kin::opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+    opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+
+    // Create the mouse widget.
+    opts.mouse_ = make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
+    opts.mouse_->overwrite_render_rectangle({0, 0, 75, 75});
+    opts.mouse_->hoverable_ = false;
+    opts.mouse_->stop();
+    opts.mouse_->repeatable_ = false;
 
     // Create the menu overlay.
-    kin::MenuOverlay overlay(xml_filename, WIDTH, HEIGHT);
+    MenuOverlay overlay(xml_filename, WIDTH, HEIGHT);
 
     // Create the callback for the menu item clicks.
-    std::string call_command;
+    string call_command;
     bool clicked_item = false;
-    overlay.handle_menu_item_click_ = [&](std::string const & s)
+    overlay.handle_menu_item_click_ = [&](string const & s)
     {
         call_command = s;
         clicked_item = true;

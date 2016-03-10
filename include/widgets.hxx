@@ -248,6 +248,22 @@ public:
             align_y_ = Top;
     }
 
+    void move_x(float x)
+    {
+        set_x(get_x()+x);
+    }
+
+    void move_y(float y)
+    {
+        set_y(get_y()+y);
+    }
+
+    void move(float x, float y)
+    {
+        move_x(x);
+        move_y(y);
+    }
+
     /**
      * @brief Getter for the width.
      */
@@ -1550,11 +1566,8 @@ protected:
         else
         {
             auto delta = t * delta_;
-            delta.x = (int) delta.x;
-            delta.y = (int) delta.y;
             auto d = delta - current_delta_;
-            w.set_x(w.get_x() + d.x);
-            w.set_y(w.get_y() + d.y);
+            w.move(d.x, d.y);
             current_delta_ = delta;
             return false;
         }
