@@ -28,18 +28,18 @@ public:
         auto y = render_rect_.GetHeight() - h - offset;
 
         auto arrow_right = std::make_shared<HoverclickWidget<ImageWidget> >("images/arrow_right.png", 0);
-        arrow_right->set_x(x);
-        arrow_right->set_y(y);
-        arrow_right->set_width(w);
-        arrow_right->set_height(h);
+        arrow_right->set_x(0.83-0.125/2);
+        arrow_right->set_y(0.82);
+        arrow_right->set_width(0.125);
+        arrow_right->set_height(0.125);
         attach_mouse_events(opts.mouse_, arrow_right);
         add_widget(arrow_right);
 
         auto arrow_left = std::make_shared<HoverclickWidget<ImageWidget> >("images/arrow_left.png", 0);
-        arrow_left->set_x(offset);
-        arrow_left->set_y(y);
-        arrow_left->set_width(w);
-        arrow_left->set_height(h);
+        arrow_left->set_x(0.108);
+        arrow_left->set_y(0.82);
+        arrow_left->set_width(0.125);
+        arrow_left->set_height(0.125);
         attach_mouse_events(opts.mouse_, arrow_left);
         add_widget(arrow_left);
 
@@ -48,10 +48,10 @@ public:
         x = (render_rect_.GetWidth() - w) / 2;
         y = render_rect_.GetHeight() - h - offset;
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png", 0);
-        back_button->set_x(x);
-        back_button->set_y(y);
-        back_button->set_width(w);
-        back_button->set_height(h);
+        back_button->set_x(0.5-0.3/2);
+        back_button->set_y(0.82);
+        back_button->set_width(0.3);
+        back_button->set_height(0.125);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));
