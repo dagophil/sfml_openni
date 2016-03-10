@@ -20,7 +20,7 @@ class HDMGame : public Widget
 {
 public:
 
-    HDMGame(size_t width, size_t height);
+    HDMGame();
 
     std::function<void()> handle_close_;
 
@@ -41,32 +41,25 @@ private:
 
 };
 
-HDMGame::HDMGame(
-        size_t width,
-        size_t height
-)   :
-      Widget(0, 0, width, height, 0),
+HDMGame::HDMGame()
+    :
       handle_close_(detail::do_nothing0)
 {
     handle_hover_ = [&](DiffType x, DiffType y)
     {
-        auto old_x = opts.mouse_->rect_.Left;
-        auto old_y = opts.mouse_->rect_.Top;
-        auto w = opts.mouse_->rect_.GetWidth();
-        auto h = opts.mouse_->rect_.GetHeight();
-        opts.mouse_->rect_.Offset(x-old_x - 0.45*w, y-old_y - 0.17*h);
+        DiffType w = opts.mouse_->get_absolute_rectangle().GetWidth();
+        DiffType h = opts.mouse_->get_absolute_rectangle().GetHeight();
+        DiffType xx = x-0.45*w;
+        DiffType yy = y-0.17*h;
+        opts.mouse_->overwrite_render_rectangle({xx, yy, xx+w, yy+h});
     };
 
     // Add the background image.
-    add_widget(std::make_shared<ImageWidget>(
-            "images/bg_grass.jpg",
-            0, 0,
-            width, height,
-            0
-    ));
+    auto bg_im = std::make_shared<ImageWidget>("images/bg_grass.jpg");
+    add_widget(bg_im);
 
     // Create the container.
-    container_ = std::make_shared<Widget>(0, 0, width, height, 0);
+    container_ = std::make_shared<Widget>();
     add_widget(container_);
 
     // Register the listener.
@@ -92,26 +85,14 @@ void HDMGame::update_impl(float elapsed_time)
  * @brief Helper function to create a screen of type T.
  */
 template <typename T>
-std::shared_ptr<Widget> create_screen(
-        HDMGame::DiffType x,
-        HDMGame::DiffType y,
-        HDMGame::DiffType width,
-        HDMGame::DiffType height,
-        int z_index
-){
-    return std::make_shared<T>(x, y, width, height, z_index);
+std::shared_ptr<Widget> create_screen(){
+    return std::make_shared<T>();
 }
 
 /**
  * @brief std::function type of the create_screen function.
  */
-typedef std::function<std::shared_ptr<Widget>(
-        HDMGame::DiffType,
-        HDMGame::DiffType,
-        HDMGame::DiffType,
-        HDMGame::DiffType,
-        int
-)> ScreenFunction;
+typedef std::function<std::shared_ptr<Widget>()> ScreenFunction;
 
 void HDMGame::load_screen(Event::ScreenID id)
 {
@@ -132,12 +113,7 @@ void HDMGame::load_screen(Event::ScreenID id)
     if (it != m.end())
     {
         auto const & f = it->second;
-        auto screen = f(
-                    0, 0,
-                    container_->rect_.GetWidth(),
-                    container_->rect_.GetHeight(),
-                    1
-        );
+        auto screen = f();
         container_->add_widget(screen);
     }
     else

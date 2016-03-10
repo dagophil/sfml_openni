@@ -13,6 +13,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "utility.hxx"
+#include "ndarray.hxx"
 
 namespace kin
 {
@@ -64,6 +65,28 @@ private:
 
 typedef std::shared_ptr<Action> ActionPointer;
 
+enum AlignX
+{
+    Left,
+    Right,
+    CenterX
+};
+
+enum AlignY
+{
+    Top,
+    Bottom,
+    CenterY
+};
+
+enum Scale // this is for widgets
+{
+    None,
+    Stretch,
+    ScaleInX,
+    ScaleInY
+};
+
 /**
  * @brief Parent class for all widgets.
  *
@@ -78,13 +101,7 @@ public:
 
     typedef int DiffType;
 
-    Widget(
-            DiffType x,
-            DiffType y,
-            DiffType width,
-            DiffType height,
-            int z_index
-    );
+    explicit Widget(int z_index = 0);
 
     /**
      * @brief Store a new widget.
@@ -131,7 +148,7 @@ public:
     }
 
     /**
-     * @brief Set the hovered state.
+     * @brief Set the hovered state. Returns the hovered widget with its z indices.
      */
     void hover(
             DiffType x,
@@ -163,7 +180,13 @@ public:
     /**
      * @brief Render the widget.
      */
-    void render(sf::RenderTarget & target);
+    void render(
+            sf::RenderTarget & target,
+            DiffType parent_x = 0,
+            DiffType parent_y = 0,
+            DiffType parent_width = -1,
+            DiffType parent_height = -1
+    );
 
     /**
      * @brief Show the widget.
@@ -189,14 +212,129 @@ public:
         return visible_;
     }
 
-    sf::Rect<DiffType> rect_; // position and size
+    /**
+     * @brief Getter for x.
+     */
+    float get_x() const
+    {
+        return rel_x_;
+    }
+
+    /**
+     * @brief Getter for y.
+     */
+    float get_y() const
+    {
+        return rel_y_;
+    }
+
+    /**
+     * @brief Setter for x.
+     */
+    void set_x(float x)
+    {
+        rel_x_ = x;
+        if (align_x_ == CenterX)
+            align_x_ = Left;
+    }
+
+    /**
+     * @brief Setter for y.
+     */
+    void set_y(float y)
+    {
+        rel_y_ = y;
+        if (align_y_ == CenterY)
+            align_y_ = Top;
+    }
+
+    /**
+     * @brief Getter for the width.
+     */
+    float get_width() const
+    {
+        return rel_width_;
+    }
+
+    /**
+     * @brief Getter for the height.
+     */
+    float get_height() const
+    {
+        return rel_height_;
+    }
+
+    /**
+     * @brief Setter for width.
+     */
+    void set_width(float w)
+    {
+        rel_width_ = w;
+        if (scale_ == Stretch)
+            scale_ = None;
+    }
+
+    /**
+     * @brief Setter for height.
+     */
+    void set_height(float h)
+    {
+        rel_height_ = h;
+        if (scale_ == Stretch)
+            scale_ = None;
+    }
+
+    /**
+     * @brief Give a rectangle with absolute (pixel) values. All relative widget variables (x, y, width, height) are then ignored.
+     */
+    void overwrite_render_rectangle(sf::Rect<DiffType> const & r)
+    {
+        absolute_rect_ = r;
+        overwrite_render_ = true;
+    }
+
+    /**
+     * @brief Use the relative rectangle again.
+     */
+    void use_relative_rectangle()
+    {
+        overwrite_render_ = false;
+    }
+
+    /**
+     * @brief Return the absolute rectangle.
+     */
+    sf::Rect<DiffType> const & get_absolute_rectangle() const
+    {
+        return absolute_rect_;
+    }
+
+    /**
+     * @brief Return the render rectangle.
+     */
+    sf::Rect<DiffType> const & get_render_rectangle() const
+    {
+        return render_rect_;
+    }
+
     int z_index_; // the z index
     std::function<void(DiffType, DiffType)> handle_mouse_enter_; // callback for mouse enter events
     std::function<void(DiffType, DiffType)> handle_mouse_leave_; // callback for mouse leave events
     std::function<void(DiffType, DiffType)> handle_hover_; // callback for hover events
     bool hoverable_; // whether the widget reacts for hovers
+    AlignX align_x_; // the horizontal align
+    AlignY align_y_; // the vertical align
+    Scale scale_; // the scale method
+    float ratio_; // scale ratio (width divided by height), used if scale_ is ScaleInX or ScaleInY.
 
 protected:
+
+    virtual void hover_impl(
+            DiffType x,
+            DiffType y,
+            bool just_unhover
+    )
+    {}
 
     virtual void update_impl(float elapsed_time)
     {}
@@ -204,10 +342,12 @@ protected:
     virtual void render_impl(sf::RenderTarget & target)
     {}
 
+    sf::Rect<DiffType> render_rect_; // the rectangle that is used for rendering
+
 private:
 
     /**
-     * @brief Sort the widgets by ascending z index.
+     * @brief Sort the contained widgets by ascending z index.
      *
      * This will be called very often. Since the widgets and their z index
      * change only seldom, they will probably already be sorted. Therefore
@@ -221,24 +361,36 @@ private:
     bool visible_; // whether the widget is visible
     std::vector<ActionPointer> actions_; // the actions
 
+    float rel_x_; // x position relative to the parent
+    float rel_y_; // y position relative to the parent
+    float rel_width_; // width relative to the parent (0.5: half the parent width)
+    float rel_height_; // height relative to the parent (0.5: half the parent height)
+
+    bool overwrite_render_; // whether to overwrite the render rectangle with some absolute values
+    sf::Rect<DiffType> absolute_rect_; // the rectangle that is used to overwrite the render rectangle
+
 };
 
 Widget::Widget(
-        DiffType x,
-        DiffType y,
-        DiffType width,
-        DiffType height,
         int z_index
 )
     :
-      rect_(x, y, x+width, y+height),
       z_index_(z_index),
       handle_mouse_enter_(detail::do_nothing2<DiffType, DiffType>),
       handle_mouse_leave_(detail::do_nothing2<DiffType, DiffType>),
       handle_hover_(detail::do_nothing2<DiffType, DiffType>),
       hoverable_(true),
+      align_x_(Left),
+      align_y_(Top),
+      scale_(Stretch),
       hovered_(false),
-      visible_(true)
+      visible_(true),
+      rel_x_(0.0),
+      rel_y_(0.0),
+      rel_width_(1.0),
+      rel_height_(1.0),
+      render_rect_(0, 0, 0, 0),
+      overwrite_render_(false)
 {}
 
 void Widget::add_widget(WidgetPointer w)
@@ -263,16 +415,17 @@ void Widget::clear_actions()
     actions_.clear();
 }
 
-void Widget::hover(DiffType x, DiffType y, bool just_unhover)
-{
+void Widget::hover(
+        DiffType x,
+        DiffType y,
+        bool just_unhover
+){
     auto previously_hovered = hovered_;
 
     if (just_unhover)
     {
         // Just unhover this and all sub widgets.
         hovered_ = false;
-        x -= rect_.Left;
-        y -= rect_.Top;
         for (auto w : widgets_)
             w->hover(x, y, true);
     }
@@ -280,9 +433,7 @@ void Widget::hover(DiffType x, DiffType y, bool just_unhover)
     {
         // Check if the mouse is inside and set the hover state accordingly.
         // If a sub widget is hovered, all other sub widgets cannot be hovered.
-        hovered_ = rect_.Contains(x, y);
-        x -= rect_.Left;
-        y -= rect_.Top;
+        hovered_ = render_rect_.Contains(x, y);
         sort_widgets();
         for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
         {
@@ -292,6 +443,8 @@ void Widget::hover(DiffType x, DiffType y, bool just_unhover)
                 just_unhover = true;
         }
     }
+
+    hover_impl(x, y, just_unhover);
 
     // Raise the hover events.
     if (visible())
@@ -307,7 +460,7 @@ void Widget::hover(DiffType x, DiffType y, bool just_unhover)
 
 bool Widget::contains(DiffType x, DiffType y) const
 {
-    return rect_.Contains(x, y);
+    return render_rect_.Contains(x, y);
 }
 
 void Widget::update(float elapsed_time)
@@ -327,19 +480,78 @@ void Widget::update(float elapsed_time)
         w->update(elapsed_time);
 }
 
-void Widget::render(sf::RenderTarget & target)
-{
+void Widget::render(
+        sf::RenderTarget & target,
+        DiffType parent_x,
+        DiffType parent_y,
+        DiffType parent_width,
+        DiffType parent_height
+){
+    if (parent_width == -1)
+        parent_width = target.GetWidth();
+    if (parent_height == -1)
+        parent_height = target.GetHeight();
+
+    if (overwrite_render_)
+    {
+        // Overwrite the render rectangle with the given one.
+        render_rect_ = absolute_rect_;
+    }
+    else
+    {
+        // Compute the correct render width and height.
+        render_rect_.Left = 0;
+        render_rect_.Top = 0;
+        if (scale_ == Stretch)
+        {
+            render_rect_.Right = parent_width;
+            render_rect_.Bottom = parent_height;
+        }
+        else if (scale_ == ScaleInX)
+        {
+            render_rect_.Bottom = rel_height_ * parent_height;
+            render_rect_.Right = ratio_ * render_rect_.Bottom;
+        }
+        else if (scale_ == ScaleInY)
+        {
+            render_rect_.Right = rel_width_ * parent_width;
+            render_rect_.Bottom = render_rect_.Right / ratio_;
+        }
+        else // scale_ == None
+        {
+            render_rect_.Right = rel_width_ * parent_width;
+            render_rect_.Bottom = rel_height_ * parent_height;
+        }
+
+        // Compute the correct render position in x.
+        if (align_x_ == Left)
+            render_rect_.Offset(rel_x_ * parent_width, 0);
+        else if (align_x_ == Right)
+            render_rect_.Offset((1 - rel_x_) * parent_width - render_rect_.GetWidth(), 0);
+        else // align_x_ == CenterX
+            render_rect_.Offset(0.5 * (parent_width - render_rect_.GetWidth()), 0);
+
+        // Compute the correct render position in y.
+        if (align_y_ == Top)
+            render_rect_.Offset(0, rel_y_ * parent_height);
+        else if (align_y_ == Bottom)
+            render_rect_.Offset(0, (1 - rel_y_) * parent_height - render_rect_.GetHeight());
+        else // align_y_ == CenterY
+            render_rect_.Offset(0, 0.5 * (parent_height - render_rect_.GetHeight()));
+
+        // Move the widget relative to the parent.
+        render_rect_.Offset(parent_x, parent_y);
+    }
+
+    // Draw the widget.
     if (visible_)
     {
-        render_impl(target);
-
         // For correct rendering, widgets must be rendered with ascending z index.
+        render_impl(target);
         sort_widgets();
         for (auto w : widgets_)
         {
-            w->rect_.Offset(rect_.Left, rect_.Top);
-            w->render(target);
-            w->rect_.Offset(-rect_.Left, -rect_.Top);
+            w->render(target, render_rect_.Left, render_rect_.Top, render_rect_.GetWidth(), render_rect_.GetHeight());
         }
     }
 }
@@ -353,6 +565,219 @@ void Widget::sort_widgets()
     if (!std::is_sorted(widgets_.begin(), widgets_.end(), comp))
         std::sort(widgets_.begin(), widgets_.end(), comp);
 }
+
+/**
+ * @brief The grid widget.
+ */
+class GridWidget : public Widget
+{
+
+public:
+
+    typedef std::shared_ptr<Widget> WidgetPointer;
+
+    GridWidget(size_t n_x, size_t n_y)
+        :
+          n_x_(n_x),
+          n_y_(n_y),
+          grid_(n_x, n_y, nullptr)
+    {
+        hoverable_ = false;
+    }
+
+    /**
+     * @brief Return the element at (x, y).
+     */
+    WidgetPointer & operator()(int x, int y)
+    {
+        return grid_(x, y);
+    }
+
+    /**
+     * @brief Return the element at (x, y).
+     */
+    WidgetPointer const & operator()(int x, int y) const
+    {
+        return grid_(x, y);
+    }
+
+    /**
+     * @brief Return the i-th element of a 1-dimensional grid.
+     */
+    WidgetPointer & operator()(int i)
+    {
+        if (n_x_ == 1)
+            return grid_(0, i);
+        else if (n_y_ == 1)
+            return grid_(i, 0);
+        else
+            throw std::runtime_error("GridWidget::operator(): Tried to access 2-dimensional grid with single index.");
+    }
+
+    /**
+     * @brief Return the i-th element of a 1-dimensional grid.
+     */
+    WidgetPointer const & operator()(int i) const
+    {
+        if (n_x_ == 1)
+            return grid_(0, i);
+        else if (n_y_ == 1)
+            return grid_(i, 0);
+        else
+            throw std::runtime_error("GridWidget::operator(): Tried to access 2-dimensional grid with single index.");
+    }
+
+    /**
+     * @brief Set the column sizes.
+     */
+    template <typename... Args>
+    void set_x_sizes(Args... args)
+    {
+        set_sizes(x_pos_, n_x_, args...);
+    }
+
+    /**
+     * @brief Set the row sizes.
+     */
+    template <typename... Args>
+    void set_y_sizes(Args... args)
+    {
+        set_sizes(y_pos_, n_y_, args...);
+    }
+
+    /**
+     * @brief Clear the column sizes.
+     */
+    void clear_x_sizes()
+    {
+        x_pos_.clear();
+    }
+
+    /**
+     * @brief Clear the row sizes.
+     */
+    void clear_y_sizes()
+    {
+        y_pos_.clear();
+    }
+
+    size_t const n_x_; // number of widgets in x direction
+    size_t const n_y_; // number of widgets in y direction
+
+protected:
+
+    void hover_impl(
+            DiffType mx,
+            DiffType my,
+            bool just_unhover
+    ){
+        for (size_t y = 0; y < n_y_; ++y)
+        {
+            for (size_t x = 0; x < n_x_; ++x)
+            {
+                if (grid_(x, y) != nullptr)
+                {
+                    grid_(x, y)->hover(mx, my, just_unhover);
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief Update all contained widgets.
+     */
+    void update_impl(float elapsed_time)
+    {
+        for (auto & w : grid_)
+            if (w != nullptr)
+                w->update(elapsed_time);
+    }
+
+    /**
+     * @brief Render all contained widgets.
+     */
+    void render_impl(sf::RenderTarget & target)
+    {
+        for (size_t y = 0; y < n_y_; ++y)
+        {
+            for (size_t x = 0; x < n_x_; ++x)
+            {
+                if (grid_(x, y) != nullptr)
+                {
+                    // Draw the current grid element.
+                    auto pos = render_pos(x, y);
+                    auto size = render_size(x, y);
+                    grid_(x, y)->render(target, pos.x, pos.y, size.x, size.y);
+                }
+            }
+        }
+    }
+
+private:
+
+    /**
+     * @brief Normalize v, accumulate its values, and add a leading zero.
+     */
+    template <typename... Args>
+    void set_sizes(std::vector<double> & v, size_t n, Args... args)
+    {
+        // Write the sizes into the vector.
+        v = {args...};
+        if (v.size() != n)
+            throw std::runtime_error("GridWidget::set_sizes(): Wrong number of arguments.");
+
+        // Normalize the values.
+        auto sum = std::accumulate(v.begin(), v.end(), 0.0);
+        for (auto & x : v)
+            x /= sum;
+
+        // Accumulate the sizes so they become a position.
+        for (size_t i = 1; i < v.size(); ++i)
+            v[i] += v[i-1];
+
+        // Add a leading zero. Now (v[i], v[i+1]) are the borders of the i-th element.
+        v.insert(v.begin(), 0);
+    }
+
+    /**
+     * @brief Compute the render position of the element at (x, y).
+     */
+    sf::Vector2f render_pos(size_t x, size_t y)
+    {
+        sf::Vector2f pos;
+        if (x_pos_.empty())
+            pos.x = render_rect_.GetWidth() * x / static_cast<double>(n_x_) + render_rect_.Left;
+        else
+            pos.x = render_rect_.GetWidth() *x_pos_[x] + render_rect_.Left;
+        if (y_pos_.empty())
+            pos.y = render_rect_.GetHeight() * y / static_cast<double>(n_y_) + render_rect_.Top;
+        else
+            pos.y = render_rect_.GetHeight() * y_pos_[y] + render_rect_.Top;
+        return pos;
+    }
+
+    /**
+     * @brief Compute the render size of the element at (x, y).
+     */
+    sf::Vector2f render_size(size_t x, size_t y)
+    {
+        sf::Vector2f size;
+        if (x_pos_.empty())
+            size.x = render_rect_.GetWidth() / n_x_;
+        else
+            size.x = render_rect_.GetWidth() * (x_pos_[x+1] - x_pos_[x]);
+        if (y_pos_.empty())
+            size.y = render_rect_.GetHeight() / n_y_;
+        else
+            size.y = render_rect_.GetHeight() * (y_pos_[y+1] - y_pos_[y]);
+        return size;
+    }
+
+    Array2D<WidgetPointer> grid_; // the grid
+    std::vector<double> x_pos_; // the x-positions of the grid (the borders of the i-th column are x_pos_[i], x_pos_[i+1]).
+    std::vector<double> y_pos_; // the y-positions of the grid (the borders of the i-th row are y_pos_[i], y_pos_[i+1]).
+
+};
 
 /**
  * @brief Mixin to enable hoverclick on other widget classes.
@@ -402,7 +827,7 @@ protected:
 
         if (hover_time_ > click_delay_ && !clicked_)
         {
-            handle_click_(T::rect_.GetWidth()/2, T::rect_.GetHeight()/2);
+            handle_click_(T::render_rect_.GetWidth()/2, T::render_rect_.GetHeight()/2);
             clicked_ = true;
         }
 
@@ -442,7 +867,7 @@ public:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        auto bg = sf::Shape::Rectangle(rect_.Left, rect_.Top, rect_.Right, rect_.Bottom, color_);
+        auto bg = sf::Shape::Rectangle(render_rect_.Left, render_rect_.Top, render_rect_.Right, render_rect_.Bottom, color_);
         target.Draw(bg);
     }
 
@@ -459,46 +884,18 @@ class ImageWidget : public Widget
 {
 public:
 
-    enum ScaleStyle
-    {
-        Stretch,
-        Fit,
-        FitX,
-        FitY
-    };
-
-    enum AlignX
-    {
-        Left,
-        Right,
-        CenterX
-    };
-
-    enum AlignY
-    {
-        Top,
-        Bottom,
-        CenterY
-    };
-
     template <typename... Args>
     ImageWidget(
             std::string const & filename,
             Args... args
     )
         :
-          Widget(args...),
-          scale_style_(Stretch),
-          align_x_(Left),
-          align_y_(Top)
+          Widget(args...)
     {
         if (!image_.LoadFromFile(filename))
             throw std::runtime_error("Could not load image " + filename);
+        ratio_ = image_.GetWidth() / static_cast<float>(image_.GetHeight());
     }
-
-    ScaleStyle scale_style_; // the stretch style
-    AlignX align_x_; // the horizontal align
-    AlignY align_y_; // the vertical align
 
 protected:
 
@@ -507,69 +904,15 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        auto const scale = compute_scale_factor();
-        auto const pos = compute_image_position(scale.x, scale.y);
-        sf::Sprite spr(image_, pos, scale);
+        auto x = static_cast<float>(render_rect_.Left);
+        auto y = static_cast<float>(render_rect_.Top);
+        auto scale_x = render_rect_.GetWidth() / static_cast<float>(image_.GetWidth());
+        auto scale_y = render_rect_.GetHeight() / static_cast<float>(image_.GetHeight());
+        sf::Sprite spr(image_, {x, y}, {scale_x, scale_y});
         target.Draw(spr);
     }
 
 private:
-
-    /**
-     * @brief Compute the scale in x and y direction.
-     */
-    sf::Vector2f compute_scale_factor() const
-    {
-        float width = rect_.GetWidth();
-        float height = rect_.GetHeight();
-        float image_width = image_.GetWidth();
-        float image_height = image_.GetHeight();
-        if (scale_style_ == Stretch)
-        {
-            return {width / image_width, height / image_height};
-        }
-        else if (scale_style_ == Fit)
-        {
-            float factor = height / image_height;
-            if (factor*image_width > rect_.GetWidth())
-                factor = rect_.GetWidth() / image_width;
-            return {factor, factor};
-        }
-        else if (scale_style_ == FitX)
-        {
-            float factor = width / image_width;
-            return {factor, factor};
-        }
-        else
-        {
-            float factor = height / image_height;
-            return {factor, factor};
-        }
-    }
-
-    /**
-     * @brief Compute the image position.
-     */
-    sf::Vector2f compute_image_position(float scale_x, float scale_y) const
-    {
-        float x = rect_.Left;
-        if (align_x_ == Left)
-            x += 0;
-        else if (align_x_ == Right)
-            x += rect_.GetWidth() - scale_x * image_.GetWidth();
-        else
-            x += (rect_.GetWidth() - scale_x * image_.GetWidth()) / 2.0;
-
-        float y = rect_.Top;
-        if (align_y_ == Top)
-            y += 0;
-        else if (align_y_ == Bottom)
-            y += rect_.GetHeight() - scale_y * image_.GetHeight();
-        else
-            y += (rect_.GetHeight() - scale_y * image_.GetHeight()) / 2.0;
-
-        return {x, y};
-    }
 
     sf::Image image_; // the image
 
@@ -581,20 +924,6 @@ private:
 class TextWidget : public Widget
 {
 public:
-
-    enum AlignX
-    {
-        Left,
-        Right,
-        CenterX
-    };
-
-    enum AlignY
-    {
-        Top,
-        Bottom,
-        CenterY
-    };
 
     template <typename... Args>
     TextWidget(
@@ -631,10 +960,10 @@ public:
         text_obj_.SetSize(font_size_);
         text_obj_.SetStyle(style_);
         text_obj_.SetColor(color_);
-        insert_line_breaks(text_obj_, rect_.GetWidth());
+        insert_line_breaks(text_obj_, render_rect_.GetWidth());
         set_position();
 
-        auto bg = sf::Shape::Rectangle(rect_.Left, rect_.Top, rect_.Right, rect_.Bottom, bg_color_);
+        auto bg = sf::Shape::Rectangle(render_rect_.Left, render_rect_.Top, render_rect_.Right, render_rect_.Bottom, bg_color_);
         target.Draw(bg);
         target.Draw(text_obj_);
     }
@@ -651,21 +980,21 @@ private:
 
     void set_position()
     {
-        float x  = rect_.Left;
+        float x  = render_rect_.Left;
         if (align_x_ == Left)
             x += 0;
         else if (align_x_ == Right)
-            x += rect_.GetWidth() - text_obj_.GetRect().GetWidth();
+            x += render_rect_.GetWidth() - text_obj_.GetRect().GetWidth();
         else
-            x += (rect_.GetWidth() - text_obj_.GetRect().GetWidth()) / 2.0;
+            x += (render_rect_.GetWidth() - text_obj_.GetRect().GetWidth()) / 2.0;
 
-        float y = rect_.Top;
+        float y = render_rect_.Top;
         if (align_y_ == Top)
             y += 0;
         else if (align_y_ == Bottom)
-            y += rect_.GetHeight() - text_obj_.GetRect().GetHeight();
+            y += render_rect_.GetHeight() - text_obj_.GetRect().GetHeight();
         else
-            y += (rect_.GetHeight() - text_obj_.GetRect().GetHeight()) / 2.0;
+            y += (render_rect_.GetHeight() - text_obj_.GetRect().GetHeight()) / 2.0;
 
         text_obj_.SetPosition(x, y);
     }
@@ -779,6 +1108,9 @@ public:
                 found_frametime = true;
             }
         }
+
+        // Set the ratio.
+        ratio_ = width() / static_cast<float>(height());
     }
 
     /**
@@ -896,10 +1228,15 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
+        auto px = static_cast<float>(render_rect_.Left);
+        auto py = static_cast<float>(render_rect_.Top);
+        auto scale_x = render_rect_.GetWidth() / static_cast<float>(width());
+        auto scale_y = render_rect_.GetHeight() / static_cast<float>(height());
+
         sf::Sprite spr(image_);
         spr.SetSubRect(sf::IntRect(x(), y(), x()+width(), y()+height()));
-        spr.SetPosition(rect_.Left, rect_.Top);
-        spr.SetScale(compute_scale());
+        spr.SetPosition(px, py);
+        spr.SetScale(scale_x, scale_y);
         target.Draw(spr);
     }
 
@@ -928,14 +1265,6 @@ private:
         else
             i_.index = 0;
 
-    }
-
-    /**
-     * @brief Compute the scale.
-     */
-    sf::Vector2f compute_scale()
-    {
-        return {rect_.GetWidth() / (float)width(), rect_.GetHeight() / (float)height()};
     }
 
     /**
@@ -1126,36 +1455,29 @@ protected:
 
     bool act_impl(Widget &w, float elapsed_time)
     {
+        // Save the original width and height.
         if(first_frame_)
         {
-            width_original_ = w.rect_.GetWidth();
-            height_original_ = w.rect_.GetHeight();
+            width_original_ = w.get_width();
+            height_original_ = w.get_height();
             first_frame_ = false;
         }
 
+        // Update the elapsed time.
         elapsed_time_ += elapsed_time;
 
         if(elapsed_time_ < time_)
         {
-
+            // Rescale the widget.
             float t = 1 - elapsed_time_ / time_;
-
-            auto delta_height = w.rect_.GetHeight() - t * height_original_;
-            auto delta_width = w.rect_.GetWidth() - t * width_original_;
-
-            auto int_delta_height = int(delta_height);
-            auto int_delta_width = int(delta_width);
-
-            w.rect_.Left += int_delta_width/2;
-            w.rect_.Right -= int_delta_width/2;
-            w.rect_.Top += int_delta_height/2;
-            w.rect_.Bottom -= int_delta_height/2;
-
+            w.set_width(t * width_original_);
+            w.set_height(t * height_original_);
             return false;
-
-        }else
-
+        }
+        else
+        {
             return true;
+        }
     }
 
 private:
@@ -1212,7 +1534,8 @@ protected:
         if (elapsed_time_ >= time_)
         {
             auto d = delta_ - current_delta_;
-            w.rect_.Offset(d.x, d.y);
+            w.set_x(w.get_x() + d.x);
+            w.set_y(w.get_y() + d.y);
             return true;
         }
         else
@@ -1221,7 +1544,8 @@ protected:
             delta.x = (int) delta.x;
             delta.y = (int) delta.y;
             auto d = delta - current_delta_;
-            w.rect_.Offset(d.x, d.y);
+            w.set_x(w.get_x() + d.x);
+            w.set_y(w.get_y() + d.y);
             current_delta_ = delta;
             return false;
         }
