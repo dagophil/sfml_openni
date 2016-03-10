@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(4),
+          total_time_(15),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
@@ -221,6 +221,7 @@ public:
                 star_gold->repeatable_ = false;
                 star_gold->stop();
                 star_gold->hide();
+                stars_.push_back(star_gold);
                 starbar->add_widget(star_gold);
             }
 
@@ -288,6 +289,11 @@ private:
     void miss()
     {
         combo_count_ = 0;
+        for (auto star : stars_)
+            star->hide();
+        combo_mult_ = 0;
+        combo_counter_->reset();
+
 //        perfect_game_ = false;
     }
 
@@ -296,13 +302,42 @@ private:
      */
     void hit(int i)
     {
-        combo_counter_->next_frame();
-
 
 
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
         combo_count_ += 1;
+
+        if (combo_count_ <= 10)
+        {
+            auto show_stars = 0;
+            if(combo_count_ % stars_.size() == 0)
+                show_stars = 5;
+            else
+                show_stars = combo_count_ % stars_.size();
+
+            if (combo_count_ == 6)
+                for (auto star : stars_)
+                    star->hide();
+
+            for(auto i = 0; i < show_stars; ++i)
+            {
+                stars_[i]->show();
+                stars_[i]->restart();
+            }
+        }
+
+        if(combo_count_ == 5)
+        {
+            combo_mult_++;
+            combo_counter_->next_frame();
+
+        }
+        else if(combo_count_ == 10)
+        {
+            combo_mult_++;
+            combo_counter_->next_frame();
+        }
 
         // Start the hide animation.
         int points = 1;
@@ -599,7 +634,7 @@ private:
     std::shared_ptr<ColorWidget> timefill_; // the time fill widget
     int timefill_original_height_; // the original height of the timefill widget
     int timefill_original_top_; // the original top position of the timefill widget
-    size_t combo_count_;// the combo count of hitting moles, missing resets it to 0.
+    size_t combo_count_;// the combo count of hitting moles, missing resets it to 0
     int score_; //The current user score
     MolePointer gmole_;
     int gmole_position_; // the gmole position
@@ -607,6 +642,8 @@ private:
     float moletime_min_; // min amount of time a mole is outside
     float moletime_max_; // max amount of time a mole is outside
     bool perfect_game_; // whether the user played a perfect game
+    std::vector<MolePointer> stars_; //The golden stars
+    size_t combo_mult_; // the current point multiplier
 
 
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
