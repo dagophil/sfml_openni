@@ -509,25 +509,25 @@ void Widget::render(
         }
         else if (scale_ == ScaleInX)
         {
-            render_rect_.Bottom = rel_height_ * parent_height;
-            render_rect_.Right = ratio_ * render_rect_.Bottom;
+            render_rect_.Bottom = std::ceil(rel_height_ * parent_height);
+            render_rect_.Right = std::ceil(ratio_ * render_rect_.Bottom);
         }
         else if (scale_ == ScaleInY)
         {
-            render_rect_.Right = rel_width_ * parent_width;
-            render_rect_.Bottom = render_rect_.Right / ratio_;
+            render_rect_.Right = std::ceil(rel_width_ * parent_width);
+            render_rect_.Bottom = std::ceil(render_rect_.Right / ratio_);
         }
         else // scale_ == None
         {
-            render_rect_.Right = rel_width_ * parent_width;
-            render_rect_.Bottom = rel_height_ * parent_height;
+            render_rect_.Right = std::ceil(rel_width_ * parent_width);
+            render_rect_.Bottom = std::ceil(rel_height_ * parent_height);
         }
 
         // Compute the correct render position in x.
         if (align_x_ == Left)
-            render_rect_.Offset(rel_x_ * parent_width, 0);
+            render_rect_.Offset(std::floor(rel_x_ * parent_width), 0);
         else if (align_x_ == Right)
-            render_rect_.Offset((1 - rel_x_) * parent_width - render_rect_.GetWidth(), 0);
+            render_rect_.Offset(std::ceil((1 - rel_x_) * parent_width - render_rect_.GetWidth()), 0);
         else // align_x_ == CenterX
             render_rect_.Offset(0.5 * (parent_width - render_rect_.GetWidth()), 0);
 
@@ -1484,8 +1484,8 @@ private:
 
     float time_; //the given time.
     float elapsed_time_; //the already elapsed time.
-    int width_original_; // the beginning widget width.
-    int height_original_; //the beginning widget height.
+    float width_original_; // the beginning widget width.
+    float height_original_; //the beginning widget height.
     bool first_frame_; //frist frame to save beginning sizes.
 };
 
