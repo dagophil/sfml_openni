@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <functional>
 
 #include "utility.hxx"
 
@@ -58,7 +59,8 @@ public:
         ChangeScreen,
         Tick,
         Close,
-        MoleHit
+        MoleHit,
+        KinectClick
     };
 
     Event(EventType type)
@@ -88,7 +90,7 @@ public:
 
     Listener()
         :
-          handle_notify_(detail::do_nothing1<Event>)
+          handle_notify_(detail::do_nothing1<Event const &>)
     {}
 
     void notify(Event const & event)

@@ -73,7 +73,7 @@ public:
         else
             return draw_joints_;
     }
-    bool set_draw_joints(bool draw_joints)
+    void set_draw_joints(bool draw_joints)
     {
         draw_joints_ = draw_joints;
         if (draw_joints)

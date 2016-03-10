@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 
 #include <SFML/Graphics.hpp>
 
@@ -10,12 +11,22 @@
 #include "sound_controller.hxx"
 #include "kinect.hxx"
 
+class KinectClickListener : public kin::Listener
+{
+protected:
+    void notify_impl(const kin::Event &event)
+    {
+        std::cout << "CLICK" << std::endl;
+        kin::opts.mouse_clicked_ = true;
+    }
+};
+
 int main(int argc, char** argv)
 {
     using namespace std;
     using namespace kin;
 
-    bool FULLSCREEN = true;
+    bool FULLSCREEN = false;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -26,6 +37,8 @@ int main(int argc, char** argv)
         WIDTH = mode.Width;
         HEIGHT = mode.Height;
     }
+
+    std::cout << "before all" << std::endl;
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
@@ -58,6 +71,10 @@ int main(int argc, char** argv)
 
     // Create the kinect sensor.
     KinectSensor k;
+
+    // Create a callback for the click event.
+    auto click_listener = std::make_shared<KinectClickListener>();
+    event_manager.register_listener(click_listener);
 
     while (window.IsOpened())
     {
@@ -120,7 +137,6 @@ int main(int argc, char** argv)
             mouse_x = -1;
             mouse_y = -1;
         }
-
         if (mouse_x == -1 || mouse_y == -1)
             ;
         else
@@ -135,5 +151,7 @@ int main(int argc, char** argv)
         window.Clear();
         game.render(window);
         window.Display();
+
+        opts.mouse_clicked_ = false;
     }
 }

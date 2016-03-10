@@ -13,6 +13,7 @@
 
 #include "ndarray.hxx"
 #include "utility.hxx"
+#include "events.hxx"
 
 
 
@@ -307,6 +308,12 @@ private:
      */
     static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
 
+    static void XN_CALLBACK_TYPE gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr);
+
+    static void XN_CALLBACK_TYPE gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie);
+
+
+
     xn::Context context_; // the kinect context
 
     xn::DepthGenerator depth_generator_; // the depth generator
@@ -321,6 +328,9 @@ private:
     Array2D<XnLabel> user_data_; // the combined pixel data of all users
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
+
+    xn::GestureGenerator gesture_generator_; // the gesture generator
+    XnBoundingBox3D* bounding_box_; // the gesture bounding box
 
     Averager<XnVector3D, 10> hand_left_; // track the left hand
     Averager<XnVector3D, 10> hand_right_; // track the right hand
@@ -345,9 +355,10 @@ KinectSensor::KinectSensor()
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
         throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
     context_.SetGlobalMirror(true);
+    check_error(gesture_generator_.Create(context_));
 
     // Register the callbacks for the user generator.
-    XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter, h_pose_detected,h_pose_in_progress;
+    XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter, h_pose_detected,h_gesture;
     check_error(user_generator_.RegisterUserCallbacks(user_new, user_lost, this, hUser));
     check_error(user_generator_.GetSkeletonCap().RegisterToCalibrationStart(user_calibration_start, this, hCalibrationStart));
     check_error(user_generator_.GetSkeletonCap().RegisterToCalibrationComplete(user_calibration_complete, this, hCalibrationComplete));
@@ -367,6 +378,12 @@ KinectSensor::KinectSensor()
         user_generator_.GetSkeletonCap().GetCalibrationPose(pose_name_ptr_);
         //check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseInProgress(pose_in_progress,this,h_pose_in_progress));
     }
+
+    // Register click gesture callbacks.
+    if (!gesture_generator_.IsGestureAvailable("Click"))
+        throw std::runtime_error("Click gesture not available.");
+    check_error(gesture_generator_.RegisterGestureCallbacks(gesture_recognized, gesture_progress, this, h_gesture));
+    check_error(gesture_generator_.AddGesture("Click", bounding_box_));
 
     // Start generating the kinect data.
     check_error(context_.StartGeneratingAll());
@@ -532,6 +549,15 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
     std::cout << "pose "<< strPose << " detected."<< std::endl;
     k.user_generator_.GetPoseDetectionCap().StopPoseDetection(nId);
     k.user_generator_.GetSkeletonCap().RequestCalibration(nId,true);
+}
+
+void XN_CALLBACK_TYPE KinectSensor::gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr)
+{
+    event_manager.post(Event(Event::KinectClick));
+}
+
+void XN_CALLBACK_TYPE KinectSensor::gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie)
+{
 }
 
 void KinectSensor::compute_hand_positions()
