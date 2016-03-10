@@ -255,25 +255,29 @@ private:
         event_manager.post(Event(Event::MoleHit));
         combo_count_ += 1;
 
+        //While the combo guage is not full
         if (combo_count_ <= 10)
         {
-            auto show_stars = 0;
-            if(combo_count_ % stars_.size() == 0)
-                show_stars = 5;
-            else
-                show_stars = combo_count_ % stars_.size();
+            auto show_star = 0;
 
+            //The star Position
+            if(combo_count_ % stars_.size() == 0)
+                show_star = 4;
+            else
+                show_star = combo_count_ % stars_.size() - 1;
+
+            //Clear all Stars and animate the first one
             if (combo_count_ == 6)
+            {
                 for (auto star : stars_)
                     star->hide();
-
-            for(auto i = 0; i < show_stars; ++i)
-            {
-                stars_[i]->show();
-                stars_[i]->restart();
+                show_star = 0;
             }
-        }
 
+            stars_[show_star]->show();
+            stars_[show_star]->restart();
+        }
+        //Combo multiplier after 5 succesful hits.
         if(combo_count_ == 5)
         {
             combo_mult_++;
