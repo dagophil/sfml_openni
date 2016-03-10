@@ -91,3 +91,10 @@ target_link_libraries(hdm
     ${SFML_LIBRARIES}
 )
 add_dependencies(hdm copy)
+
+# Executable: The widget test.
+add_executable(test_widgets test_widgets.cxx)
+target_link_libraries(test_widgets
+    ${SFML_LIBRARIES}
+)
+add_dependencies(test_widgets copy)

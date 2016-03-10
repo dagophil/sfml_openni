@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     using namespace std;
     using namespace kin;
 
-    bool FULLSCREEN = true;
+    bool FULLSCREEN = false;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -30,12 +30,8 @@ int main(int argc, char** argv)
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
 
     // Create the mouse widget.
-    opts.mouse_ = std::make_shared<AnimatedWidget>(
-                "animations/hand_load_2s.pf",
-                WIDTH, HEIGHT,
-                75, 75,
-                999
-    );
+    opts.mouse_ = std::make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
+    opts.mouse_->overwrite_render_rectangle({0, 0, 75, 75});
     opts.mouse_->hoverable_ = false;
     opts.mouse_->stop();
     opts.mouse_->repeatable_ = false;
@@ -49,7 +45,7 @@ int main(int argc, char** argv)
     FPS fps_measure;
 
     // Create the game class.
-    HDMGame game(WIDTH, HEIGHT);
+    HDMGame game;
     game.handle_close_ = [&](){
         window.Close();
     };

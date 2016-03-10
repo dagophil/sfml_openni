@@ -41,8 +41,8 @@ public:
         mole_hit_.resize(9, false);
 
         // Add the mole widgets.
-        auto const height = rect_.GetHeight();
-        auto const width = rect_.GetWidth();
+        auto const height = render_rect_.GetHeight();
+        auto const width = render_rect_.GetWidth();
 
         auto timebar_height = height;
         auto timebar_width = std::ceil(0.194 * timebar_height);
@@ -59,11 +59,11 @@ public:
 
         for (int i = 0; i < 9; ++i)
         {
-            auto w = std::make_shared<AnimatedWidget>(
-                    "animations/mole.pf",
-                    sprites_left+(i%3)*sprite_distance_x,sprites_top+(i/3)*sprite_distance_y,
-                    sprites_width,sprites_height,
-                    5);
+            auto w = std::make_shared<AnimatedWidget>("animations/mole.pf", 5);
+            w->set_x(sprites_left+(i%3)*sprite_distance_x);
+            w->set_y(sprites_top+(i/3)*sprite_distance_y);
+            w->set_width(sprites_width);
+            w->set_height(sprites_height);
             moles_.push_back(w);
             add_widget(w);
             w->repeatable_ = false;
@@ -72,23 +72,22 @@ public:
         }
 
         // Add the scoreboard.
-        auto s = std::make_shared<ImageWidget>(
-                    "images/scoreboard.png",
-                    (width-score_width)/2, 0,
-                    score_width, score_height,
-                    1);
+        auto s = std::make_shared<ImageWidget>("images/scoreboard.png", 1);
+        s->set_x((width-score_width)/2);
+        s->set_y(0);
+        s->set_width(score_width);
+        s->set_height(score_height);
         // TODO: Show the scoreboard.
 //        add_widget(s);
 
         // Create the widgets for the 3-2-1 counter.
         auto h = height/4;
         auto w = 1.0 * h;
-        auto timer = std::make_shared<AnimatedWidget>(
-                    "animations/timer.pf",
-                    (width-w)/2, (height-h)/2,
-                    w, h,
-                    50
-        );
+        auto timer = std::make_shared<AnimatedWidget>("animations/timer.pf", 50);
+        timer->set_x((width-w)/2);
+        timer->set_y((height-h)/2);
+        timer->set_width(w);
+        timer->set_height(h);
         timer->hoverable_ = false;
         timer->repeatable_ = false;
         timer->freeze_finish_ = true;
@@ -101,10 +100,10 @@ public:
 
         // Create the resize actions for the timer.
         auto func = [width,w,height,h,timebar_width](Widget &wid, float elapsed_time){
-            wid.rect_.Left = (width-w)/2;
-            wid.rect_.Right = (width-w)/2 + w;
-            wid.rect_.Top  = (height-h)/2;
-            wid.rect_.Bottom = (height-h)/2 + h;
+            wid.set_x((width-w)/2);
+            wid.set_width(w);
+            wid.set_y((height-h)/2);
+            wid.set_height(h);
             return true;
         };
         auto resize_action1 = std::make_shared<FunctionAction>(func);
@@ -117,12 +116,11 @@ public:
         // Create the "go" widget after the timer.
         h = height/3.5;
         w = 1.659 * h;
-        auto go = std::make_shared<ImageWidget>(
-                    "images/timer0.png",
-                    (width-w)/2, (height-h)/2,
-                    w, h,
-                    50
-        );
+        auto go = std::make_shared<ImageWidget>("images/timer0.png", 50);
+        go->set_x((width-w)/2);
+        go->set_y((height-h)/2);
+        go->set_width(w);
+        go->set_height(h);
 
         // Show / hide the 3-2-1 counter.
         event_manager.add_delayed_call(3.0, [&, timer, go](){
@@ -137,12 +135,11 @@ public:
         // Create the back button.
         w = 240;
         h = 80;
-        auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >(
-                    "images/back_button.png",
-                    (width-w)/2, 5,
-                    w, h,
-                    2
-        );
+        auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png", 2);
+        back_button->set_x((width-w)/2);
+        back_button->set_y(5);
+        back_button->set_width(w);
+        back_button->set_height(h);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));
@@ -150,22 +147,19 @@ public:
         add_widget(back_button);
 
         // Show the time bar.
-        auto timebar = std::make_shared<ImageWidget>(
-                    "images/timebar_frame.png",
-                    width-timebar_width, 0,
-                    timebar_width, timebar_height,
-                    5);
+        auto timebar = std::make_shared<ImageWidget>("images/timebar_frame.png", 5);
+        timebar->set_x(width-timebar_width);
+        timebar->set_y(0);
+        timebar->set_width(timebar_width);
+        timebar->set_height(timebar_height);
         add_widget(timebar);
         timefill_original_top_ = std::ceil(0.00729 * timebar_height);
         timefill_original_height_ = std::ceil(0.985 * timebar_height);
-        timefill_ = std::make_shared<ColorWidget>(
-                    sf::Color(255, 149, 14),
-                    width-timebar_width + std::ceil(0.0472*timebar_width),
-                    timefill_original_top_,
-                    std::ceil(0.913 * timebar_width),
-                    timefill_original_height_,
-                    6
-        );
+        timefill_ = std::make_shared<ColorWidget>(sf::Color(255, 149, 14), 6);
+        timefill_->set_x(width-timebar_width + std::ceil(0.0472*timebar_width));
+        timefill_->set_y(timefill_original_top_);
+        timefill_->set_width(std::ceil(0.913 * timebar_width));
+        timefill_->set_height(timefill_original_height_);
         add_widget(timefill_);
 
         // Find the position and wave of the golden mole.
@@ -176,23 +170,22 @@ public:
         gmole_wave_ = gmole_wave_index(opts.rand_engine_);
 
         // Make golden mole widget.
-        gmole_ = std::make_shared<AnimatedWidget>(
-                    "animations/mole_golden.pf",
-                    sprites_left+(gmole_position_%3)*sprite_distance_x,
-                    sprites_top+(gmole_position_/3)*sprite_distance_y,
-                    sprites_width,sprites_height,
-                    6);
+        gmole_ = std::make_shared<AnimatedWidget>("animations/mole_golden.pf", 6);
+        gmole_->set_x(sprites_left+(gmole_position_%3)*sprite_distance_x);
+        gmole_->set_y(sprites_top+(gmole_position_/3)*sprite_distance_y);
+        gmole_->set_width(sprites_width);
+        gmole_->set_height(sprites_height);
         gmole_->repeatable_ = false;
         gmole_->freeze_finish_ = true;
         gmole_->stop();
         add_widget(gmole_);
 
         // Add the combo counter.
-        auto starbar = std::make_shared<ImageWidget>(
-                    "images/combobar_frame.png",
-                    0, 0,
-                    timebar_width, timebar_height,
-                    5);
+        auto starbar = std::make_shared<ImageWidget>("images/combobar_frame.png", 5);
+        starbar->set_x(0);
+        starbar->set_y(0);
+        starbar->set_width(timebar_width);
+        starbar->set_height(timebar_height);
         add_widget(starbar);
         {
             auto n_stars = 5;
@@ -204,19 +197,17 @@ public:
             for (int i = 0; i < n_stars; ++i)
             {
                 auto y = i * (star_total_height - star_height) / (n_stars-1.0) + star_y_offset;
-                auto star_gray = std::make_shared<ImageWidget>(
-                            "images/star_gray.png",
-                            star_x_offset, y,
-                            star_width, star_height,
-                            2
-                );
+                auto star_gray = std::make_shared<ImageWidget>("images/star_gray.png", 2);
+                star_gray->set_x(star_x_offset);
+                star_gray->set_y(y);
+                star_gray->set_width(star_width);
+                star_gray->set_height(star_height);
                 starbar->add_widget(star_gray);
-                auto star_gold = std::make_shared<AnimatedWidget>(
-                            "animations/star.pf",
-                            star_x_offset, y,
-                            star_width, star_height,
-                            3
-                );
+                auto star_gold = std::make_shared<AnimatedWidget>("animations/star.pf", 3);
+                star_gold->set_x(star_x_offset);
+                star_gold->set_y(y);
+                star_gold->set_width(star_width);
+                star_gold->set_height(star_height);
                 star_gold->freeze_finish_ = true;
                 star_gold->repeatable_ = false;
                 star_gold->stop();
@@ -228,11 +219,11 @@ public:
             auto combo_height = 0.752 * combo_width;
             auto combo_x = (timebar_width - combo_width) / 2.0;
             auto combo_y = star_y_offset-0.8*combo_height;
-            combo_counter_ = std::make_shared<AnimatedWidget>(
-                        "animations/multi_sheet.pf",
-                        combo_x, combo_y,
-                        combo_width, combo_height,
-                        1);
+            combo_counter_ = std::make_shared<AnimatedWidget>("animations/multi_sheet.pf", 1);
+            combo_counter_->set_x(combo_x);
+            combo_counter_->set_y(combo_y);
+            combo_counter_->set_width(combo_width);
+            combo_counter_->set_height(combo_height);
             combo_counter_->stop();
             starbar->add_widget(combo_counter_);
         }
@@ -276,7 +267,7 @@ protected:
             }
             auto t = 1.0 - remaining_time_ / total_time_;
             auto delta = t * timefill_original_height_;
-            timefill_->rect_.Top = timefill_original_top_ + delta;
+            timefill_->set_y(timefill_original_top_ + delta);
         }
     }
 
@@ -337,16 +328,15 @@ private:
             animation = "animations/hit.pf";
             w_factor = 1.109;
         }
-        auto h = 0.568 * moles_[i]->rect_.GetHeight();
+        auto h = 0.568 * moles_[i]->get_height();
         auto w = w_factor * h;
-        auto x = moles_[i]->rect_.Left + (moles_[i]->rect_.GetWidth()-w)/2;
-        auto y = moles_[i]->rect_.Top + (moles_[i]->rect_.GetHeight())/2 - h;
-        auto pow = std::make_shared<AnimatedWidget>(
-                    animation,
-                    x, y,
-                    w, h,
-                    6
-        );
+        auto x = moles_[i]->get_x() + (moles_[i]->get_width()-w)/2;
+        auto y = moles_[i]->get_y() + (moles_[i]->get_height())/2 - h;
+        auto pow = std::make_shared<AnimatedWidget>(animation, 6);
+        pow->set_x(x);
+        pow->set_y(y);
+        pow->set_width(w);
+        pow->set_height(h);
         add_widget(pow);
         event_manager.add_delayed_call(1.0, [&, pow](){
             remove_widget(pow);
@@ -499,16 +489,15 @@ private:
         std::cout << "Score: " << score_ << std::endl;
 
         running_ = false;
-        auto width = rect_.GetWidth();
-        auto height = rect_.GetHeight();
+        auto width = render_rect_.GetWidth();
+        auto height = render_rect_.GetHeight();
         auto h = 0.5 * height;
         auto w = 1.6 * h;
-        auto timeup = std::make_shared<ImageWidget>(
-                    "images/time_up.png",
-                    (width-w-timefill_->rect_.GetWidth())/2, (height-h)/2,
-                    w, h,
-                    99
-        );
+        auto timeup = std::make_shared<ImageWidget>("images/time_up.png", 99);
+        timeup->set_x((width-w-timefill_->get_width())/2);
+        timeup->set_y((height-h)/2);
+        timeup->set_width(w);
+        timeup->set_height(h);
         add_widget(timeup);
         event_manager.add_delayed_call(2.0, [&, timeup](){
             remove_widget(timeup);
