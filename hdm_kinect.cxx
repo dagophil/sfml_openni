@@ -8,6 +8,7 @@
 #include "events.hxx"
 #include "widgets.hxx"
 #include "sound_controller.hxx"
+#include "kinect.hxx"
 
 int main(int argc, char** argv)
 {
@@ -55,6 +56,9 @@ int main(int argc, char** argv)
     auto sound_controller = std::make_shared<HDMSoundController>();
     event_manager.register_listener(sound_controller);
 
+    // Create the kinect sensor.
+    KinectSensor k;
+
     while (window.IsOpened())
     {
         // Handle window events.
@@ -79,10 +83,48 @@ int main(int argc, char** argv)
         }
 
         // Process the input.
-        sf::Input const & input = window.GetInput();
-        int mouse_x = input.GetMouseX();
-        int mouse_y = input.GetMouseY();
-        game.hover(mouse_x, mouse_y);
+//        sf::Input const & input = window.GetInput();
+//        int mouse_x = input.GetMouseX();
+//        int mouse_y = input.GetMouseY();
+//        game.hover(mouse_x, mouse_y);
+
+        // Update the kinect data.
+        float mouse_x;
+        float mouse_y;
+        auto updates = k.update();// Get the hand positions.
+        auto hand_left = k.hand_left();
+        auto hand_right = k.hand_right();
+        bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.0;
+        bool hand_right_visible = k.hand_right_visible() && hand_right.Z >= 0.0;
+        bool hand_visible = hand_left_visible || hand_right_visible;
+        if (hand_visible)
+        {
+            bool both_visible = hand_left_visible && hand_right_visible;
+            if (!hand_right_visible || (both_visible && hand_left.Z > hand_right.Z))
+            {
+                mouse_x = (hand_left.X + 1.5) * WIDTH / 1.75;
+                mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+            }
+            else
+            {
+                mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
+                mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+            }
+
+            // Check that the mouse is actually visible.
+            if (mouse_x < 0 || mouse_x >= WIDTH || mouse_y < 0 || mouse_y >= HEIGHT)
+                hand_visible = false;
+        }
+        if (!hand_visible)
+        {
+            mouse_x = -1;
+            mouse_y = -1;
+        }
+
+        if (mouse_x == -1 || mouse_y == -1)
+            ;
+        else
+            game.hover(mouse_x, mouse_y);
 
         // Update the widgets.
         auto fps = fps_measure.update();

@@ -99,6 +99,7 @@ add_dependencies(hdm copy)
 add_executable(hdm_kinect hdm_kinect.cxx)
 target_link_libraries(hdm_kinect
     ${SFML_LIBRARIES}
+    ${OPENNI_LIBRARIES}
 )
 add_dependencies(hdm_kinect copy)
 
