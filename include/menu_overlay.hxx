@@ -48,7 +48,8 @@ public:
         // Create the grid for the texts.
         auto text_grid_ptr = std::make_shared<GridWidget>(1, 2);
         auto & text_grid = *text_grid_ptr;
-        text_grid.set_y_sizes(0.3, 0.7);
+        text_grid.set_y(0.1);
+        text_grid.set_y_sizes(0.36, 0.64);
         grid(1) = text_grid_ptr;
 
         // Create the text widget for the title.
@@ -72,6 +73,14 @@ public:
         im_bg->set_width(1.0491);
         im_bg->set_height(1.36154);
         add_widget(im_bg);
+    }
+
+protected:
+
+    void render_impl(sf::RenderTarget &target)
+    {
+        title_w_->font_size_ = render_rect_.GetHeight() / 5.0;
+        text_w_->font_size_ = render_rect_.GetHeight() / 6.0;
     }
 
 private:

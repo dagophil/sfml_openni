@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     using namespace std;
     using namespace kin;
 
-    bool FULLSCREEN = false;
+    bool FULLSCREEN = true;
 
     // Window width and height.
     size_t WIDTH = 800;

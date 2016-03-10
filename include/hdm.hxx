@@ -71,7 +71,7 @@ HDMGame::HDMGame()
     event_manager.register_listener(listener_);
 
     // Load the splash screen.
-    load_screen(Event::GameScreen);
+    load_screen(Event::SplashScreen);
 }
 
 void HDMGame::update_impl(float elapsed_time)

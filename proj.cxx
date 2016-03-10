@@ -5,9 +5,11 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "kinect.hxx"
-#include "utility.hxx"
 #include "menu_overlay.hxx"
+#include "utility.hxx"
+#include "widgets.hxx"
+#include "options.hxx"
+#include "kinect.hxx"
 
 
 class DrawOptions
@@ -99,6 +101,7 @@ private:
 int main(int argc, char** argv)
 {
     using namespace std;
+    using namespace kin;
 
     // Read the xml file from command line.
     if (argc != 2)
@@ -126,9 +129,14 @@ int main(int argc, char** argv)
     double const SCALE_Y = HEIGHT / (double) k.y_res();
 
     // Load the default font.
-    sf::Font font;
-    if (!font.LoadFromFile("fonts/opensans/OpenSans-Regular.ttf"))
-        throw runtime_error("Could not load font.");
+    opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+
+    // Create the mouse widget.
+    opts.mouse_ = make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
+    opts.mouse_->overwrite_render_rectangle({0, 0, 75, 75});
+    opts.mouse_->hoverable_ = false;
+    opts.mouse_->stop();
+    opts.mouse_->repeatable_ = false;
 
     // Create the menu overlay.
     kin::MenuOverlay overlay(xml_filename, WIDTH, HEIGHT);
@@ -145,7 +153,7 @@ int main(int argc, char** argv)
     // Measure the FPS.
     FPS fps_measure;
     sf::String fps_text;
-    fps_text.SetFont(font);
+    fps_text.SetFont(opts.default_font());
     fps_text.SetSize(16);
 
     // Create the sprite for the depth RGBA.
@@ -163,12 +171,6 @@ int main(int argc, char** argv)
     // Create the texture for the user joints.
     sf::Image joint_texture(3, 3, sf::Color(255, 255, 255, 255));
     std::vector<sf::Sprite> joint_sprites;
-
-    // Create the cursor.
-    sf::Image cursor;
-    cursor.LoadFromFile("images/hand.png");
-    sf::Sprite cursor_sprite(cursor);
-    cursor_sprite.SetScale(0.1, 0.1);
 
     // Window open/close loop.
     do
@@ -277,8 +279,8 @@ int main(int argc, char** argv)
             }
             if (hand_visible)
             {
-                cursor_sprite.SetX(mouse_x);
-                cursor_sprite.SetY(mouse_y);
+//                cursor_sprite.SetX(mouse_x);
+//                cursor_sprite.SetY(mouse_y);
             }
             else
             {
