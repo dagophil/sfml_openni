@@ -877,67 +877,6 @@ private:
 
 };
 
-//template <typename T>
-//sf::Vector2f compute_scale_factor(
-//        sf::Rect<T> const & rect,
-//        size_t image_width,
-//        size_t image_height,
-//        Scale scale
-//){
-//    float width = rect.GetWidth();
-//    float height = rect.GetHeight();
-//    if (scale == Fit)
-//    {
-//        return {width / image_width, height / image_height};
-//    }
-////    else if (scale == FitBoth)
-////    {
-////        float factor = height / image_height;
-////        if (factor*image_width > rect.GetWidth())
-////            factor = rect.GetWidth() / image_width;
-////        return {factor, factor};
-////    }
-//    else if (scale == FitX)
-//    {
-//        float factor = width / image_width;
-//        return {factor, factor};
-//    }
-//    else
-//    {
-//        float factor = height / image_height;
-//        return {factor, factor};
-//    }
-//}
-
-//template <typename T>
-//sf::Vector2f compute_image_position(
-//        sf::Rect<T> const & rect,
-//        size_t image_width,
-//        size_t image_height,
-//        AlignX align_x,
-//        AlignY align_y,
-//        float scale_x,
-//        float scale_y
-//){
-//    float x = rect.Left;
-//    if (align_x == Left)
-//        x += 0;
-//    else if (align_x == Right)
-//        x += rect.GetWidth() - scale_x * image_width;
-//    else
-//        x += (rect.GetWidth() - scale_x * image_width) / 2.0;
-
-//    float y = rect.Top;
-//    if (align_y == Top)
-//        y += 0;
-//    else if (align_y == Bottom)
-//        y += rect.GetHeight() - scale_y * image_height;
-//    else
-//        y += (rect.GetHeight() - scale_y * image_height) / 2.0;
-
-//    return {x, y};
-//}
-
 /**
  * @brief A widget that displays a single image.
  */
@@ -965,9 +904,6 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-//        auto const scale = compute_scale_factor(rect_, image_.GetWidth(), image_.GetHeight(), scale_style_);
-//        auto const pos = compute_image_position(rect_, image_.GetWidth(), image_.GetHeight(), align_x_, align_y_, scale.x, scale.y);
-//        sf::Sprite spr(image_, pos, scale);
         auto x = static_cast<float>(render_rect_.Left);
         auto y = static_cast<float>(render_rect_.Top);
         auto scale_x = render_rect_.GetWidth() / static_cast<float>(image_.GetWidth());
