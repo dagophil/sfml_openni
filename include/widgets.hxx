@@ -235,8 +235,6 @@ public:
     void set_x(float x)
     {
         rel_x_ = x;
-        if (align_x_ == CenterX)
-            align_x_ = Left;
     }
 
     /**
@@ -245,8 +243,6 @@ public:
     void set_y(float y)
     {
         rel_y_ = y;
-        if (align_y_ == CenterY)
-            align_y_ = Top;
     }
 
     void move_x(float x)
@@ -546,7 +542,7 @@ void Widget::render(
         else if (align_x_ == Right)
             render_rect_.Offset(std::ceil((1 - rel_x_) * parent_width - render_rect_.GetWidth()), 0);
         else // align_x_ == CenterX
-            render_rect_.Offset(0.5 * (parent_width - render_rect_.GetWidth()), 0);
+            render_rect_.Offset(0.5 * (parent_width - render_rect_.GetWidth()) + rel_x_*parent_width, 0);
 
         // Compute the correct render position in y.
         if (align_y_ == Top)
@@ -554,7 +550,7 @@ void Widget::render(
         else if (align_y_ == Bottom)
             render_rect_.Offset(0, (1 - rel_y_) * parent_height - render_rect_.GetHeight());
         else // align_y_ == CenterY
-            render_rect_.Offset(0, 0.5 * (parent_height - render_rect_.GetHeight()));
+            render_rect_.Offset(0, 0.5 * (parent_height - render_rect_.GetHeight()) + rel_y_*parent_height);
 
         // Move the widget relative to the parent.
         render_rect_.Offset(parent_x, parent_y);
