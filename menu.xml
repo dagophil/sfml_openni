@@ -1,10 +1,16 @@
 <MENU>
     <MENUITEM>
         <IMAGE>images/pow_01.png</IMAGE>
-        <TITLE>Hau den Maulwurf</TITLE>
-        <DESCRIPTION>Super awesome Hau den Maulwurf game.</DESCRIPTION>
+        <TITLE>Whac a mole</TITLE>
+        <DESCRIPTION>The Whac a mole game.</DESCRIPTION>
         <COMMAND>./hdm</COMMAND>
     </MENUITEM>
+    <MENUITEM>
+        <IMAGE>images/pow_01.png</IMAGE>
+        <TITLE>Whac a mole (Kinect)</TITLE>
+        <DESCRIPTION>The Whac a mole game (kinect).</DESCRIPTION>
+        <COMMAND>./hdm_kinect</COMMAND>
+    </MENUITEM>        
     <MENUITEM>
         <IMAGE>images/luigi.jpg</IMAGE>
         <TITLE>Luigi</TITLE>

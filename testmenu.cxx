@@ -22,9 +22,17 @@ int main(int argc, char** argv)
     }
     string xml_filename = argv[1];
 
+    bool FULLSCREEN = true;
+
     // Window width and height.
-    size_t const WIDTH = 800;
-    size_t const HEIGHT = 600;
+    size_t WIDTH = 800;
+    size_t HEIGHT = 600;
+    if (FULLSCREEN)
+    {
+        auto mode = sf::VideoMode::GetDesktopMode();
+        WIDTH = mode.Width;
+        HEIGHT = mode.Height;
+    }
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
@@ -57,7 +65,10 @@ int main(int argc, char** argv)
         // Create the window.
         int mouse_x = -1;
         int mouse_y = -1;
-        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu");
+        auto style = sf::Style::Close;
+        if (FULLSCREEN)
+            style = sf::Style::Fullscreen;
+        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu", style);
         window.ShowMouseCursor(false);
         FPS fps_measure;
         overlay.handle_close_ = [&]()

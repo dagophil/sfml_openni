@@ -108,7 +108,11 @@ int main(int argc, char** argv)
         throw runtime_error("Wrong number of arguments.");
     string xml_filename = argv[1];
 
+    // The drawing options.
+    DrawOptions draw_opts;
+
     bool FULLSCREEN = true;
+    draw_opts.set_draw_menu(true);
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -119,9 +123,6 @@ int main(int argc, char** argv)
         WIDTH = mode.Width;
         HEIGHT = mode.Height;
     }
-
-    // The drawing options.
-    DrawOptions draw_opts;
 
     // Create the kinect sensor.
     kin::KinectSensor k;
