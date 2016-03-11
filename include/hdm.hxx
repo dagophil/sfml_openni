@@ -22,6 +22,8 @@ public:
 
     HDMGame();
 
+    void hover_field(int x, int y);
+
     std::function<void()> handle_close_;
 
 protected:
@@ -39,11 +41,17 @@ private:
     std::shared_ptr<Widget> container_; // the main container
     std::shared_ptr<Listener> listener_; // the main listener
 
+    int hov_x_;
+    int hov_y_;
+    Event::ScreenID current_screen_;
+
 };
 
 HDMGame::HDMGame()
     :
-      handle_close_(detail::do_nothing0)
+      handle_close_(detail::do_nothing0),
+      hov_x_(-1),
+      hov_y_(-1)
 {
     handle_hover_ = [&](DiffType x, DiffType y)
     {
@@ -71,14 +79,27 @@ HDMGame::HDMGame()
     event_manager.register_listener(listener_);
 
     // Load the splash screen.
-    load_screen(Event::SplashScreen);
+    load_screen(Event::GameScreen);
+}
+
+void HDMGame::hover_field(int x, int y)
+{
+    hov_x_ = x;
+    hov_y_ = y;
 }
 
 void HDMGame::update_impl(float elapsed_time)
 {
+    Event hov(Event::FieldHover);
+    hov.field_hover_.x_ = hov_x_;
+    hov.field_hover_.y_ = hov_y_;
+    event_manager.post(hov);
+
     Event tick(Event::Tick);
     tick.tick_.elapsed_time_ = elapsed_time;
     event_manager.post(tick);
+    hov_x_ = -1;
+    hov_y_ = -1;
 }
 
 /**
@@ -96,6 +117,8 @@ typedef std::function<std::shared_ptr<Widget>()> ScreenFunction;
 
 void HDMGame::load_screen(Event::ScreenID id)
 {
+    current_screen_ = id;
+
     // Remove the current widgets.
     container_->clear_widgets();
     event_manager.clear_delayed_calls();

@@ -37,6 +37,10 @@ public:
           perfect_game_(true),
           combo_mult_(1)
     {
+        // Hide the mouse.
+        opts.mouse_->hide();
+
+
         // Set all moles to "in".
         mole_out_.resize(9, false);
         mole_hit_.resize(9, false);
@@ -192,6 +196,33 @@ public:
         combo_counter_ = std::make_shared<AnimatedWidget>("animations/multi_sheet.pf");
         combo_counter_->stop();
         star_grid(0) = combo_counter_;
+
+
+        std::vector<std::shared_ptr<ColorWidget> > targets;
+        for (size_t i = 0; i < 9; ++i)
+        {
+            auto w = std::make_shared<ColorWidget>(sf::Color(255, 0, 0));
+            targets.push_back(w);
+            mole_grid(i%3, i/3)->add_widget(w);
+            w->hide();
+        }
+
+        // Create the event listener.
+        listener_ = std::make_shared<Listener>();
+        listener_->handle_notify_ = [targets](Event const & ev){
+            if (ev.type_ == Event::FieldHover)
+            {
+                for (auto w : targets)
+                    w->hide();
+                auto x = ev.field_hover_.x_;
+                auto y = ev.field_hover_.y_;
+                if (x != -1 && y != -1)
+                {
+                    targets[3*y + x]->show();
+                }
+            }
+        };
+        event_manager.register_listener(listener_);
     }
 
 protected:
@@ -567,9 +598,8 @@ private:
     bool perfect_game_; // whether the user played a perfect game
     std::vector<MolePointer> stars_; //The golden stars
     size_t combo_mult_; // the current point multiplier
-
-
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
+    std::shared_ptr<Listener> listener_; // the event listener
 
 };
 

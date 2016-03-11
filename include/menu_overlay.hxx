@@ -249,6 +249,12 @@ MenuOverlay::MenuOverlay(
     scroll_top_ = std::make_shared<ColorWidget>(scroll_color, 1);
     scroll_top_->set_height(close_height);
     scroll_top_->scale_= None;
+    auto arrow_top = std::make_shared<ImageWidget>("images/arrow_up.png",2);
+    arrow_top->scale_ = ScaleInX;
+    arrow_top->align_x_ = CenterX;
+    arrow_top->align_y_ = CenterY;
+    arrow_top->set_height(0.5);
+    scroll_top_->add_widget(arrow_top);
     grid(1)->add_widget(scroll_top_);
 
     // Create the bottom scroll button.
@@ -256,6 +262,12 @@ MenuOverlay::MenuOverlay(
     scroll_bottom_->set_height(close_height);
     scroll_bottom_->scale_ = None;
     scroll_bottom_->align_y_ = Bottom;
+    auto arrow_bottom = std::make_shared<ImageWidget>("images/arrow_bottom.png",2);
+    arrow_bottom->scale_ = ScaleInX;
+    arrow_bottom->align_x_ = CenterX;
+    arrow_bottom->align_y_ = CenterY;
+    arrow_bottom->set_height(0.5);
+    scroll_bottom_->add_widget(arrow_bottom);
     grid(1)->add_widget(scroll_bottom_);
 
     // Create the right scroll bar.

@@ -11,16 +11,6 @@
 #include "sound_controller.hxx"
 #include "kinect.hxx"
 
-class KinectClickListener : public kin::Listener
-{
-protected:
-    void notify_impl(const kin::Event &event)
-    {
-        std::cout << "CLICK" << std::endl;
-        kin::opts.mouse_clicked_ = true;
-    }
-};
-
 int main(int argc, char** argv)
 {
     using namespace std;
@@ -37,8 +27,6 @@ int main(int argc, char** argv)
         WIDTH = mode.Width;
         HEIGHT = mode.Height;
     }
-
-    std::cout << "before all" << std::endl;
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
@@ -72,10 +60,6 @@ int main(int argc, char** argv)
     // Create the kinect sensor.
     KinectSensor k;
 
-    // Create a callback for the click event.
-    auto click_listener = std::make_shared<KinectClickListener>();
-    event_manager.register_listener(click_listener);
-
     while (window.IsOpened())
     {
         // Handle window events.
@@ -92,23 +76,15 @@ int main(int argc, char** argv)
                 if (event.Key.Code == sf::Key::Escape)
                     window.Close();
             }
-            else if (event.Type == sf::Event::MouseButtonPressed)
-            {
-                if (event.MouseButton.Button == sf::Mouse::Button::Left)
-                    opts.mouse_clicked_ = true;
-            }
         }
 
-        // Process the input.
-//        sf::Input const & input = window.GetInput();
-//        int mouse_x = input.GetMouseX();
-//        int mouse_y = input.GetMouseY();
-//        game.hover(mouse_x, mouse_y);
-
         // Update the kinect data.
+        auto updates = k.update();
+
+        // Get the hand positions.
         float mouse_x;
         float mouse_y;
-        auto updates = k.update();// Get the hand positions.
+        float mouse_z;
         auto hand_left = k.hand_left();
         auto hand_right = k.hand_right();
         bool hand_left_visible = k.hand_left_visible() && hand_left.Z >= 0.0;
@@ -119,13 +95,15 @@ int main(int argc, char** argv)
             bool both_visible = hand_left_visible && hand_right_visible;
             if (!hand_right_visible || (both_visible && hand_left.Z > hand_right.Z))
             {
-                mouse_x = (hand_left.X + 1.5) * WIDTH / 1.75;
-                mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+                mouse_x = hand_left.X * WIDTH;
+                mouse_y = hand_left.Y * HEIGHT;
+                mouse_z = (1.5 - hand_left.Z) * HEIGHT;
             }
             else
             {
-                mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
-                mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+                mouse_x = hand_right.X * WIDTH;
+                mouse_y = hand_right.Y * HEIGHT;
+                mouse_z = (1.5 - hand_right.Z) * HEIGHT;
             }
 
             // Check that the mouse is actually visible.
@@ -136,11 +114,42 @@ int main(int argc, char** argv)
         {
             mouse_x = -1;
             mouse_y = -1;
+            mouse_z = -1;
         }
-        if (mouse_x == -1 || mouse_y == -1)
-            ;
-        else
-            game.hover(mouse_x, mouse_y);
+
+//        mouse_z = mouse_y;
+        if (mouse_x != -1 && mouse_z != -1)
+        {
+            game.hover(mouse_x, mouse_z);
+
+            // Find the currently hovered field.
+            int fx = -1;
+            int fy = -1;
+            if (mouse_x < WIDTH/3.5)
+                fx = 0;
+            else if (mouse_x < 2.5*WIDTH/3.5)
+                fx = 1;
+            else
+                fx = 2;
+            if (mouse_z < HEIGHT/3.0)
+                fy = 0;
+            else if (mouse_z < 2*HEIGHT/3.0)
+                fy = 1;
+            else
+                fy = 2;
+
+            game.hover_field(fx, fy);
+        }
+
+
+        // Check for clicks.
+        if (updates.user_)
+        {
+            if (k.click_left())
+                opts.mouse_clicked_ = true;
+            if (k.click_right())
+                opts.mouse_clicked_ = true;
+        }
 
         // Update the widgets.
         auto fps = fps_measure.update();

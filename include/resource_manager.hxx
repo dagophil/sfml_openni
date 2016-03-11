@@ -23,7 +23,6 @@ public:
         }
         else
         {
-            std::cout << "Loading " << filename << std::endl;
             auto p = images_.emplace(filename, sf::Image());
             auto it = p.first;
             if (!it->second.LoadFromFile(filename))

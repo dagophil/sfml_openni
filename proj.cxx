@@ -183,6 +183,7 @@ int main(int argc, char** argv)
         // Create the window and go into the main loop.
         float mouse_x = 0;
         float mouse_y = 0;
+//        float mouse_z = 0;
         auto style = sf::Style::Close;
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
@@ -220,7 +221,10 @@ int main(int argc, char** argv)
             // Process the input.
             sf::Input const & input = window.GetInput();
             if (input.IsKeyDown(sf::Key::Escape))
+            {
                 window.Close();
+                break;
+            }
 
 
             ///////////////////////////////////////////////
@@ -265,13 +269,15 @@ int main(int argc, char** argv)
                 bool both_visible = hand_left_visible && hand_right_visible;
                 if (!hand_right_visible || (both_visible && hand_left.Z > hand_right.Z))
                 {
-                    mouse_x = (hand_left.X + 1.5) * WIDTH / 1.75;
-                    mouse_y = (hand_left.Y - 0.7) * HEIGHT / 1.5;
+                    mouse_x = hand_left.X * WIDTH;
+                    mouse_y = hand_left.Y * HEIGHT;
+//                    mouse_z = (1.5 - hand_left.Z ) * HEIGHT;
                 }
                 else
                 {
-                    mouse_x = (hand_right.X + 0.33) * WIDTH / 1.75;
-                    mouse_y = (hand_right.Y - 0.7) * HEIGHT / 1.5;
+                    mouse_x = hand_right.X * WIDTH;
+                    mouse_y = hand_right.Y * HEIGHT;
+//                    mouse_z = (1.5 - hand_right.Z) * HEIGHT;
                 }
 
                 // Check that the mouse is actually visible.

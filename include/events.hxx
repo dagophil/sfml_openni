@@ -54,13 +54,20 @@ public:
         float elapsed_time_;
     };
 
+    struct FieldHoverEvent
+    {
+        int x_;
+        int y_;
+    };
+
     enum EventType
     {
         ChangeScreen,
         Tick,
         Close,
         MoleHit,
-        KinectClick
+        KinectClick,
+        FieldHover
     };
 
     Event(EventType type)
@@ -80,6 +87,7 @@ public:
     {
         ChangeScreenEvent change_screen_;
         TickEvent tick_;
+        FieldHoverEvent field_hover_;
     };
 
 };
@@ -161,7 +169,8 @@ public:
             // Pass all events to the listeners.
             while (!queue_.empty())
             {
-                for (auto l : listeners_)
+                auto listeners_copy = listeners_;
+                for (auto l : listeners_copy)
                 {
                     l->notify(queue_.front());
                 }

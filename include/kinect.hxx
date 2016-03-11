@@ -13,16 +13,6 @@
 
 #include "ndarray.hxx"
 #include "utility.hxx"
-#include "events.hxx"
-
-
-
-std::ostream & operator<<(std::ostream & s, XnPoint3D const & p)
-{
-    s << "(" << p.X << ", " << p.Y << ", " << p.Z << ")";
-    return s;
-}
-
 
 
 namespace kin
@@ -233,7 +223,11 @@ public:
      */
     XnVector3D hand_left() const
     {
-        return hand_left_.mean();
+        auto p = hand_left_.mean();
+        p.X = (p.X + 1.5) / 1.75;
+        p.Y = (p.Y - 0.7) / 1.5;
+//        p.Z = (p.Z + 1.0);
+        return p;
     }
     
     /**
@@ -241,7 +235,11 @@ public:
      */
     XnVector3D hand_right() const
     {
-        return hand_right_.mean();
+        auto p = hand_right_.mean();
+        p.X = (p.X + 0.25) / 1.75;
+        p.Y = (p.Y - 0.7) / 1.5;
+//        p.Z = (p.Z + 1.0);
+        return p;
     }
 
     /**
@@ -260,6 +258,22 @@ public:
         return hand_right_visible_;
     }
 
+    /**
+     * @brief Return whether a left hand click occured since the last update.
+     */
+    bool click_left() const
+    {
+        return click_left_;
+    }
+
+    /**
+     * @brief Return whether a right hand click occured since the last update.
+     */
+    bool click_right() const
+    {
+        return click_right_;
+    }
+
 private:
 
     /**
@@ -271,6 +285,11 @@ private:
      * @brief Compute the hand positions.
      */
     void compute_hand_positions();
+
+    /**
+     * @brief Check if the user made a click gesture.
+     */
+    void check_for_clicks();
 
     /**
      * @brief Callback for the "new user" event. Starts the calibration.
@@ -308,9 +327,9 @@ private:
      */
     static void XN_CALLBACK_TYPE pose_detected(xn::PoseDetectionCapability& , const XnChar* strPose, XnUserID nId, void*);
 
-    static void XN_CALLBACK_TYPE gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr);
+//    static void XN_CALLBACK_TYPE gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr);
 
-    static void XN_CALLBACK_TYPE gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie);
+//    static void XN_CALLBACK_TYPE gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie);
 
 
 
@@ -329,13 +348,19 @@ private:
     std::vector<User> users_; // the current users
     std::vector<bool> user_visible_; // keeps track of the visibility of the users
 
-    xn::GestureGenerator gesture_generator_; // the gesture generator
-    XnBoundingBox3D* bounding_box_; // the gesture bounding box
+//    xn::GestureGenerator gesture_generator_; // the gesture generator
+//    XnBoundingBox3D* bounding_box_; // the gesture bounding box
 
     Averager<XnVector3D, 10> hand_left_; // track the left hand
     Averager<XnVector3D, 10> hand_right_; // track the right hand
     bool hand_left_visible_; // whether the left hand is visible
     bool hand_right_visible_; // whether the right hand is visible
+
+    bool just_clicked_left_; // whether the click with the left hand was already sent before moving the hand back
+    bool just_clicked_right_; // whether the click with the right hand was already sent before moving the hand back
+    bool click_left_; // whether the user clicked with his left hand
+    bool click_right_; // whether the user clicked with his right hand
+
 };
 
 KinectSensor::KinectSensor()
@@ -346,7 +371,11 @@ KinectSensor::KinectSensor()
       hand_left_({0, 0, 0}),
       hand_right_({0, 0, 0}),
       hand_left_visible_(false),
-      hand_right_visible_(false)
+      hand_right_visible_(false),
+      just_clicked_left_(false),
+      just_clicked_right_(false),
+      click_left_(false),
+      click_right_(false)
 {
     // Initialize the kinect components.
     check_error(context_.Init());
@@ -355,7 +384,7 @@ KinectSensor::KinectSensor()
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
         throw std::runtime_error("KinectSensor::KinectSensor(): User generator does not support skeleton.");
     context_.SetGlobalMirror(true);
-    check_error(gesture_generator_.Create(context_));
+//    check_error(gesture_generator_.Create(context_));
 
     // Register the callbacks for the user generator.
     XnCallbackHandle hUser, hCalibrationStart, hCalibrationComplete, hUserExit, hUserReenter, h_pose_detected,h_gesture;
@@ -379,11 +408,11 @@ KinectSensor::KinectSensor()
         //check_error(user_generator_.GetPoseDetectionCap().RegisterToPoseInProgress(pose_in_progress,this,h_pose_in_progress));
     }
 
-    // Register click gesture callbacks.
-    if (!gesture_generator_.IsGestureAvailable("Click"))
-        throw std::runtime_error("Click gesture not available.");
-    check_error(gesture_generator_.RegisterGestureCallbacks(gesture_recognized, gesture_progress, this, h_gesture));
-    check_error(gesture_generator_.AddGesture("Click", bounding_box_));
+//    // Register click gesture callbacks.
+//    if (!gesture_generator_.IsGestureAvailable("Click"))
+//        throw std::runtime_error("Click gesture not available.");
+//    check_error(gesture_generator_.RegisterGestureCallbacks(gesture_recognized, gesture_progress, this, h_gesture));
+//    check_error(gesture_generator_.AddGesture("Click", bounding_box_));
 
     // Start generating the kinect data.
     check_error(context_.StartGeneratingAll());
@@ -472,6 +501,9 @@ UpdateDetails KinectSensor::update()
 
         // Compute the new hand coordinates.
         compute_hand_positions();
+
+        // Check for clicks.
+        check_for_clicks();
     }
 
     return updates;
@@ -551,14 +583,14 @@ void XN_CALLBACK_TYPE KinectSensor::pose_detected(xn::PoseDetectionCapability& ,
     k.user_generator_.GetSkeletonCap().RequestCalibration(nId,true);
 }
 
-void XN_CALLBACK_TYPE KinectSensor::gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr)
-{
-    event_manager.post(Event(Event::KinectClick));
-}
+//void XN_CALLBACK_TYPE KinectSensor::gesture_recognized(xn::GestureGenerator &, const XnChar *strGesture, const XnPoint3D *pIDPosition, const XnPoint3D *pEndPosition, void *sensor_ptr)
+//{
+//    event_manager.post(Event(Event::KinectClick));
+//}
 
-void XN_CALLBACK_TYPE KinectSensor::gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie)
-{
-}
+//void XN_CALLBACK_TYPE KinectSensor::gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie)
+//{
+//}
 
 void KinectSensor::compute_hand_positions()
 {
@@ -609,6 +641,33 @@ void KinectSensor::compute_hand_positions()
             hand_right_.push(ret);
         else if (length(hand_right_.mean() - ret) > 0.04) // Stabilization: Only update if the hand moved a significant amount.
             hand_right_.push(ret);
+    }
+}
+
+void KinectSensor::check_for_clicks()
+{
+    click_left_ = false;
+    if (hand_left().Z >= 0.85)
+    {
+        if (!just_clicked_left_)
+            click_left_ = true;
+        just_clicked_left_ = true;
+    }
+    else
+    {
+        just_clicked_left_ = false;
+    }
+
+    click_right_ = false;
+    if (hand_right().Z >= 0.85)
+    {
+        if (!just_clicked_right_)
+            click_right_ = true;
+        just_clicked_right_ = true;
+    }
+    else
+    {
+        just_clicked_right_ = false;
     }
 }
 

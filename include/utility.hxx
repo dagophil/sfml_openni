@@ -14,6 +14,14 @@
 #include "platform_support.hxx"
 #include "ndarray.hxx"
 
+/**
+ * @brief operator<< for points.
+ */
+std::ostream & operator<<(std::ostream & s, XnPoint3D const & p)
+{
+    s << "(" << p.X << ", " << p.Y << ", " << p.Z << ")";
+    return s;
+}
 
 /**
  * @brief Compute the average of the last N elements.
