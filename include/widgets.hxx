@@ -600,14 +600,10 @@ public:
           grid_(n_x, n_y, nullptr)
     {
         hoverable_ = false;
-
-        for (auto y = 0; y < n_y; ++y)
+        for (auto & w : grid_)
         {
-          for(auto x = 0; x < n_x; ++x)
-          {
-              grid_(x,y) = std::make_shared<Widget>();
-              grid_(x,y)->hoverable_ = false;
-          }
+            w = std::make_shared<Widget>();
+            w->hoverable_ = false;
         }
     }
 
@@ -697,16 +693,8 @@ protected:
             DiffType my,
             bool just_unhover
     ){
-        for (size_t y = 0; y < n_y_; ++y)
-        {
-            for (size_t x = 0; x < n_x_; ++x)
-            {
-                if (grid_(x, y) != nullptr)
-                {
-                    grid_(x, y)->hover(mx, my, just_unhover);
-                }
-            }
-        }
+        for (auto & w : grid_)
+            w->hover(mx, my, just_unhover);
     }
 
     /**
@@ -715,8 +703,7 @@ protected:
     void update_impl(float elapsed_time)
     {
         for (auto & w : grid_)
-            if (w != nullptr)
-                w->update(elapsed_time);
+            w->update(elapsed_time);
     }
 
     /**

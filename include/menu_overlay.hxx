@@ -244,12 +244,32 @@ MenuOverlay::MenuOverlay(
     };
     attach_mouse_events(opts.mouse_, close_button);
 
+    // Create the help texts.
+    auto help_text_container = std::make_shared<ColorWidget>(sf::Color(0, 0, 0, 64));
+    help_text_container->hoverable_ = false;
+    help_text_container->hide();
+    add_widget(help_text_container);
+
+    auto help_top = std::make_shared<TextWidget>("Test", 20);
+    help_top->hoverable_ = false;
+    help_top->scale_ = None;
+    help_top->set_width(0.1);
+    help_top->set_height(0.1);
+    help_top->bg_color_ = sf::Color(255, 0, 0);
+    help_text_container->add_widget(help_top);
+
     // Create the help button.
     auto help_button = std::make_shared<ImageWidget>("images/questionmark.png");
     help_button->set_height(close_height);
     help_button->scale_ = ScaleInX;
     help_button->align_x_ = CenterX;
     help_button->align_y_ = Top;
+    help_button->handle_mouse_enter_ = [help_text_container](DiffType x, DiffType y){
+        help_text_container->show();
+    };
+    help_button->handle_mouse_leave_ = [help_text_container](DiffType x, DiffType y){
+        help_text_container->hide();
+    };
     grid(2)->add_widget(help_button);
 
     // Create the top scroll button.
