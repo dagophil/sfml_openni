@@ -249,6 +249,7 @@ MenuOverlay::MenuOverlay(
     scroll_top_ = std::make_shared<ColorWidget>(scroll_color, 1);
     scroll_top_->set_height(close_height);
     scroll_top_->scale_= None;
+
     auto arrow_top = std::make_shared<ImageWidget>("images/arrow_up.png",2);
     arrow_top->scale_ = ScaleInX;
     arrow_top->align_x_ = CenterX;
@@ -262,6 +263,7 @@ MenuOverlay::MenuOverlay(
     scroll_bottom_->set_height(close_height);
     scroll_bottom_->scale_ = None;
     scroll_bottom_->align_y_ = Bottom;
+
     auto arrow_bottom = std::make_shared<ImageWidget>("images/arrow_bottom.png",2);
     arrow_bottom->scale_ = ScaleInX;
     arrow_bottom->align_x_ = CenterX;
@@ -275,6 +277,54 @@ MenuOverlay::MenuOverlay(
     scroll_bar->set_y(close_height);
     scroll_bar->set_height(1.0-close_height);
     grid(3)->add_widget(scroll_bar);
+
+    auto arrow_bottom_big = std::make_shared<ImageWidget>("images/arrow_down_big.png",3);
+    arrow_bottom_big->scale_ = ScaleInX;
+    arrow_bottom_big->align_x_ = CenterX;
+    arrow_bottom_big->align_y_ = Top;
+    arrow_bottom_big->set_height(0.25);
+    arrow_bottom_big->set_y(0.07);
+    arrow_bottom_big->hide();
+    scroll_bar->add_widget(arrow_bottom_big);
+
+    auto arrow_bottom_big_trans = std::make_shared<ImageWidget>("images/arrow_down_big_trans.png",2);
+    arrow_bottom_big_trans->scale_ = ScaleInX;
+    arrow_bottom_big_trans->align_x_ = CenterX;
+    arrow_bottom_big_trans->align_y_ = Top;
+    arrow_bottom_big_trans->set_height(0.25);
+    arrow_bottom_big_trans->set_y(0.07);
+    scroll_bar->add_widget(arrow_bottom_big_trans);
+
+    auto arrow_top_big = std::make_shared<ImageWidget>("images/arrow_up_big.png",3);
+    arrow_top_big->scale_ = ScaleInX;
+    arrow_top_big->align_x_ = CenterX;
+    arrow_top_big->align_y_ = Bottom;
+    arrow_top_big->set_height(0.25);
+    arrow_top_big->set_y(0.07);
+    arrow_top_big->hide();
+    scroll_bar->add_widget(arrow_top_big);
+
+    auto arrow_top_big_trans = std::make_shared<ImageWidget>("images/arrow_up_big_trans.png",2);
+    arrow_top_big_trans->scale_ = ScaleInX;
+    arrow_top_big_trans->align_x_ = CenterX;
+    arrow_top_big_trans->align_y_ = Bottom;
+    arrow_top_big_trans->set_height(0.25);
+    arrow_top_big_trans->set_y(0.07);
+    scroll_bar->add_widget(arrow_top_big_trans);
+
+    scroll_bar->handle_mouse_enter_ = [arrow_bottom_big, arrow_top_big](DiffType x, DiffType y){
+          arrow_bottom_big->show();
+          arrow_top_big->show();
+    };
+
+    scroll_bar->handle_mouse_leave_ = [arrow_bottom_big, arrow_top_big](DiffType x, DiffType y){
+        arrow_bottom_big->hide();
+        arrow_top_big->hide();
+    };
+
+
+
+
     actual_scroll_bar_ = std::make_shared<Widget>(1);
     actual_scroll_bar_->scale_ = None;
     actual_scroll_bar_->set_y(0.4);
