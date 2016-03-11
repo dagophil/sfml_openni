@@ -948,8 +948,8 @@ public:
           style_(sf::String::Style::Regular),
           font_size_(16),
           color_({255, 255, 255}),
-          align_x_(Left),
-          align_y_(Top),
+          text_align_x_(Left),
+          text_align_y_(Top),
           bg_color_({0, 0, 0, 0})
     {}
 
@@ -984,26 +984,27 @@ public:
     sf::String::Style style_; // the text style
     double font_size_; // the font size
     sf::Color color_; // the text color
-    AlignX align_x_; // the horizontal align
-    AlignY align_y_; // the vertical align
+    AlignX text_align_x_; // the horizontal align
+    AlignY text_align_y_; // the vertical align
     sf::Color bg_color_; // the background color
 
 private:
 
     void set_position()
     {
+        text_obj_.SetPosition(render_rect_.Left, render_rect_.Top);
         float x  = render_rect_.Left;
-        if (align_x_ == Left)
+        if (text_align_x_ == Left)
             x += 0;
-        else if (align_x_ == Right)
+        else if (text_align_x_ == Right)
             x += render_rect_.GetWidth() - text_obj_.GetRect().GetWidth();
         else
             x += (render_rect_.GetWidth() - text_obj_.GetRect().GetWidth()) / 2.0;
 
         float y = render_rect_.Top;
-        if (align_y_ == Top)
+        if (text_align_y_ == Top)
             y += 0;
-        else if (align_y_ == Bottom)
+        else if (text_align_y_ == Bottom)
             y += render_rect_.GetHeight() - text_obj_.GetRect().GetHeight();
         else
             y += (render_rect_.GetHeight() - text_obj_.GetRect().GetHeight()) / 2.0;
