@@ -14,6 +14,7 @@
 
 #include "utility.hxx"
 #include "ndarray.hxx"
+#include "resource_manager.hxx"
 
 namespace kin
 {
@@ -915,10 +916,9 @@ public:
             Args... args
     )
         :
-          Widget(args...)
+          Widget(args...),
+          image_(resource_manager.get_image(filename))
     {
-        if (!image_.LoadFromFile(filename))
-            throw std::runtime_error("Could not load image " + filename);
         ratio_ = image_.GetWidth() / static_cast<float>(image_.GetHeight());
     }
 
@@ -939,7 +939,7 @@ protected:
 
 private:
 
-    sf::Image image_; // the image
+    sf::Image & image_; // the image
 
 };
 
@@ -1083,6 +1083,14 @@ namespace detail
     };
 } // namespace detail
 
+std::string read_animation_image_file(std::string const & filename)
+{
+    std::ifstream f(filename);
+    std::string image_filename;
+    f >> image_filename;
+    return image_filename;
+}
+
 /**
  * @brief Widget for animations.
  */
@@ -1102,15 +1110,14 @@ public:
           freeze_finish_(false),
           i_(0),
           runtime_(0),
-          running_(true)
+          running_(true),
+          image_(resource_manager.get_image(read_animation_image_file(filename)))
     {
         std::ifstream f(filename);
 
         // Read the image filename.
         std::string image_filename;
         f >> image_filename;
-        if (!image_.LoadFromFile(image_filename))
-            throw std::runtime_error("Could not load image " + image_filename);
 
         // Read number of rows and columns.
         f >> i_.rows_ >> i_.cols_;
@@ -1324,7 +1331,7 @@ private:
         return i_.row() * height();
     }
 
-    sf::Image image_; // the sprite image
+    sf::Image & image_; // the sprite image
     std::vector<float> frametimes_; // the length (in seconds) of the single frames
     detail::SpriteIndex i_; // the sprite index
     float runtime_; // the current runtime
