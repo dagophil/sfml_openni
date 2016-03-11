@@ -1398,15 +1398,10 @@ class ChainedAction : public Action
 {
 public:
 
-    ChainedAction()
-    {}
-
     template <typename... Args>
-    ChainedAction(ActionPointer a, Args... args)
-        :
-          ChainedAction(args...)
+    ChainedAction(Args... args)
     {
-        actions_.push(a);
+        fill_actions(args...);
     }
 
 protected:
@@ -1430,6 +1425,16 @@ protected:
     }
 
 private:
+
+    void fill_actions()
+    {}
+
+    template <typename... Args>
+    void fill_actions(ActionPointer a, Args... args)
+    {
+        fill_actions(args...);
+        actions_.push(a);
+    }
 
     std::stack<ActionPointer> actions_; // the actions
 };
