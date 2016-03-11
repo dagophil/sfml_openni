@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     }
     string xml_filename = argv[1];
 
-    bool FULLSCREEN = true;
+    bool FULLSCREEN = false;
 
     // Window width and height.
     size_t WIDTH = 800;

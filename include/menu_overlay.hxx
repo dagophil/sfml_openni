@@ -220,7 +220,7 @@ MenuOverlay::MenuOverlay(
     auto grid_ptr = std::make_shared<GridWidget>(4,1);
     auto & grid = *grid_ptr;
     add_widget(grid_ptr);
-    grid.set_x_sizes(0.05, 0.7, 0.05, 0.2);
+    grid.set_x_sizes(0.05, 0.6, 0.15, 0.2);
 
     // Create the menu item container.
     item_container_ = std::make_shared<Widget>();
@@ -243,6 +243,14 @@ MenuOverlay::MenuOverlay(
         handle_close_();
     };
     attach_mouse_events(opts.mouse_, close_button);
+
+    // Create the help button.
+    auto help_button = std::make_shared<ImageWidget>("images/questionmark.png");
+    help_button->set_height(close_height);
+    help_button->scale_ = ScaleInX;
+    help_button->align_x_ = CenterX;
+    help_button->align_y_ = Top;
+    grid(2)->add_widget(help_button);
 
     // Create the top scroll button.
     sf::Color const scroll_color(170, 191, 212, 190);
