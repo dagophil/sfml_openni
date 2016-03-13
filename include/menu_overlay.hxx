@@ -245,25 +245,26 @@ MenuOverlay::MenuOverlay(
     attach_mouse_events(opts.mouse_, close_button);
 
     // Create the help texts.
-    auto help_text_container = std::make_shared<ColorWidget>(sf::Color(0, 0, 0, 64));
+    auto help_text_container = std::make_shared<ColorWidget>(sf::Color(0, 0, 0, 160), 20);
     help_text_container->hoverable_ = false;
     help_text_container->hide();
     add_widget(help_text_container);
+    auto help_font_size = screen_height / 30;
 
-    auto help_top = std::make_shared<TextWidget>("Hover to scroll to the top of the list.", 20);
+    auto help_top = std::make_shared<TextWidget>("Hover to scroll to the top of the list.");
     help_top->hoverable_ = false;
-    //help_top->color_ = sf::Color(0,0,0);
     help_top->scale_ = None;
-//    help_top->align_x_ = CenterX;
     help_top->text_align_x_ = CenterX;
     help_top->text_align_y_ = Top;
     help_top->set_width(0.6);
     help_top->set_height(0.1);
     help_top->set_x(0.05);
-//    help_top->
+    help_top->set_y(0.02);
+    help_top->style_ = sf::String::Bold;
+    help_top->font_size_ = help_font_size;
     help_text_container->add_widget(help_top);
 
-    auto help_bottom = std::make_shared<TextWidget>("Hover to scroll to the buttom of the list.",20);
+    auto help_bottom = std::make_shared<TextWidget>("Hover to scroll to the buttom of the list.");
     help_bottom->hoverable_ = false;
     help_bottom->scale_ = None;
     help_bottom->text_align_x_ = CenterX;
@@ -272,10 +273,12 @@ MenuOverlay::MenuOverlay(
     help_bottom->set_width(0.6);
     help_bottom->set_height(0.1);
     help_bottom->set_x(0.05);
-    help_bottom->set_y(0.005);
+    help_bottom->set_y(0.02);
+    help_bottom->style_ = sf::String::Bold;
+    help_bottom->font_size_ = help_font_size;
     help_text_container->add_widget(help_bottom);
 
-    auto help_menuitem = std::make_shared<TextWidget>("Hover over an item to select it.",20);
+    auto help_menuitem = std::make_shared<TextWidget>("Hover over an item to select it.");
     help_menuitem->hoverable_ = false;
     help_menuitem->scale_ = None;
     help_menuitem->text_align_x_ = CenterX;
@@ -285,18 +288,33 @@ MenuOverlay::MenuOverlay(
     help_menuitem->set_height(0.16);
     help_menuitem->set_x(0.05);
     help_menuitem->bg_color_ = sf::Color(200, 0, 0, 128);
+    help_menuitem->style_ = sf::String::Bold;
+    help_menuitem->font_size_ = help_font_size;
     help_text_container->add_widget(help_menuitem);
 
-    auto help_close = std::make_shared<TextWidget>("Hover here to exit.", 20);
+    auto help_close = std::make_shared<TextWidget>("Hover here to exit.");
     help_close->hoverable_ = false;
     help_close->scale_ = None;
     help_close->text_align_x_ = CenterX;
     help_close->text_align_y_ = CenterY;
     help_close->set_width(0.2);
     help_close->set_height(0.1);
-    help_close->set_x(0.8);
-    help_close->bg_color_ = sf::Color(255, 0, 0, 64);
+    help_close->align_x_ = Right;
+    help_close->style_ = sf::String::Bold;
+    help_close->font_size_ = help_font_size;
     help_text_container->add_widget(help_close);
+
+    auto help_slide = std::make_shared<TextWidget>("Swipe here\nto scroll fast.");
+    help_slide->hoverable_ = false;
+    help_slide->scale_ = None;
+    help_slide->text_align_x_ = CenterX;
+    help_slide->text_align_y_ = CenterY;
+    help_slide->align_x_ = Right;
+    help_slide->align_y_ = Bottom;
+    help_slide->set_width(0.2);
+    help_slide->set_height(0.9);
+    help_slide->font_size_ = help_font_size;
+    help_text_container->add_widget(help_slide);
 
     // Create the help button.
     auto help_button = std::make_shared<ImageWidget>("images/questionmark.png");
