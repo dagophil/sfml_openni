@@ -313,6 +313,7 @@ MenuOverlay::MenuOverlay(
     help_slide->align_y_ = Bottom;
     help_slide->set_width(0.2);
     help_slide->set_height(0.9);
+    help_slide->style_ = sf::String::Bold;
     help_slide->font_size_ = help_font_size;
     help_text_container->add_widget(help_slide);
 
