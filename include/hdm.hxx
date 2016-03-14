@@ -12,6 +12,7 @@
 #include "screens/main_menu_screen.hxx"
 #include "screens/splash_screen.hxx"
 #include "screens/game_screen.hxx"
+#include "screens/highscore_screen.hxx"
 
 namespace kin
 {
@@ -79,7 +80,7 @@ HDMGame::HDMGame()
     event_manager.register_listener(listener_);
 
     // Load the splash screen.
-    load_screen(Event::GameScreen);
+    load_screen(Event::HighscoreScreen);
 }
 
 void HDMGame::hover_field(int x, int y)
@@ -128,7 +129,8 @@ void HDMGame::load_screen(Event::ScreenID id)
         {Event::SplashScreen, ScreenFunction(create_screen<SplashScreen>)},
         {Event::MainMenuScreen, ScreenFunction(create_screen<MainMenuScreen>)},
         {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen>)},
-        {Event::GameScreen, ScreenFunction(create_screen<GameScreen>)}
+        {Event::GameScreen, ScreenFunction(create_screen<GameScreen>)},
+        {Event::HighscoreScreen, ScreenFunction(create_screen<HighscoreScreen>)}
     };
 
     // Get the correct screen function to create the screen and add it to the widget container.

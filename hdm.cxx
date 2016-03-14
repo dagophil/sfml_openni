@@ -36,6 +36,10 @@ int main(int argc, char** argv)
     opts.mouse_->stop();
     opts.mouse_->repeatable_ = false;
 
+    //Set sreen Height and width in options.hxx
+    opts.screen_height_ = HEIGHT;
+    opts.screen_width_ = WIDTH;
+
     // Create the window.
     auto style = sf::Style::Close;
     if (FULLSCREEN)
@@ -54,6 +58,8 @@ int main(int argc, char** argv)
     // Create the sound controller.
     auto sound_controller = std::make_shared<HDMSoundController>();
     event_manager.register_listener(sound_controller);
+
+
 
     while (window.IsOpened())
     {
