@@ -148,7 +148,7 @@ int main(int argc, char** argv)
                 fx = 2;
             if (mouse_z < HEIGHT/4.0)
                 fy = 0;
-            else if (mouse_z < 2*HEIGHT/4.0)
+            else if (mouse_z < 1.8*HEIGHT/4.0)
                 fy = 1;
             else
                 fy = 2;

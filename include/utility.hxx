@@ -389,7 +389,7 @@ public:
         :
           handle_click_(kin::detail::do_nothing0),
           max_delay_(0.1),
-          threshold_(0.5),
+          threshold_(0.4),
           clicked_(false)
     {}
 
