@@ -21,7 +21,9 @@ public:
     Globals()
         :
           mouse_clicked_(false),
-          rand_engine_(std::random_device()())
+          rand_engine_(std::random_device()()),
+          highscore_pos_(-1)
+
     {}
 
     /**
@@ -44,6 +46,9 @@ public:
     std::shared_ptr<AnimatedWidget> mouse_; // the mouse widget
     bool mouse_clicked_; // whether a mouse was clicked in the current frame
     std::mt19937 rand_engine_; // the random engine
+    int highscore_pos_; // the position of the new Highscore
+    size_t screen_height_;
+    size_t screen_width_;
 
 private:
 

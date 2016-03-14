@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(60),
+          total_time_(5),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
@@ -38,7 +38,7 @@ public:
           combo_mult_(1)
     {
         // Hide the mouse.
-        opts.mouse_->hide();
+//        opts.mouse_->hide();
 
 
         // Set all moles to "in".
@@ -546,7 +546,11 @@ private:
             f >> t;
 
             if (score_ > t && !new_highscore)
+            {
                 new_highscore = true;
+                opts.highscore_pos_ = i;
+
+            }
 
             current_score.push_back(t);
         }
@@ -559,13 +563,37 @@ private:
             high_ani->set_width(0.5);
             high_ani->scale_ = ScaleInY;
             high_ani->align_x_ = CenterX;
-            high_ani->align_y_ = CenterY;
+            high_ani->align_y_ = Top;
+            high_ani->set_y(0.2);
             event_manager.add_delayed_call(1.6, [&, high_ani](){
                 add_widget(high_ani);
             });
 
             event_manager.add_delayed_call(5.4, [&, high_ani](){
                 remove_widget(high_ani);
+            });
+
+            auto high_mole = std::make_shared<AnimatedWidget>("animations/mole_highscore_sheet.pf",40);
+            high_mole->set_width(0.2);
+            high_mole->align_x_ = CenterX;
+            high_mole->align_y_ = CenterY;
+            high_mole->set_y(0.2);
+            high_mole->scale_ = ScaleInY;
+            high_mole->stop();
+            high_mole->hide();
+            add_widget(high_mole);
+
+            std::cout << opts.highscore_pos_ << std::endl;
+            if(opts.highscore_pos_ != -1)
+                for(int i = 0; i < opts.highscore_pos_; ++i)
+                    high_mole->next_frame();
+
+            event_manager.add_delayed_call(1.6, [&, high_mole](){
+                high_mole->show();
+            });
+
+            event_manager.add_delayed_call(5.4, [](){
+                event_manager.post(Event(Event::HighscoreScreen));
             });
 
             current_score.push_back(score_);
@@ -577,6 +605,13 @@ private:
                 h << current_score[i] << "\n";
 
             h.close();
+
+        }
+        else
+        {
+            event_manager.add_delayed_call(2.5, [](){
+                event_manager.post(Event(Event::HighscoreScreen));
+            });
         }
     }
 
