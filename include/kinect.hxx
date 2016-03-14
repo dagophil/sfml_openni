@@ -192,7 +192,7 @@ public:
     /**
      * @brief The update method checks if the generators have produced new data. It should be called once per frame.
      */
-    UpdateDetails update();
+    UpdateDetails update(float elapsed_time);
 
     /**
      * @brief Return the depth data.
@@ -259,19 +259,19 @@ public:
     }
 
     /**
-     * @brief Return whether a left hand click occured since the last update.
+     * @brief Callback for clicks with the left hand.
      */
-    bool click_left() const
+    std::function<void()> & handle_click_left()
     {
-        return click_left_;
+        return click_detector_left_.handle_click_;
     }
 
     /**
-     * @brief Return whether a right hand click occured since the last update.
+     * @brief Callback for clicks with the right hand.
      */
-    bool click_right() const
+    std::function<void()> & handle_click_right()
     {
-        return click_right_;
+        return click_detector_right_.handle_click_;
     }
 
 private:
@@ -289,7 +289,7 @@ private:
     /**
      * @brief Check if the user made a click gesture.
      */
-    void check_for_clicks();
+    void check_for_clicks(float elapsed_time);
 
     /**
      * @brief Callback for the "new user" event. Starts the calibration.
@@ -331,8 +331,6 @@ private:
 
 //    static void XN_CALLBACK_TYPE gesture_progress(xn::GestureGenerator &generator, const XnChar *strGesture, const XnPoint3D *pPosition, XnFloat fProgress, void *pCookie);
 
-
-
     xn::Context context_; // the kinect context
 
     xn::DepthGenerator depth_generator_; // the depth generator
@@ -356,10 +354,8 @@ private:
     bool hand_left_visible_; // whether the left hand is visible
     bool hand_right_visible_; // whether the right hand is visible
 
-    bool just_clicked_left_; // whether the click with the left hand was already sent before moving the hand back
-    bool just_clicked_right_; // whether the click with the right hand was already sent before moving the hand back
-    bool click_left_; // whether the user clicked with his left hand
-    bool click_right_; // whether the user clicked with his right hand
+    ClickDetector click_detector_left_; // click detector for the left hand
+    ClickDetector click_detector_right_; // click detector for the right hand
 
 };
 
@@ -371,11 +367,7 @@ KinectSensor::KinectSensor()
       hand_left_({0, 0, 0}),
       hand_right_({0, 0, 0}),
       hand_left_visible_(false),
-      hand_right_visible_(false),
-      just_clicked_left_(false),
-      just_clicked_right_(false),
-      click_left_(false),
-      click_right_(false)
+      hand_right_visible_(false)
 {
     // Initialize the kinect components.
     check_error(context_.Init());
@@ -445,7 +437,7 @@ XnUInt32 KinectSensor::z_res() const
     return depth_meta_.ZRes();
 }
 
-UpdateDetails KinectSensor::update()
+UpdateDetails KinectSensor::update(float elapsed_time)
 {
     UpdateDetails updates;
 
@@ -503,7 +495,7 @@ UpdateDetails KinectSensor::update()
         compute_hand_positions();
 
         // Check for clicks.
-        check_for_clicks();
+        check_for_clicks(elapsed_time);
     }
 
     return updates;
@@ -644,31 +636,17 @@ void KinectSensor::compute_hand_positions()
     }
 }
 
-void KinectSensor::check_for_clicks()
+void KinectSensor::check_for_clicks(float elapsed_time)
 {
-    click_left_ = false;
-    if (hand_left().Z >= 0.85)
-    {
-        if (!just_clicked_left_)
-            click_left_ = true;
-        just_clicked_left_ = true;
-    }
+    if (hand_left_visible())
+        click_detector_left_.update(elapsed_time, hand_left_.back());
     else
-    {
-        just_clicked_left_ = false;
-    }
+        click_detector_left_.reset();
 
-    click_right_ = false;
-    if (hand_right().Z >= 0.85)
-    {
-        if (!just_clicked_right_)
-            click_right_ = true;
-        just_clicked_right_ = true;
-    }
+    if (hand_right_visible())
+        click_detector_right_.update(elapsed_time, hand_right_.back());
     else
-    {
-        just_clicked_right_ = false;
-    }
+        click_detector_left_.reset();
 }
 
 

@@ -236,7 +236,7 @@ int main(int argc, char** argv)
             auto elapsed_time = fps_measure.elapsed_time();
 
             // Update the kinect data.
-            auto updates = k.update();
+            auto updates = k.update(elapsed_time);
             if (updates.depth_)
             {
                 depth_to_rgba(k.depth_data(), k.z_res(), depth_rgba);
