@@ -149,6 +149,8 @@ public:
         timetext_->text_align_x_ = CenterX;
         timetext_->text_align_y_ = CenterY;
         timetext_->color_ = sf::Color(0, 0, 0);
+        timetext_->font_size_ = opts.screen_height_ / 15;
+        timetext_->style_ = sf::String::Bold;
         timebar->add_widget(timetext_);
 
 // TODO: Add the scoreboard.
@@ -272,7 +274,12 @@ protected:
             }
             auto t = remaining_time_ / total_time_;
             timefill_->set_height(t * timefill_original_height_);
+
+            // Update the timer text.
             timetext_->text_ = get_time_string();
+            if (remaining_time_ < 0.5 * total_time_)
+                timetext_->color_ = sf::Color(255, 149, 14);
+//                timetext_->color_ = sf::Color(255, 255, 255);
         }
     }
 
@@ -564,7 +571,6 @@ private:
             {
                 new_highscore = true;
                 opts.highscore_pos_ = i;
-
             }
 
             current_score.push_back(t);
