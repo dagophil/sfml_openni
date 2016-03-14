@@ -304,7 +304,7 @@ MenuOverlay::MenuOverlay(
     help_close->font_size_ = help_font_size;
     help_text_container->add_widget(help_close);
 
-    auto help_slide = std::make_shared<TextWidget>("Swipe here\nto scroll fast.");
+    auto help_slide = std::make_shared<TextWidget>("Swipe here to scroll fast.");
     help_slide->hoverable_ = false;
     help_slide->scale_ = None;
     help_slide->text_align_x_ = CenterX;
