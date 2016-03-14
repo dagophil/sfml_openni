@@ -35,7 +35,8 @@ public:
           score_(0),
           combo_count_(0),
           perfect_game_(true),
-          combo_mult_(1)
+          combo_mult_(1),
+          hovered_index_(-1)
     {
         // Hide the mouse.
         opts.mouse_->hide();
@@ -197,28 +198,33 @@ public:
         combo_counter_->stop();
         star_grid(0) = combo_counter_;
 
-
-        std::vector<std::shared_ptr<ColorWidget> > targets;
+        // Create the crosshairs.
+        std::vector<std::shared_ptr<ImageWidget> > targets;
         for (size_t i = 0; i < 9; ++i)
         {
-            auto w = std::make_shared<ColorWidget>(sf::Color(255, 0, 0));
+            auto w = std::make_shared<ImageWidget>("images/crosshairs.png", 5);
+            w->hoverable_ = false;
+            w->scale_ = ScaleInX;
+            w->align_x_ = CenterX;
+            w->align_y_ = CenterY;
+            w->hide();
             targets.push_back(w);
             mole_grid(i%3, i/3)->add_widget(w);
-            w->hide();
         }
 
-        // Create the event listener.
+        // Create the event listener for the crosshairs.
         listener_ = std::make_shared<Listener>();
-        listener_->handle_notify_ = [targets](Event const & ev){
+        listener_->handle_notify_ = [&, targets](Event const & ev){
             if (ev.type_ == Event::FieldHover)
             {
-                for (auto w : targets)
-                    w->hide();
                 auto x = ev.field_hover_.x_;
                 auto y = ev.field_hover_.y_;
                 if (x != -1 && y != -1)
                 {
-                    targets[3*y + x]->show();
+                    hovered_index_ = 3*y+x;
+                    for (auto w : targets)
+                        w->hide();
+                    targets[hovered_index_]->show();
                 }
             }
         };
@@ -242,7 +248,8 @@ protected:
             // Check if a mole was hit.
             if (opts.mouse_clicked_)
             {
-                auto m = hovered_mole();
+//                auto m = hovered_mole();
+                auto m = hovered_index_;
                 if (m >= 0 && mole_out_[m] && !mole_hit_[m])
                     hit(m);
                 else
@@ -600,6 +607,7 @@ private:
     size_t combo_mult_; // the current point multiplier
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
     std::shared_ptr<Listener> listener_; // the event listener
+    int hovered_index_;
 
 };
 

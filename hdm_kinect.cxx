@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     using namespace std;
     using namespace kin;
 
-    bool FULLSCREEN = false;
+    bool FULLSCREEN = true;
 
     // Window width and height.
     size_t WIDTH = 800;
@@ -59,6 +59,15 @@ int main(int argc, char** argv)
 
     // Create the kinect sensor.
     KinectSensor k;
+    bool clicked_left = false;
+    bool clicked_right = false;
+    k.handle_click_left() = [&](){
+        clicked_left = true;
+    };
+    k.handle_click_right() = [&](){
+        clicked_right = true;
+    };
+    bool use_right = true;
 
     while (window.IsOpened())
     {
@@ -79,7 +88,11 @@ int main(int argc, char** argv)
         }
 
         // Update the kinect data.
-        auto updates = k.update();
+        clicked_left = false;
+        clicked_right = false;
+        auto fps = fps_measure.update();
+        auto elapsed_time = fps_measure.elapsed_time();
+        auto updates = k.update(elapsed_time);
 
         // Get the hand positions.
         float mouse_x;
@@ -95,12 +108,14 @@ int main(int argc, char** argv)
             bool both_visible = hand_left_visible && hand_right_visible;
             if (!hand_right_visible || (both_visible && hand_left.Z > hand_right.Z))
             {
+                use_right = false;
                 mouse_x = hand_left.X * WIDTH;
                 mouse_y = hand_left.Y * HEIGHT;
                 mouse_z = (1.5 - hand_left.Z) * HEIGHT;
             }
             else
             {
+                use_right = true;
                 mouse_x = hand_right.X * WIDTH;
                 mouse_y = hand_right.Y * HEIGHT;
                 mouse_z = (1.5 - hand_right.Z) * HEIGHT;
@@ -131,9 +146,9 @@ int main(int argc, char** argv)
                 fx = 1;
             else
                 fx = 2;
-            if (mouse_z < HEIGHT/3.0)
+            if (mouse_z < HEIGHT/4.0)
                 fy = 0;
-            else if (mouse_z < 2*HEIGHT/3.0)
+            else if (mouse_z < 2*HEIGHT/4.0)
                 fy = 1;
             else
                 fy = 2;
@@ -141,19 +156,12 @@ int main(int argc, char** argv)
             game.hover_field(fx, fy);
         }
 
-
-        // Check for clicks.
-        if (updates.user_)
-        {
-            if (k.click_left())
-                opts.mouse_clicked_ = true;
-            if (k.click_right())
-                opts.mouse_clicked_ = true;
-        }
+        if (clicked_left && !use_right)
+            opts.mouse_clicked_ = true;
+        if (clicked_right && use_right)
+            opts.mouse_clicked_ = true;
 
         // Update the widgets.
-        auto fps = fps_measure.update();
-        auto elapsed_time = fps_measure.elapsed_time();
         game.update(elapsed_time);
 
         // Draw everything.

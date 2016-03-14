@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <numeric>
 #include <memory>
+#include <functional>
+#include <list>
+#include <utility>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -62,6 +65,11 @@ public:
     bool empty() const
     {
         return values_.empty();
+    }
+
+    T const & back() const
+    {
+        return values_.back();
     }
 
 private:
@@ -333,6 +341,8 @@ namespace kin
 {
 namespace detail
 {
+    // Here are some functions that do nothing. They are needed for default callbacks.
+
     void do_nothing0() {} // default function for widget callbacks
 
     template <typename A>
@@ -343,7 +353,9 @@ namespace detail
 }
 }
 
-
+/**
+ * @brief Return true if the given string is an existing directory.
+ */
 bool dir_exist(std::string const & f)
 {
     struct stat info;
@@ -355,6 +367,9 @@ bool dir_exist(std::string const & f)
         return false;
 }
 
+/**
+ * @brief Return true if the given string is an existing file.
+ */
 bool file_exist(std::string const & f)
 {
     struct stat info;
@@ -365,5 +380,77 @@ bool file_exist(std::string const & f)
     else
         return true;
 }
+
+class ClickDetector
+{
+public:
+
+    ClickDetector()
+        :
+          handle_click_(kin::detail::do_nothing0),
+          max_delay_(0.1),
+          threshold_(0.5),
+          clicked_(false)
+    {}
+
+    void update(float p_elapsed_time, XnPoint3D point)
+    {
+        // Update the elapsed time and add the new point to the queue.
+        elapsed_time_ += p_elapsed_time;
+        points_.emplace_back(elapsed_time_, point);
+
+        // Remove all points
+        while (!points_.empty() && points_.front().first+max_delay_ < elapsed_time_)
+            points_.pop_front();
+
+        // Check if enough movement happened
+        float sum = 0.0;
+        float prev = points_.front().second.Y;
+        for (auto const & p : points_)
+        {
+            if (p.second.Y > prev)
+            {
+                sum += std::abs(p.second.Y - prev);
+                prev = p.second.Y;
+            }
+        }
+
+        if (clicked_)
+        {
+            if (sum < threshold_)
+            {
+                reset();
+            }
+        }
+        else
+        {
+            if (sum >= threshold_)
+            {
+                clicked_ = true;
+                handle_click_();
+            }
+        }
+    }
+
+    void reset()
+    {
+        points_.clear();
+        elapsed_time_ = 0;
+        clicked_ = false;
+    }
+
+    std::function<void()> handle_click_;
+
+private:
+
+    float const max_delay_;
+    float const threshold_;
+    std::list<std::pair<float, XnPoint3D> > points_;
+    float elapsed_time_;
+    bool clicked_;
+
+};
+
+
 
 #endif
