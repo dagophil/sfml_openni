@@ -144,6 +144,13 @@ public:
         timefill_->set_height(timefill_original_height_);
         timebar->add_widget(timefill_);
 
+        // Add the text for the remaining time.
+        timetext_ = std::make_shared<TextWidget>(get_time_string());
+        timetext_->text_align_x_ = CenterX;
+        timetext_->text_align_y_ = CenterY;
+        timetext_->color_ = sf::Color(0, 0, 0);
+        timebar->add_widget(timetext_);
+
 // TODO: Add the scoreboard.
 //        // Add the scoreboard.
 //        auto s = std::make_shared<ImageWidget>("images/scoreboard.png", 1);
@@ -265,6 +272,7 @@ protected:
             }
             auto t = remaining_time_ / total_time_;
             timefill_->set_height(t * timefill_original_height_);
+            timetext_->text_ = get_time_string();
         }
     }
 
@@ -587,6 +595,16 @@ private:
         }
     }
 
+    /**
+     * @brief Return a string that contains the remaining time.
+     */
+    std::string get_time_string() const
+    {
+        auto s = std::to_string(std::ceil(remaining_time_ ));
+        auto pos = s.find('.');
+        return s.substr(0, pos);
+    }
+
     std::vector<MolePointer> moles_; // the mole widgets
     std::vector<bool> mole_out_; // the moles that are currently out
     std::vector<bool> mole_hit_; // whether a mole was hit in the current wave
@@ -595,6 +613,7 @@ private:
     float remaining_time_; // the remaining time
     std::shared_ptr<ColorWidget> timefill_; // the time fill widget
     float timefill_original_height_; // the original height of the timefill widget
+    std::shared_ptr<TextWidget> timetext_; // the text for the remaining time
     size_t combo_count_;// the combo count of hitting moles, missing resets it to 0
     int score_; //The current user score
     MolePointer gmole_;

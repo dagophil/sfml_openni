@@ -1578,6 +1578,41 @@ private:
     Interpolation const inter_; // the interpolation
 };
 
+/**
+ * @brief Make the widget blink.
+ */
+class BlinkAction : public Action
+{
+public:
+
+    BlinkAction(float delta)
+        :
+          delta_(delta),
+          elapsed_time_(0.0)
+    {}
+
+protected:
+
+    bool act_impl(Widget & w, float p_elapsed_time)
+    {
+        elapsed_time_ += p_elapsed_time;
+        if (elapsed_time_ >= delta_)
+        {
+            elapsed_time_ -= delta_;
+            if (w.visible())
+                w.hide();
+            else
+                w.show();
+        }
+        return false;
+    }
+
+private:
+
+    float const delta_;
+    float elapsed_time_;
+};
+
 
 
 }
