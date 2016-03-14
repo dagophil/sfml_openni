@@ -264,7 +264,7 @@ MenuOverlay::MenuOverlay(
     help_top->font_size_ = help_font_size;
     help_text_container->add_widget(help_top);
 
-    auto help_bottom = std::make_shared<TextWidget>("Hover to scroll to the buttom of the list.");
+    auto help_bottom = std::make_shared<TextWidget>("Hover to scroll to the bottom of the list.");
     help_bottom->hoverable_ = false;
     help_bottom->scale_ = None;
     help_bottom->text_align_x_ = CenterX;
