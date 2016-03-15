@@ -41,7 +41,11 @@ public:
         };
         add_widget(back_button);
 
-
+        auto checkbox_checked = std::make_shared<HoverclickWidget<ImageWidget> >("images/checkbox_checked.png");
+        checkbox_checked->align_x_ = Left;
+        checkbox_checked->align_y_ = CenterY;
+        grid(1,1) = checkbox_checked;
+        grid(1,2) = checkbox_checked;
     }
 
 private:
