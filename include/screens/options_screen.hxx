@@ -51,9 +51,12 @@ public:
         grid(0, 1) = sound_text;
 
         // Add the y-z option text.
-        auto use_depth = std::make_shared<TextWidget>(*reset_text);
-        use_depth->text_ = "USE KINECT DEPTH";
-        grid(0, 2) = use_depth;
+        if (opts.use_kinect_)
+        {
+            auto use_depth = std::make_shared<TextWidget>(*reset_text);
+            use_depth->text_ = "USE KINECT DEPTH";
+            grid(0, 2) = use_depth;
+        }
 
         // Add the success text.
         auto success = std::make_shared<TextWidget>("Highscore was reset!");
@@ -69,25 +72,52 @@ public:
         success->hide();
         add_widget(success);
 
-        // Add the reset checkbox.
-        auto reset_img = std::make_shared<HoverclickWidget<ColorWidget> >(sf::Color(255, 0, 0));
-        reset_img->align_y_ = CenterY;
-        reset_img->handle_click_ = [success](DiffType x, DiffType y){
+        // Create the checkboxes.
+        auto create_checkbox = [&](int position){
+            auto checkbox = std::make_shared<HoverclickWidget<AnimatedWidget> >("animations/checkbox.pf");
+            checkbox->scale_ = ScaleInX;
+            checkbox->set_height(0.8);
+            checkbox->align_y_ = Center;
+            checkbox->stop();
+            attach_mouse_events(opts.mouse_, checkbox);
+            grid(1, position) = checkbox;
+            return checkbox;
+        };
+
+        // Program the reset checkbox.
+        auto reset_box = create_checkbox(0);
+        reset_box->handle_click_ = [success, reset_box](DiffType x, DiffType y){
             reset_highscore();
             success->show();
             event_manager.add_delayed_call(3.0, [success](){
                 success->hide();
             });
+            reset_box->next_frame();
+            reset_box->handle_mouse_enter_ = detail::do_nothing2<DiffType, DiffType>;
+            reset_box->handle_mouse_leave_ = detail::do_nothing2<DiffType, DiffType>;
+            reset_box->handle_click_ = detail::do_nothing2<DiffType, DiffType>;
         };
-        attach_mouse_events(opts.mouse_, reset_img);
-        grid(1, 0) = reset_img;
 
-        // Add the sound checkbox.
-        auto sound_img = std::make_shared<HoverclickWidget<ColorWidget> >(sf::Color(0, 255, 0));
-        sound_img->align_y_ = Center;
-        sound_img->handle_click_ = [](DiffType x, DiffType y){
+        // Program the sound checkbox.
+        auto sound_box = create_checkbox(1);
+        if (opts.sound_)
+            sound_box->next_frame();
+        sound_box->handle_click_ = [sound_box](DiffType x, DiffType y){
             opts.sound_ = !opts.sound_;
+            sound_box->next_frame();
         };
+
+        // Program the depth checkbox.
+        if (opts.use_kinect_)
+        {
+            auto depth_box = create_checkbox(2);
+            if (opts.kinect_game_depth_)
+                depth_box->next_frame();
+            depth_box->handle_click_ = [depth_box](DiffType x, DiffType y){
+                opts.kinect_game_depth_ = !opts.kinect_game_depth_;
+                depth_box->next_frame();
+            };
+        }
 
         // Create the back button.
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
