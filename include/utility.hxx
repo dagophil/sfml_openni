@@ -404,6 +404,9 @@ bool file_exist(std::string const & f)
         return true;
 }
 
+/**
+ * @brief A detector for kinect clicks.
+ */
 class ClickDetector
 {
 public:

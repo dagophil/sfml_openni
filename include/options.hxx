@@ -25,7 +25,8 @@ public:
           highscore_pos_(-1),
           screen_width_(0),
           screen_height_(0),
-          use_kinect_(false)
+          use_kinect_(false),
+          kinect_game_depth_(true)
     {}
 
     /**
@@ -52,6 +53,7 @@ public:
     size_t screen_width_; // the screen height
     size_t screen_height_; // the screen width
     bool use_kinect_; // whether the kinect is used
+    bool kinect_game_depth_; // aim for the moles using depth instead of height
 
 private:
 
