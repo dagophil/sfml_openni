@@ -40,8 +40,8 @@ public:
           highscore_(0)
     {
         // Hide the mouse.
-//        opts.mouse_->hide();
-
+        if (opts.use_kinect_)
+            opts.mouse_->hide();
 
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -230,37 +230,40 @@ public:
         combo_counter_->stop();
         star_grid(0) = combo_counter_;
 
-        // Create the crosshairs.
-        std::vector<std::shared_ptr<ImageWidget> > targets;
-        for (size_t i = 0; i < 9; ++i)
+        if (opts.use_kinect_)
         {
-            auto w = std::make_shared<ImageWidget>("images/crosshairs.png", 5);
-            w->hoverable_ = false;
-            w->scale_ = ScaleInX;
-            w->align_x_ = CenterX;
-            w->align_y_ = CenterY;
-            w->hide();
-            targets.push_back(w);
-            mole_grid(i%3, i/3)->add_widget(w);
-        }
-
-        // Create the event listener for the crosshairs.
-        listener_ = std::make_shared<Listener>();
-        listener_->handle_notify_ = [&, targets](Event const & ev){
-            if (ev.type_ == Event::FieldHover)
+            // Create the crosshairs.
+            std::vector<std::shared_ptr<ImageWidget> > targets;
+            for (size_t i = 0; i < 9; ++i)
             {
-                auto x = ev.field_hover_.x_;
-                auto y = ev.field_hover_.y_;
-                if (x != -1 && y != -1)
-                {
-                    hovered_index_ = 3*y+x;
-                    for (auto w : targets)
-                        w->hide();
-                    targets[hovered_index_]->show();
-                }
+                auto w = std::make_shared<ImageWidget>("images/crosshairs.png", 5);
+                w->hoverable_ = false;
+                w->scale_ = ScaleInX;
+                w->align_x_ = CenterX;
+                w->align_y_ = CenterY;
+                w->hide();
+                targets.push_back(w);
+                mole_grid(i%3, i/3)->add_widget(w);
             }
-        };
-        event_manager.register_listener(listener_);
+
+            // Create the event listener for the crosshairs.
+            listener_ = std::make_shared<Listener>();
+            listener_->handle_notify_ = [&, targets](Event const & ev){
+                if (ev.type_ == Event::FieldHover)
+                {
+                    auto x = ev.field_hover_.x_;
+                    auto y = ev.field_hover_.y_;
+                    if (x != -1 && y != -1)
+                    {
+                        hovered_index_ = 3*y+x;
+                        for (auto w : targets)
+                            w->hide();
+                        targets[hovered_index_]->show();
+                    }
+                }
+            };
+            event_manager.register_listener(listener_);
+        }
     }
 
 protected:
@@ -280,8 +283,7 @@ protected:
             // Check if a mole was hit.
             if (opts.mouse_clicked_)
             {
-//                auto m = hovered_mole();
-                auto m = hovered_index_;
+                auto m = hovered_mole();
                 if (m >= 0 && mole_out_[m] && !mole_hit_[m])
                     hit(m);
                 else
@@ -520,12 +522,19 @@ private:
      */
     int hovered_mole()
     {
-        for (int i = 0; i < moles_.size(); ++i)
-            if (moles_[i]->hovered())
-                return i;
-        if (gmole_->hovered())
-            return gmole_position_;
-        return -1;
+        if (opts.use_kinect_)
+        {
+            return hovered_index_;
+        }
+        else
+        {
+            for (int i = 0; i < moles_.size(); ++i)
+                if (moles_[i]->hovered())
+                    return i;
+            if (gmole_->hovered())
+                return gmole_position_;
+            return -1;
+        }
     }
 
     /**
@@ -533,18 +542,10 @@ private:
      */
     void time_up()
     {
-        std::cout << "TIME UP!" << std::endl;
         if (perfect_game_)
         {
-            std::cout << "Perfect game" << std::endl;
             score_ *= 2;
         }
-        else
-        {
-            std::cout << "Not perfect game" << std::endl;
-        }
-        std::cout << "Score: " << score_ << std::endl;
-
         running_ = false;
 
         auto timeup = std::make_shared<ImageWidget>("images/time_up.png", 50);
@@ -699,7 +700,7 @@ private:
     size_t combo_mult_; // the current point multiplier
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
     std::shared_ptr<Listener> listener_; // the event listener
-    int hovered_index_;
+    int hovered_index_; // index of the hovered mole
     int highscore_; // the best highscore
 
 };

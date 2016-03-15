@@ -22,8 +22,11 @@ public:
         :
           mouse_clicked_(false),
           rand_engine_(std::random_device()()),
-          highscore_pos_(-1)
-
+          highscore_pos_(-1),
+          screen_width_(0),
+          screen_height_(0),
+          use_kinect_(false),
+          kinect_game_depth_(true)
     {}
 
     /**
@@ -47,29 +50,18 @@ public:
     bool mouse_clicked_; // whether a mouse was clicked in the current frame
     std::mt19937 rand_engine_; // the random engine
     int highscore_pos_; // the position of the new Highscore
-    size_t screen_height_;
-    size_t screen_width_;
+    size_t screen_width_; // the screen height
+    size_t screen_height_; // the screen width
+    bool use_kinect_; // whether the kinect is used
+    bool kinect_game_depth_; // aim for the moles using depth instead of height
 
 private:
 
-    sf::Font default_font_;
+    sf::Font default_font_; // the default font
 
 };
 
 Globals opts; // the global options object
-
-template <typename T, typename W>
-void attach_mouse_events(std::shared_ptr<T> m, std::shared_ptr<W> w)
-{
-    typedef typename W::DiffType DiffType;
-    w->handle_mouse_enter_ = [m, w](DiffType x, DiffType y){
-        m->restart();
-    };
-    w->handle_mouse_leave_ = [m, w](DiffType x, DiffType y){
-        m->reset();
-        m->stop();
-    };
-}
 
 }
 

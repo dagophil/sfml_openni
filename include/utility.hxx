@@ -296,18 +296,6 @@ void insert_line_breaks(sf::String & str, double max_width)
 }
 
 /**
- * @brief operator- for vectors.
- */
-XnVector3D operator-(XnVector3D const & a, XnVector3D const & b)
-{
-    XnVector3D r;
-    r.X = a.X - b.X;
-    r.Y = a.Y - b.Y;
-    r.Z = a.Z - b.Z;
-    return r;
-}
-
-/**
  * @brief Return the length of the vector.
  */
 double length(XnVector3D const & a)
@@ -315,26 +303,61 @@ double length(XnVector3D const & a)
     return std::sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z);
 }
 
-XnVector3D & operator+=(XnVector3D & a, XnVector3D const & b)
+/**
+ * @brief operator-= for vectors.
+ */
+XnVector3D & operator-=(XnVector3D & a, XnVector3D const & b)
 {
-    a.X=a.X+b.X;
-    a.Y=a.Y+b.Y;
-    a.Z=a.Z+b.Z;
+    a.X -= b.X;
+    a.Y -= b.Y;
+    a.Z -= b.Z;
     return a;
 }
 
+/**
+ * @brief operator- for vectors.
+ */
+XnVector3D operator-(XnVector3D a, XnVector3D const & b)
+{
+    return a-=b;
+}
+
+/**
+ * @brief operator+= for vectors.
+ */
+XnVector3D & operator+=(XnVector3D & a, XnVector3D const & b)
+{
+    a.X += b.X;
+    a.Y += b.Y;
+    a.Z += b.Z;
+    return a;
+}
+
+/**
+ * @brief operator+ for vectors.
+ */
 XnVector3D operator+(XnVector3D a, XnVector3D const & b)
 {
     return a += b;
 }
 
-XnVector3D operator/(XnVector3D const & a, float b)
+/**
+ * @brief operator/= for vectors.
+ */
+XnVector3D & operator/=(XnVector3D & a, float b)
 {
-    XnVector3D r;
-    r.X=a.X/b;
-    r.Y=a.Y/b;
-    r.Z=a.Z/b;
-    return r;
+    a.X /= b;
+    a.Y /= b;
+    a.Z /= b;
+    return a;
+}
+
+/**
+ * @brief operator/ for vectors.
+ */
+XnVector3D operator/(XnVector3D a, float b)
+{
+    return a /= b;
 }
 
 namespace kin
@@ -381,13 +404,17 @@ bool file_exist(std::string const & f)
         return true;
 }
 
+/**
+ * @brief A detector for kinect clicks.
+ */
 class ClickDetector
 {
 public:
 
-    ClickDetector()
+    explicit ClickDetector(bool use_y = true)
         :
           handle_click_(kin::detail::do_nothing0),
+          use_y_(use_y),
           max_delay_(0.1),
           threshold_(0.4),
           elapsed_time_(0),
@@ -398,21 +425,24 @@ public:
     {
         // Update the elapsed time and add the new point to the queue.
         elapsed_time_ += p_elapsed_time;
-        points_.emplace_back(elapsed_time_, point);
+        if (use_y_)
+            positions_.emplace_back(elapsed_time_, point.Y);
+        else
+            positions_.emplace_back(elapsed_time_, point.Z);
 
-        // Remove all points
-        while (!points_.empty() && points_.front().first+max_delay_ < elapsed_time_)
-            points_.pop_front();
+        // Remove all points that are too old.
+        while (!positions_.empty() && positions_.front().first+max_delay_ < elapsed_time_)
+            positions_.pop_front();
 
         // Check if enough movement happened
         float sum = 0.0;
-        float prev = points_.front().second.Y;
-        for (auto const & p : points_)
+        float prev = positions_.front().second;
+        for (auto const & p : positions_)
         {
-            if (p.second.Y > prev)
+            if (p.second > prev)
             {
-                sum += std::abs(p.second.Y - prev);
-                prev = p.second.Y;
+                sum += std::abs(p.second - prev);
+                prev = p.second;
             }
         }
 
@@ -435,22 +465,36 @@ public:
 
     void reset()
     {
-        points_.clear();
+        positions_.clear();
         elapsed_time_ = 0;
         clicked_ = false;
     }
 
     std::function<void()> handle_click_;
+    bool use_y_;
 
 private:
 
     float const max_delay_;
     float const threshold_;
-    std::list<std::pair<float, XnPoint3D> > points_;
+    std::list<std::pair<float, float> > positions_; // contains the pairs (timestamp, click position)
     float elapsed_time_;
     bool clicked_;
 
 };
+
+template <typename T, typename W>
+void attach_mouse_events(std::shared_ptr<T> m, std::shared_ptr<W> w)
+{
+    typedef typename W::DiffType DiffType;
+    w->handle_mouse_enter_ = [m, w](DiffType x, DiffType y){
+        m->restart();
+    };
+    w->handle_mouse_leave_ = [m, w](DiffType x, DiffType y){
+        m->reset();
+        m->stop();
+    };
+}
 
 
 

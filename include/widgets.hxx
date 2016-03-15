@@ -522,35 +522,35 @@ void Widget::render(
         }
         else if (scale_ == ScaleInX)
         {
-            render_rect_.Bottom = std::ceil(rel_height_ * parent_height);
-            render_rect_.Right = std::ceil(ratio_ * render_rect_.Bottom);
+            render_rect_.Bottom = std::round(rel_height_ * parent_height);
+            render_rect_.Right = std::round(ratio_ * render_rect_.Bottom);
         }
         else if (scale_ == ScaleInY)
         {
-            render_rect_.Right = std::ceil(rel_width_ * parent_width);
-            render_rect_.Bottom = std::ceil(render_rect_.Right / ratio_);
+            render_rect_.Right = std::round(rel_width_ * parent_width);
+            render_rect_.Bottom = std::round(render_rect_.Right / ratio_);
         }
         else // scale_ == None
         {
-            render_rect_.Right = std::ceil(rel_width_ * parent_width);
-            render_rect_.Bottom = std::ceil(rel_height_ * parent_height);
+            render_rect_.Right = std::round(rel_width_ * parent_width);
+            render_rect_.Bottom = std::round(rel_height_ * parent_height);
         }
 
         // Compute the correct render position in x.
         if (align_x_ == Left)
-            render_rect_.Offset(std::floor(rel_x_ * parent_width), 0);
+            render_rect_.Offset(std::round(rel_x_ * parent_width), 0);
         else if (align_x_ == Right)
-            render_rect_.Offset(std::ceil((1 - rel_x_) * parent_width - render_rect_.GetWidth()), 0);
+            render_rect_.Offset(std::round((1 - rel_x_) * parent_width - render_rect_.GetWidth()), 0);
         else // align_x_ == CenterX
-            render_rect_.Offset(0.5 * (parent_width - render_rect_.GetWidth()) + rel_x_*parent_width, 0);
+            render_rect_.Offset(std::round(0.5 * (parent_width - render_rect_.GetWidth()) + rel_x_*parent_width), 0);
 
         // Compute the correct render position in y.
         if (align_y_ == Top)
-            render_rect_.Offset(0, rel_y_ * parent_height);
+            render_rect_.Offset(0, std::round(rel_y_ * parent_height));
         else if (align_y_ == Bottom)
-            render_rect_.Offset(0, (1 - rel_y_) * parent_height - render_rect_.GetHeight());
+            render_rect_.Offset(0, std::round((1 - rel_y_) * parent_height - render_rect_.GetHeight()));
         else // align_y_ == CenterY
-            render_rect_.Offset(0, 0.5 * (parent_height - render_rect_.GetHeight()) + rel_y_*parent_height);
+            render_rect_.Offset(0, std::round(0.5 * (parent_height - render_rect_.GetHeight()) + rel_y_*parent_height));
 
         // Move the widget relative to the parent.
         render_rect_.Offset(parent_x, parent_y);
@@ -649,7 +649,7 @@ public:
      * @brief Set the column sizes.
      */
     template <typename... Args>
-    void set_x_sizes(Args... args)
+    void set_x_sizes(Args&& ... args)
     {
         set_sizes(x_pos_, n_x_, args...);
     }
@@ -658,7 +658,7 @@ public:
      * @brief Set the row sizes.
      */
     template <typename... Args>
-    void set_y_sizes(Args... args)
+    void set_y_sizes(Args&& ... args)
     {
         set_sizes(y_pos_, n_y_, args...);
     }
@@ -716,7 +716,7 @@ protected:
                     // Draw the current grid element.
                     auto pos = render_pos(x, y);
                     auto size = render_size(x, y);
-                    grid_(x, y)->render(target, pos.x, pos.y, size.x, size.y);
+                    grid_(x, y)->render(target, std::round(pos.x), std::round(pos.y), std::round(size.x), std::round(size.y));
                 }
             }
         }
@@ -728,7 +728,7 @@ private:
      * @brief Normalize v, accumulate its values, and add a leading zero.
      */
     template <typename... Args>
-    void set_sizes(std::vector<double> & v, size_t n, Args... args)
+    void set_sizes(std::vector<double> & v, size_t n, Args&& ... args)
     {
         // Write the sizes into the vector.
         v = {args...};
@@ -755,11 +755,11 @@ private:
     {
         sf::Vector2f pos;
         if (x_pos_.empty())
-            pos.x = render_rect_.GetWidth() * x / static_cast<double>(n_x_) + render_rect_.Left;
+            pos.x = render_rect_.GetWidth() * x / static_cast<float>(n_x_) + render_rect_.Left;
         else
-            pos.x = render_rect_.GetWidth() *x_pos_[x] + render_rect_.Left;
+            pos.x = render_rect_.GetWidth() * x_pos_[x] + render_rect_.Left;
         if (y_pos_.empty())
-            pos.y = render_rect_.GetHeight() * y / static_cast<double>(n_y_) + render_rect_.Top;
+            pos.y = render_rect_.GetHeight() * y / static_cast<float>(n_y_) + render_rect_.Top;
         else
             pos.y = render_rect_.GetHeight() * y_pos_[y] + render_rect_.Top;
         return pos;
@@ -772,11 +772,11 @@ private:
     {
         sf::Vector2f size;
         if (x_pos_.empty())
-            size.x = render_rect_.GetWidth() / n_x_;
+            size.x = render_rect_.GetWidth() / static_cast<float>(n_x_);
         else
             size.x = render_rect_.GetWidth() * (x_pos_[x+1] - x_pos_[x]);
         if (y_pos_.empty())
-            size.y = render_rect_.GetHeight() / n_y_;
+            size.y = render_rect_.GetHeight() / static_cast<float>(n_y_);
         else
             size.y = render_rect_.GetHeight() * (y_pos_[y+1] - y_pos_[y]);
         return size;
@@ -803,7 +803,7 @@ public:
 
     template <typename... Args>
     HoverclickWidget(
-            Args... args
+            Args&& ... args
     )
         :
           T(args...),
@@ -864,7 +864,7 @@ public:
     template <typename... Args>
     ColorWidget(
             sf::Color const & color,
-            Args... args
+            Args&& ... args
     )
         :
           Widget(args...),
@@ -896,7 +896,7 @@ public:
     template <typename... Args>
     ImageWidget(
             std::string const & filename,
-            Args... args
+            Args&& ... args
     )
         :
           Widget(args...),
@@ -936,7 +936,7 @@ public:
     template <typename... Args>
     TextWidget(
             std::string const & text,
-            Args... args
+            Args&& ... args
     )
         :
           Widget(args...),
@@ -1085,7 +1085,7 @@ public:
     template <typename... Args>
     AnimatedWidget(
             std::string const & filename,
-            Args... args
+            Args&& ... args
     )
         :
           Widget(args...),
@@ -1390,7 +1390,7 @@ class ChainedAction : public Action
 public:
 
     template <typename... Args>
-    ChainedAction(Args... args)
+    ChainedAction(Args&& ... args)
     {
         fill_actions(args...);
     }
@@ -1421,7 +1421,7 @@ private:
     {}
 
     template <typename... Args>
-    void fill_actions(ActionPointer a, Args... args)
+    void fill_actions(ActionPointer a, Args&& ... args)
     {
         fill_actions(args...);
         actions_.push(a);
