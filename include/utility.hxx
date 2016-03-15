@@ -411,9 +411,10 @@ class ClickDetector
 {
 public:
 
-    ClickDetector()
+    explicit ClickDetector(bool use_y = true)
         :
           handle_click_(kin::detail::do_nothing0),
+          use_y_(use_y),
           max_delay_(0.1),
           threshold_(0.4),
           elapsed_time_(0),
@@ -424,21 +425,24 @@ public:
     {
         // Update the elapsed time and add the new point to the queue.
         elapsed_time_ += p_elapsed_time;
-        points_.emplace_back(elapsed_time_, point);
+        if (use_y_)
+            positions_.emplace_back(elapsed_time_, point.Y);
+        else
+            positions_.emplace_back(elapsed_time_, point.Z);
 
-        // Remove all points
-        while (!points_.empty() && points_.front().first+max_delay_ < elapsed_time_)
-            points_.pop_front();
+        // Remove all points that are too old.
+        while (!positions_.empty() && positions_.front().first+max_delay_ < elapsed_time_)
+            positions_.pop_front();
 
         // Check if enough movement happened
         float sum = 0.0;
-        float prev = points_.front().second.Y;
-        for (auto const & p : points_)
+        float prev = positions_.front().second;
+        for (auto const & p : positions_)
         {
-            if (p.second.Y > prev)
+            if (p.second > prev)
             {
-                sum += std::abs(p.second.Y - prev);
-                prev = p.second.Y;
+                sum += std::abs(p.second - prev);
+                prev = p.second;
             }
         }
 
@@ -461,18 +465,19 @@ public:
 
     void reset()
     {
-        points_.clear();
+        positions_.clear();
         elapsed_time_ = 0;
         clicked_ = false;
     }
 
     std::function<void()> handle_click_;
+    bool use_y_;
 
 private:
 
     float const max_delay_;
     float const threshold_;
-    std::list<std::pair<float, XnPoint3D> > points_;
+    std::list<std::pair<float, float> > positions_; // contains the pairs (timestamp, click position)
     float elapsed_time_;
     bool clicked_;
 

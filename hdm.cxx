@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     opts.mouse_->stop();
     opts.mouse_->repeatable_ = false;
 
-    //Set sreen Height and width in options.hxx
+    // Set sreen Height and width in options.
     opts.screen_height_ = HEIGHT;
     opts.screen_width_ = WIDTH;
 

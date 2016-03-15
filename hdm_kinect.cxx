@@ -30,6 +30,11 @@ int main(int argc, char** argv)
 
     // Set the kinect mode.
     opts.use_kinect_ = true;
+    opts.kinect_game_depth_ = false;
+
+    // Set sreen Height and width in options.
+    opts.screen_height_ = HEIGHT;
+    opts.screen_width_ = WIDTH;
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
@@ -62,6 +67,10 @@ int main(int argc, char** argv)
 
     // Create the kinect sensor.
     KinectSensor k;
+    if (opts.kinect_game_depth_)
+        k.use_y_click();
+    else
+        k.use_z_click();
     bool clicked_left = false;
     bool clicked_right = false;
     k.handle_click_left() = [&](){

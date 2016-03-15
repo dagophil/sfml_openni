@@ -274,6 +274,24 @@ public:
         return click_detector_right_.handle_click_;
     }
 
+    /**
+     * @brief Use depth for click detection.
+     */
+    void use_y_click()
+    {
+        click_detector_left_.use_y_ = true;
+        click_detector_right_.use_y_ = true;
+    }
+
+    /**
+     * @brief Use height for click detection.
+     */
+    void use_z_click()
+    {
+        click_detector_left_.use_y_ = false;
+        click_detector_right_.use_y_ = false;
+    }
+
 private:
 
     /**

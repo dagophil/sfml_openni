@@ -80,6 +80,7 @@ HDMGame::HDMGame()
     event_manager.register_listener(listener_);
 
     // Load the splash screen.
+    opts.mouse_->show();
     load_screen(Event::HighscoreScreen);
 }
 
