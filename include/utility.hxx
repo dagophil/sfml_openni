@@ -296,18 +296,6 @@ void insert_line_breaks(sf::String & str, double max_width)
 }
 
 /**
- * @brief operator- for vectors.
- */
-XnVector3D operator-(XnVector3D const & a, XnVector3D const & b)
-{
-    XnVector3D r;
-    r.X = a.X - b.X;
-    r.Y = a.Y - b.Y;
-    r.Z = a.Z - b.Z;
-    return r;
-}
-
-/**
  * @brief Return the length of the vector.
  */
 double length(XnVector3D const & a)
@@ -315,26 +303,61 @@ double length(XnVector3D const & a)
     return std::sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z);
 }
 
-XnVector3D & operator+=(XnVector3D & a, XnVector3D const & b)
+/**
+ * @brief operator-= for vectors.
+ */
+XnVector3D & operator-=(XnVector3D & a, XnVector3D const & b)
 {
-    a.X=a.X+b.X;
-    a.Y=a.Y+b.Y;
-    a.Z=a.Z+b.Z;
+    a.X -= b.X;
+    a.Y -= b.Y;
+    a.Z -= b.Z;
     return a;
 }
 
+/**
+ * @brief operator- for vectors.
+ */
+XnVector3D operator-(XnVector3D a, XnVector3D const & b)
+{
+    return a-=b;
+}
+
+/**
+ * @brief operator+= for vectors.
+ */
+XnVector3D & operator+=(XnVector3D & a, XnVector3D const & b)
+{
+    a.X += b.X;
+    a.Y += b.Y;
+    a.Z += b.Z;
+    return a;
+}
+
+/**
+ * @brief operator+ for vectors.
+ */
 XnVector3D operator+(XnVector3D a, XnVector3D const & b)
 {
     return a += b;
 }
 
-XnVector3D operator/(XnVector3D const & a, float b)
+/**
+ * @brief operator/= for vectors.
+ */
+XnVector3D & operator/=(XnVector3D & a, float b)
 {
-    XnVector3D r;
-    r.X=a.X/b;
-    r.Y=a.Y/b;
-    r.Z=a.Z/b;
-    return r;
+    a.X /= b;
+    a.Y /= b;
+    a.Z /= b;
+    return a;
+}
+
+/**
+ * @brief operator/ for vectors.
+ */
+XnVector3D operator/(XnVector3D a, float b)
+{
+    return a /= b;
 }
 
 namespace kin
