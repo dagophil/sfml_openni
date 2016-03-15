@@ -82,7 +82,7 @@ HDMGame::HDMGame()
 
     // Load the splash screen.
     opts.mouse_->show();
-    load_screen(Event::HighscoreScreen);
+    load_screen(Event::OptionsScreen);
 }
 
 void HDMGame::hover_field(int x, int y)
