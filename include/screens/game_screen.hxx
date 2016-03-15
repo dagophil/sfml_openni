@@ -398,8 +398,8 @@ private:
         pow->set_x(0.2);
         pow->set_height(0.5);
         moles_[i]->add_widget(pow);
-        event_manager.add_delayed_call(1.0, [&, pow](){
-            remove_widget(pow);
+        event_manager.add_delayed_call(1.0, [&, i, pow](){
+            moles_[i]->remove_widget(pow);
         });
         pow_index = rand_int(opts.rand_engine_);
         if (pow_index == 0)
