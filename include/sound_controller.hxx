@@ -58,13 +58,16 @@ protected:
      */
     void notify_impl(Event const & event)
     {
-        if (event.type_ == Event::MoleHit)
+        if (opts.sound_)
         {
-            std::uniform_int_distribution<int> r(0, 4);
-            int sound = r(opts.rand_engine_);
-            if (sound == 0)
-                sounds_[WilhelmScream].Play();
-            sounds_[Punch].Play();
+            if (event.type_ == Event::MoleHit)
+            {
+                std::uniform_int_distribution<int> r(0, 4);
+                int sound = r(opts.rand_engine_);
+                if (sound == 0)
+                    sounds_[WilhelmScream].Play();
+                sounds_[Punch].Play();
+            }
         }
     }
 
