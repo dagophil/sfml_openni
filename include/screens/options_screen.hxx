@@ -28,6 +28,7 @@ public:
         grid.set_height(0.5);
         grid.set_width(0.8);
         grid.align_x_ = CenterX;
+        grid.align_y_ = CenterY;
 
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
         back_button->set_height(0.1);
@@ -39,6 +40,8 @@ public:
             event_manager.post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
+
+
     }
 
 private:
