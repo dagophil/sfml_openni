@@ -645,7 +645,6 @@ private:
             high_mole->hide();
             add_widget(high_mole);
 
-            std::cout << opts.highscore_pos_ << std::endl;
             if(opts.highscore_pos_ != -1)
                 for(int i = 0; i < opts.highscore_pos_; ++i)
                     high_mole->next_frame();
