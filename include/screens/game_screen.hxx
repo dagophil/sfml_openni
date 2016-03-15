@@ -546,6 +546,7 @@ private:
         if (perfect_game_)
         {
             score_ *= 2;
+            score_text_->text_ = "Score: " + std::to_string(score_);
         }
         running_ = false;
 
