@@ -50,6 +50,8 @@ public:
         auto checkbox_checked = std::make_shared<HoverclickWidget<ImageWidget> >("images/checkbox_checked.png");
         checkbox_checked->align_x_ = Left;
         checkbox_checked->align_y_ = CenterY;
+        checkbox_checked->scale_ = ScaleInX;
+        checkbox_checked->set_height(0.5);
         grid(1,1) = checkbox_checked;
         grid(1,2) = checkbox_checked;
     }
