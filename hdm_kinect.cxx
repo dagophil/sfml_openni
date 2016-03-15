@@ -135,10 +135,12 @@ int main(int argc, char** argv)
             mouse_z = -1;
         }
 
-//        mouse_z = mouse_y;
-        if (mouse_x != -1 && mouse_z != -1)
+        if (mouse_x != -1 && mouse_y != -1 && mouse_z != -1)
         {
-            game.hover(mouse_x, mouse_z);
+            game.hover(mouse_x, mouse_y);
+
+            if (!opts.kinect_game_depth_)
+                mouse_z = mouse_y;
 
             // Find the currently hovered field.
             int fx = -1;

@@ -13,9 +13,8 @@
 namespace kin
 {
 
-class HighscoreScreen :public Widget
+class HighscoreScreen : public Widget
 {
-
 public:
 
     template <typename... Args>
@@ -105,6 +104,7 @@ public:
 
         f.close();
     }
+
 private:
 
     std::vector<std::shared_ptr<TextWidget> > scores_; // the highscores
