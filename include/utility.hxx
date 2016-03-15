@@ -9,6 +9,7 @@
 #include <utility>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fstream>
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
@@ -16,6 +17,7 @@
 
 #include "platform_support.hxx"
 #include "ndarray.hxx"
+
 
 /**
  * @brief operator<< for points.
@@ -499,6 +501,10 @@ void attach_mouse_events(std::shared_ptr<T> m, std::shared_ptr<W> w)
 void reset_highscore()
 {
     std::cout << "TODO: Reset highscore" << std::endl;
+    std::ofstream h("highscore/highscore.txt");
+    for (size_t i = 0; i < 5; i++)
+        h << 0 << "\n";
+    h.close();
 }
 
 

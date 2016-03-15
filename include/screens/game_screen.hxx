@@ -127,14 +127,14 @@ public:
         scoreboard->set_height(0.26);
         add_widget(scoreboard);
 
-        auto score_text = std::make_shared<TextWidget>("Score: " + std::to_string(score_));
-        score_text->text_align_x_ = Left;
-        score_text->text_align_y_ = CenterY;
-        score_text->set_x(0.1);
-        score_text->color_ = sf::Color(0, 0, 0);
-        score_text->font_size_ = opts.screen_height_ / 20;
-        score_text->style_ = sf::String::Bold;
-        scoreboard->add_widget(score_text);
+        score_text_ = std::make_shared<TextWidget>("Score: " + std::to_string(score_));
+        score_text_->text_align_x_ = Left;
+        score_text_->text_align_y_ = CenterY;
+        score_text_->set_x(0.1);
+        score_text_->color_ = sf::Color(0, 0, 0);
+        score_text_->font_size_ = opts.screen_height_ / 20;
+        score_text_->style_ = sf::String::Bold;
+        scoreboard->add_widget(score_text_);
 
         check_highscore_exists();
 
@@ -382,6 +382,7 @@ private:
         // Add the points to the score.
         points *= combo_mult_;
         score_ += points;
+        score_text_->text_ = "Score: " + std::to_string(score_);
 
         // Show the pow animation.
         std::uniform_int_distribution<int> rand_int(0, 1);
@@ -702,6 +703,7 @@ private:
     std::shared_ptr<Listener> listener_; // the event listener
     int hovered_index_; // index of the hovered mole
     int highscore_; // the best highscore
+    std::shared_ptr<TextWidget> score_text_; // the current score displayed
 
 };
 
