@@ -80,6 +80,19 @@ enum AlignY
     CenterY
 };
 
+struct CenterStruct
+{
+    operator AlignX() const
+    {
+        return CenterX;
+    }
+    operator AlignY() const
+    {
+        return CenterY;
+    }
+};
+static CenterStruct const Center;
+
 enum Scale // this is for widgets
 {
     None,

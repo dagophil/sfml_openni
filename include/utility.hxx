@@ -496,6 +496,11 @@ void attach_mouse_events(std::shared_ptr<T> m, std::shared_ptr<W> w)
     };
 }
 
+void reset_highscore()
+{
+    std::cout << "TODO: Reset highscore" << std::endl;
+}
+
 
 
 #endif
