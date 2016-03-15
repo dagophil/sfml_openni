@@ -230,6 +230,12 @@ public:
         combo_counter_->stop();
         star_grid(0) = combo_counter_;
 
+        // Preload the hit/pow animations.
+        {
+            auto prehit = std::make_shared<AnimatedWidget>("animations/hit.pf");
+            auto prepow = std::make_shared<AnimatedWidget>("animations/pow.pf");
+        }
+
         if (opts.use_kinect_)
         {
             // Create the crosshairs.
