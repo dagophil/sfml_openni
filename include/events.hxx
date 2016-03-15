@@ -33,7 +33,8 @@ public:
         HighscoreScreen,
         ManualScreen,
         CreditsScreen,
-        GameScreen
+        GameScreen,
+        OptionsScreen
     };
 
     struct ChangeScreenEvent

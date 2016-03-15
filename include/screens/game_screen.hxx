@@ -36,7 +36,8 @@ public:
           combo_count_(0),
           perfect_game_(true),
           combo_mult_(1),
-          hovered_index_(-1)
+          hovered_index_(-1),
+          highscore_(0)
     {
         // Hide the mouse.
 //        opts.mouse_->hide();
@@ -117,17 +118,39 @@ public:
             running_ = true;
         });
 
-        // Create the back button.
-        auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
-        back_button->set_height(0.15);
-        back_button->scale_ = ScaleInX;
-        back_button->align_x_ = CenterX;
-        back_button->set_y(0.05);
-        attach_mouse_events(opts.mouse_, back_button);
-        back_button->handle_click_ = [&](DiffType x, DiffType y){
-            event_manager.post(Event(Event::MainMenuScreen));
-        };
-        add_widget(back_button);
+        auto scoreboard = std::make_shared<ImageWidget>("images/scoreboard2.png");
+        scoreboard->hoverable_ = false;
+        scoreboard->align_x_ = CenterX;
+        scoreboard->align_y_ = Top;
+        scoreboard->scale_ = ScaleInX;
+        scoreboard->set_y(0.03);
+        scoreboard->set_height(0.26);
+        add_widget(scoreboard);
+
+        auto score_text = std::make_shared<TextWidget>("Score: " + std::to_string(score_));
+        score_text->text_align_x_ = Left;
+        score_text->text_align_y_ = CenterY;
+        score_text->set_x(0.1);
+        score_text->color_ = sf::Color(0, 0, 0);
+        score_text->font_size_ = opts.screen_height_ / 20;
+        score_text->style_ = sf::String::Bold;
+        scoreboard->add_widget(score_text);
+
+        check_highscore_exists();
+
+        std::ifstream f("highscore/highscore.txt");
+
+        f >> highscore_;
+
+        auto highscore_text = std::make_shared<TextWidget>("Highscore: " + std::to_string(highscore_));
+        highscore_text->text_align_x_ = Right;
+        highscore_text->text_align_y_ = CenterY;
+        highscore_text->set_x(-0.1);
+        highscore_text->color_ = sf::Color(0, 0, 0);
+        highscore_text->font_size_ = opts.screen_height_ / 20;
+        highscore_text->style_ = sf::String::Bold;
+        scoreboard->add_widget(highscore_text);
+
 
         // Show the time bar.
         auto timebar = std::make_shared<ImageWidget>("images/timebar_frame.png");
@@ -537,7 +560,7 @@ private:
         check_highscore();
     }
 
-    void check_highscore()
+    void check_highscore_exists()
     {
         if(!dir_exist("highscore"))
         {
@@ -558,13 +581,22 @@ private:
             for (size_t i = 0; i < 5; i++)
                 h << 0 << "\n";
         }
+    }
+
+    void check_highscore()
+    {
+        check_highscore_exists();
+
+        std::ifstream f("highscore/highscore.txt");
+
 
         std::vector<size_t> current_score;
         bool new_highscore = false;
+        size_t t;
 
         for(size_t i = 0; i < 5; ++i)
         {
-            size_t t;
+
             f >> t;
 
             if (score_ > t && !new_highscore)
@@ -668,6 +700,7 @@ private:
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
     std::shared_ptr<Listener> listener_; // the event listener
     int hovered_index_;
+    int highscore_; // the best highscore
 
 };
 
