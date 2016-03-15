@@ -57,7 +57,7 @@ public:
 
 private:
 
-    sf::Font default_font_;
+    sf::Font default_font_; // the default font
 
 };
 

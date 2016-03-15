@@ -39,8 +39,8 @@ public:
           hovered_index_(-1)
     {
         // Hide the mouse.
-//        opts.mouse_->hide();
-
+        if (opts.use_kinect_)
+            opts.mouse_->hide();
 
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -667,7 +667,7 @@ private:
     size_t combo_mult_; // the current point multiplier
     std::shared_ptr<AnimatedWidget> combo_counter_; // the combo counter
     std::shared_ptr<Listener> listener_; // the event listener
-    int hovered_index_;
+    int hovered_index_; // index of the hovered mole
 
 };
 

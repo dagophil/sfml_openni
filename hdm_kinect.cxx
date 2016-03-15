@@ -28,6 +28,9 @@ int main(int argc, char** argv)
         HEIGHT = mode.Height;
     }
 
+    // Set the kinect mode.
+    opts.use_kinect_ = true;
+
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
 
