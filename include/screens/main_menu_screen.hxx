@@ -60,7 +60,7 @@ public:
         auto const & ev = v[5].second;
         auto optsbtn = std::make_shared<HoverclickWidget<ImageWidget>>(img);
         optsbtn->scale_ = ScaleInX;
-        optsbtn->set_height(0.1);
+        optsbtn->set_height(0.125);
         optsbtn->align_x_ = Right;
         optsbtn->align_y_ = Top;
         optsbtn->set_x(0.01);
