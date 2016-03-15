@@ -82,6 +82,13 @@ public:
         attach_mouse_events(opts.mouse_, reset_img);
         grid(1, 0) = reset_img;
 
+        // Add the sound checkbox.
+        auto sound_img = std::make_shared<HoverclickWidget<ColorWidget> >(sf::Color(0, 255, 0));
+        sound_img->align_y_ = Center;
+        sound_img->handle_click_ = [](DiffType x, DiffType y){
+            opts.sound_ = !opts.sound_;
+        };
+
         // Create the back button.
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
         back_button->set_height(0.15);
