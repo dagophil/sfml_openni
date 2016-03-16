@@ -14,6 +14,7 @@
 #include "screens/game_screen.hxx"
 #include "screens/highscore_screen.hxx"
 #include "screens/options_screen.hxx"
+#include "screens/credits_screen.hxx"
 
 namespace kin
 {
@@ -82,7 +83,7 @@ HDMGame::HDMGame()
 
     // Load the splash screen.
     opts.mouse_->show();
-    load_screen(Event::OptionsScreen);
+    load_screen(Event::SplashScreen);
 }
 
 void HDMGame::hover_field(int x, int y)
@@ -133,7 +134,8 @@ void HDMGame::load_screen(Event::ScreenID id)
         {Event::ManualScreen, ScreenFunction(create_screen<ManualScreen>)},
         {Event::GameScreen, ScreenFunction(create_screen<GameScreen>)},
         {Event::HighscoreScreen, ScreenFunction(create_screen<HighscoreScreen>)},
-        {Event::OptionsScreen, ScreenFunction(create_screen<OptionsScreen>)}
+        {Event::OptionsScreen, ScreenFunction(create_screen<OptionsScreen>)},
+        {Event::CreditsScreen, ScreenFunction(create_screen<CreditsScreen>)}
     };
 
     // Get the correct screen function to create the screen and add it to the widget container.

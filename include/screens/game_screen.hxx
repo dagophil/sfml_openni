@@ -26,7 +26,7 @@ public:
         :
           Widget(args...),
           running_(false),
-          total_time_(5),
+          total_time_(60),
           remaining_time_(total_time_),
           moletime_min_(2.0),
           moletime_max_(3.5),
