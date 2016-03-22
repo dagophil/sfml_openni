@@ -96,13 +96,16 @@ public:
         // Create the resize actions for the timer.
         auto func = [](Widget &wid, float elapsed_time){
             wid.set_height(0.25);
+            wid.show();
             return true;
         };
         auto resize_action1 = std::make_shared<FunctionAction>(func);
         auto resize_action2 = std::make_shared<FunctionAction>(func);
+        auto resize_action11 = std::make_shared<DelayedAction>(0.05, resize_action1);
+        auto resize_action22 = std::make_shared<DelayedAction>(0.05, resize_action2);
 
         // Chain the actions together.
-        auto chain = std::make_shared<ChainedAction>(f0,resize_action1, f1,resize_action2,f2);
+        auto chain = std::make_shared<ChainedAction>(f0,resize_action11, f1,resize_action22,f2);
         timer->add_action(chain);
 
         // Create the "go" widget that appears after the timer.
@@ -408,9 +411,7 @@ private:
         pow->set_x(0.2);
         pow->set_height(0.5);
         moles_[i]->add_widget(pow);
-        event_manager.add_delayed_call(1.0, [&, i, pow](){
-            moles_[i]->remove_widget(pow);
-        });
+
         pow_index = rand_int(opts.rand_engine_);
         if (pow_index == 0)
             pow->align_x_ = Right;
@@ -418,8 +419,11 @@ private:
             pow->align_x_ = Left;
 
         // Add some shrinking to the pow animation.
-//        auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
-//        pow->add_action(shrinkact);
+        auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
+        pow->add_action(shrinkact);
+        event_manager.add_delayed_call(1.0, [&, i, pow](){
+            moles_[i]->remove_widget(pow);
+        });
     }
 
     /**

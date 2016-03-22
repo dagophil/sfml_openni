@@ -1487,7 +1487,7 @@ public:
 
 protected:
 
-    bool act_impl(Widget &w, float elapsed_time)
+    bool act_impl(Widget &w, float p_elapsed_time)
     {
         // Save the original width and height.
         if(first_frame_)
@@ -1498,9 +1498,9 @@ protected:
         }
 
         // Update the elapsed time.
-        elapsed_time_ += elapsed_time;
+        elapsed_time_ += p_elapsed_time;
 
-        if(elapsed_time_ < time_)
+        if(elapsed_time_ < 0.95 * time_)
         {
             // Rescale the widget.
             float t = 1 - elapsed_time_ / time_;
@@ -1510,6 +1510,7 @@ protected:
         }
         else
         {
+            w.hide();
             return true;
         }
     }
