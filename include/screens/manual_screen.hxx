@@ -72,7 +72,7 @@ public:
         attach_mouse_events(opts.mouse_, arrow_left);
         arrow_left->handle_click_ = [&](DiffType x, DiffType y){
             instructions_[active_]->hide();
-            --active_;
+            active_ -= 1; // --active_ yields compiler error in gcc 4.6
             if (active_ < 0)
                 active_ += instructions_.size();
             instructions_[active_]->show();
@@ -96,7 +96,7 @@ public:
         attach_mouse_events(opts.mouse_, arrow_right);
         arrow_right->handle_click_ = [&](DiffType x, DiffType y){
             instructions_[active_]->hide();
-            ++active_;
+            active_ += 1; // ++active_ yields compiler error in gcc 4.6
             if (active_ >= instructions_.size())
                 active_ = 0;
             instructions_[active_]->show();
@@ -105,6 +105,15 @@ public:
     }
 
 private:
+
+    void decrement()
+    {
+        --active_;
+    }
+    void increment()
+    {
+        ++active_;
+    }
 
     std::vector<std::shared_ptr<ImageWidget> > instructions_;
     int active_;

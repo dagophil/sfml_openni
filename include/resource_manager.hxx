@@ -23,7 +23,7 @@ public:
         }
         else
         {
-            auto p = images_.emplace(filename, sf::Image());
+            auto p = images_.insert({filename, sf::Image()});
             auto it = p.first;
             if (!it->second.LoadFromFile(filename))
             {
