@@ -82,7 +82,6 @@ HDMGame::HDMGame()
     event_manager.register_listener(listener_);
 
     // Load the splash screen.
-    opts.mouse_->show();
     load_screen(Event::SplashScreen);
 }
 
@@ -121,6 +120,7 @@ typedef std::function<std::shared_ptr<Widget>()> ScreenFunction;
 
 void HDMGame::load_screen(Event::ScreenID id)
 {
+    opts.mouse_->show();
     current_screen_ = id;
 
     // Remove the current widgets.

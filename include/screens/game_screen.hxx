@@ -41,7 +41,11 @@ public:
     {
         // Hide the mouse.
         if (opts.use_kinect_)
+        {
             opts.mouse_->hide();
+            moletime_min_ += 1;
+            moletime_max_ += 1;
+        }
 
         // Set all moles to "in".
         mole_out_.resize(9, false);
@@ -631,9 +635,9 @@ private:
                 add_widget(high_ani);
             });
 
-            event_manager.add_delayed_call(5.4, [&, high_ani](){
-                remove_widget(high_ani);
-            });
+//            event_manager.add_delayed_call(5.4, [&, high_ani](){
+//                remove_widget(high_ani);
+//            });
 
             auto high_mole = std::make_shared<AnimatedWidget>("animations/mole_highscore_sheet.pf",40);
             high_mole->set_width(0.2);

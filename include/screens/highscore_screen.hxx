@@ -39,7 +39,7 @@ public:
         back_button->align_x_ = CenterX;
         back_button->set_y(0.9);
         attach_mouse_events(opts.mouse_, back_button);
-        back_button->handle_click_ = [&](DiffType x, DiffType y){
+        back_button->handle_click_ = [](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
@@ -57,27 +57,40 @@ public:
         add_mole("images/mole.png", 3);
         add_mole("images/mole_no_shovel.png", 4);
 
-        if(!dir_exist("highscore"))
+        auto const dirname = "highscore";
+        auto const filename = "highscore/highscore.txt";
+
+        if(!dir_exist(dirname))
         {
-            mkdir("highscore", S_IRWXU|S_IRWXG);
-            std::ofstream h("highscore/highscore.txt");
+            mkdir(dirname, S_IRWXU|S_IRWXG);
+            std::ofstream h(filename);
 
             for (size_t i = 0; i < 5; i++)
                 h << 0 << "\n";
         }
-
-        std::ifstream f("highscore/highscore.txt");
-
-        if(!f.is_open())
+        if (!file_exist(filename))
         {
-            f.close();
-
-            std::ofstream h("highscore/highscore.txt");
-            for (size_t i = 0; i < 5; i++)
-                h << 0 << "\n";
+            std::ofstream f(filename);
+            for (size_t i = 0; i < 5; ++i)
+                f << 0 << "\n";
         }
+
+
+
+
+//        if(!f.is_open())
+//        {
+//            f.close();
+
+//            std::ofstream h(filename);
+//            for (size_t i = 0; i < 5; i++)
+//                h << 0 << "\n";
+//        }
 
         auto help_font_size = opts.screen_height_ / 20;
+        std::ifstream f(filename);
+        if (!f.is_open())
+            throw std::runtime_error(std::string("Could not open file: ") + filename);
 
         for (size_t i = 0; i < 5; i++)
         {
@@ -101,13 +114,7 @@ public:
             w->font_size_ = help_font_size;
             grid(2,i) = w;
         }
-
-        f.close();
     }
-
-private:
-
-    std::vector<std::shared_ptr<TextWidget> > scores_; // the highscores
 
 };
 

@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
     // Set the kinect mode.
     opts.use_kinect_ = true;
-    opts.kinect_game_depth_ = false;
+    opts.kinect_game_depth_ = true;
 
     // Set sreen Height and width in options.
     opts.screen_height_ = HEIGHT;
@@ -100,6 +100,10 @@ int main(int argc, char** argv)
         }
 
         // Update the kinect data.
+        if (opts.kinect_game_depth_)
+            k.use_y_click();
+        else
+            k.use_z_click();
         clicked_left = false;
         clicked_right = false;
         auto fps = fps_measure.update();
