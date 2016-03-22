@@ -106,15 +106,6 @@ public:
 
 private:
 
-    void decrement()
-    {
-        --active_;
-    }
-    void increment()
-    {
-        ++active_;
-    }
-
     std::vector<std::shared_ptr<ImageWidget> > instructions_;
     int active_;
 };
