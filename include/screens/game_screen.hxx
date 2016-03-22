@@ -418,8 +418,8 @@ private:
             pow->align_x_ = Left;
 
         // Add some shrinking to the pow animation.
-        auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
-        pow->add_action(shrinkact);
+//        auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
+//        pow->add_action(shrinkact);
     }
 
     /**
