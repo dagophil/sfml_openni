@@ -1204,6 +1204,18 @@ public:
     }
 
     /**
+     * @brief Go to the previous frame.
+     * @warning repeatable and freeze_finish will be ignored.
+     */
+    void previous_frame()
+    {
+        if (backwards_)
+            ++i_;
+        else
+            --i_;
+    }
+
+    /**
      * @brief Go to the next frame.
      * @warning repeatable and freeze_finish will be ignored.
      */
