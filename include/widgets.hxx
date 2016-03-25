@@ -35,6 +35,8 @@ public:
           finished_(false)
     {}
 
+    virtual ~Action() = default;
+
     /**
      * @brief If not finished, perform the action. Return whether the action is finished.
      */
@@ -116,6 +118,8 @@ public:
     typedef int DiffType;
 
     explicit Widget(int z_index = 0);
+
+    virtual ~Widget() = default;
 
     /**
      * @brief Store a new widget.
