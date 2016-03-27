@@ -35,6 +35,8 @@ public:
           finished_(false)
     {}
 
+    virtual ~Action() = default;
+
     /**
      * @brief If not finished, perform the action. Return whether the action is finished.
      */
@@ -116,6 +118,8 @@ public:
     typedef int DiffType;
 
     explicit Widget(int z_index = 0);
+
+    virtual ~Widget() = default;
 
     /**
      * @brief Store a new widget.
@@ -1201,6 +1205,18 @@ public:
     bool running() const
     {
         return running_;
+    }
+
+    /**
+     * @brief Go to the previous frame.
+     * @warning repeatable and freeze_finish will be ignored.
+     */
+    void previous_frame()
+    {
+        if (backwards_)
+            ++i_;
+        else
+            --i_;
     }
 
     /**

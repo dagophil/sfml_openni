@@ -328,11 +328,24 @@ private:
      */
     void miss()
     {
-        combo_count_ = 0;
-        for (auto star : stars_)
-            star->hide();
-        combo_mult_ = 1;
-        combo_counter_->reset();
+        if (combo_mult_ == 1)
+        {
+            combo_count_ = 0;
+            for (auto star : stars_)
+                star->hide();
+        }
+        else
+        {
+            if (combo_count_ == 0)
+            {
+                for (auto star : stars_)
+                    star->hide();
+            }
+            --combo_mult_;
+            combo_counter_->previous_frame();
+        }
+//        combo_mult_ = 1;
+//        combo_counter_->reset();
     }
 
     /**
@@ -342,21 +355,18 @@ private:
     {
         // Post the hit-event.
         event_manager.post(Event(Event::MoleHit));
-        combo_count_ += 1;
 
-        //While the combo guage is not full
-        if (combo_count_ <= 10)
+        //While the combo gauge is not full
+        if (combo_mult_ < 3)
         {
+            combo_count_ += 1;
             auto show_star = 0;
 
             //The star Position
-            if(combo_count_ % stars_.size() == 0)
-                show_star = 4;
-            else
-                show_star = combo_count_ % stars_.size() - 1;
+            show_star = combo_count_ - 1;
 
             //Clear all Stars and animate the first one
-            if (combo_count_ == 6)
+            if (combo_count_ == 1)
             {
                 for (auto star : stars_)
                     star->hide();
@@ -365,25 +375,22 @@ private:
 
             stars_[show_star]->show();
             stars_[show_star]->restart();
-        }
-        //Combo multiplier after 5 succesful hits.
-        if(combo_count_ == 5)
-        {
-            combo_mult_++;
-            combo_counter_->next_frame();
-        }
-        else if(combo_count_ == 10)
-        {
-            combo_mult_++;
-            combo_counter_->next_frame();
+
+            //Combo multiplier after 5 succesful hits.
+            if (combo_count_ == 5)
+            {
+                combo_mult_++;
+                combo_counter_->next_frame();
+                combo_count_ = 0;
+            }
         }
 
         // Start the hide animation.
-        int points = 1;
+        int points = 10;
         if(gmole_wave_ == -1 && gmole_position_ == i)
         {
             hide_gmole();
-            points = 5;
+            points *= 5;
         }
         else
         {
