@@ -10,8 +10,8 @@
 
 ## Documentation
 * Install jekyll:
-* * `sudo apt-get install ruby2.0 ruby2.0-dev`
-* * `sudo gem2.0 install jekyll`
+  * `sudo apt-get install ruby2.0 ruby2.0-dev`
+  * `sudo gem2.0 install jekyll`
 * Switch to the source directory: `cd sfml_openni`
 * Run jekyll: `jekyll build`
 * Open the documentation `doc/index.html`
