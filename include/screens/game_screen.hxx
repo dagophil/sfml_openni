@@ -430,7 +430,7 @@ private:
         pow->add_action(shrinkact);
         event_manager.add_delayed_call(1.0, [&, i, pow](){
             moles_[i]->remove_widget(pow);
-        });
+          });
     }
 
     /**
