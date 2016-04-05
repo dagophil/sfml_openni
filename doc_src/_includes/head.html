@@ -1,0 +1,21 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
+
+    <!-- bootstrap css and ie10 viewport hack for surface/desktop windows 8 bug -->
+    <link rel="stylesheet" href="{{ "/css/bootstrap.min.css" | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ "/css/bootstrap-theme.min.css" | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ "/css/ie10-viewport-bug-workaround.css" | prepend: site.baseurl }} ">
+
+    <!-- custom styles -->
+    <link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }} ">
+
+    <!-- ie8 support of html5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="{{ "/js/html5shiv.min.js" | prepend: site.baseurl }} "></script>
+        <script src="{{ "/js/respond.min.js" | prepend: site.baseurl }} "></script>
+    <![endif]-->
+</head>

@@ -1,0 +1,18 @@
+title: Kinect Menü
+source: doc_src
+destination: doc
+
+# Use this for jekyll serve
+baseurl: ""
+url: "http://localhost:4000"
+
+# Use this (or something similar) for a local jekyll build
+#baseurl: "/home/philip/src/kinect/test_projects/sfml_openni/doc/"
+#url: ""
+
+collections:
+  implementation:
+    output: true
+    submenu: true
+    menupos: 4
+    title: "Implementierung"
