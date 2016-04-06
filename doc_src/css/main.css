@@ -4,6 +4,12 @@ body
 	font-size: 18px;
 }
 
+.footer
+{
+    background-color: #eeeeee;
+    height: 80px;
+}
+
 .lfloat-sm-1,
 .lfloat-sm-2,
 .lfloat-sm-3,
