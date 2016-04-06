@@ -6,13 +6,13 @@
         <COMMAND>./hdm</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/pow_01.png</IMAGE>
+        <IMAGE>images/pow_02.png</IMAGE>
         <TITLE>Whac a mole (Kinect)</TITLE>
         <DESCRIPTION>The Whac a mole game (kinect).</DESCRIPTION>
         <COMMAND>./hdm_kinect</COMMAND>
     </MENUITEM>        
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -30,7 +30,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -48,7 +48,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -66,7 +66,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -84,7 +84,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -102,7 +102,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -120,7 +120,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -138,7 +138,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -156,7 +156,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>
@@ -174,7 +174,7 @@
         <COMMAND>gedit /home/philip/game0.txt</COMMAND>
     </MENUITEM>
     <MENUITEM>
-        <IMAGE>images/luigi.jpg</IMAGE>
+        <IMAGE>images/luigi.png</IMAGE>
         <TITLE>Luigi</TITLE>
         <DESCRIPTION>Luigi Game Description</DESCRIPTION>
         <COMMAND>gedit /home/philip/game1.txt</COMMAND>

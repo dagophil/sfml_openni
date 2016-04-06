@@ -19,29 +19,49 @@ body
     float: left;
     margin-right: 16px;
 }
-/*.lfloat-sm-1
-{
-    max-width: 8.3333333%;
-}
 .lfloat-sm-1
 {
     max-width: 8.3333333%;
 }
-.lfloat-sm-1
+.lfloat-sm-2
 {
-    max-width: 8.3333333%;
+    max-width: 16.6666667%;
 }
-.lfloat-sm-1
+.lfloat-sm-3
 {
-    max-width: 8.3333333%;
+    max-width: 25%;
 }
-.lfloat-sm-1
+.lfloat-sm-4
 {
-    max-width: 8.3333333%;
-}*/
+    max-width: 33.3333333%;
+}
+.lfloat-sm-5
+{
+    max-width: 41.6666667%;
+}
 .lfloat-sm-6
 {
     max-width: 50%;
+}
+.lfloat-sm-7
+{
+    max-width: 58.3333333%;
+}
+.lfloat-sm-8
+{
+    max-width: 66.6666667%;
+}
+.lfloat-sm-9
+{
+    max-width: 75%;
+}
+.lfloat-sm-10
+{
+    max-width: 83.3333333%;
+}
+.lfloat-sm-11
+{
+    max-width: 91.6666667%;
 }
 @media (max-width: 767px)
 {
@@ -59,5 +79,6 @@ body
     {
         max-width: 100%;
         margin-right: 0;
+        margin-bottom: 16px;
     }
 }
