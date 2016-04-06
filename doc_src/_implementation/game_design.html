@@ -13,9 +13,36 @@ menupos: 2
 </div>
 	<h2>Umwandlung der Hand-Koordinaten</h2>
     <div class="clearfix">
-    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="894" height="674" src="{{"/img/highscore_screenshot.png" alt="highscore_screenshot.png"|prepend: site.baseurl}}"/>
+    
+    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="894" height="674" src="{{"/img/ebene_skeleton.png" alt="highscore_screenshot.png"|prepend: site.baseurl}}"/>
     Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.
     <br/> Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.
+    <br/> Linke Schulter (S<sub>1</sub>) und rechte Schulter (S<sub>2</sub>) :
+
+        $$
+            S_1 = \begin{pmatrix}
+            S_{10} \\ S_{11} \\S_{12}
+            \end{pmatrix}
+            \qquad
+            S_2 = \begin{pmatrix}
+            S_{20} \\ S_{21} \\S_{22}
+            \end{pmatrix}
+
+            
+        $$
+    <br/>Daraus ergibt sich die folgende Basiswechselmatrix:
+    
+
+    $$ M_{B \rightarrow E} = \left( \begin{array}{ccc}
+        S_{20} - S_{10}&0&S_{22}-S_{12} \\
+        0&X&0 \\
+        S_{22} - S_{12}&0&S_{10}-S_{20} \\
+        \end{array}
+        \right)
+    $$
+    Wobei X die Länge zwischen den beiden Schulterpunkten ist.
+    
+
     </div>
 	Update Endlosschleife
 	Screenwechsel Eventmanager
