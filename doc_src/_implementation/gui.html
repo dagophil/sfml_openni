@@ -84,6 +84,7 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
 
 <h2>Beispiele zur Benutzung:</h2>
 
+<br />
 <p>Erstelle ein Widget mit rotem Hintergrund und füge ein zentriertes Bild hinzu:</p>
 <pre class="line-numbers">
 <code class="language-cpp">
@@ -95,12 +96,20 @@ im->align_y_ = Center;
 container->add_widget(im);</code>
 </pre>
 
+<br />
 <p>Erstelle ein Widget mit Text und Bild:</p>
 <pre class="line-numbers">
 <code class="language-cpp">
 auto container = make_shared&lt;Widget&gt;();
 auto txt = make_shared&lt;TextWidget&gt;("Hallo Welt!");
+txt->set_width(0.7);
 auto im = make_shared&lt;ImageWidget&gt;("images/world.jpg");
+im->set_width(0.3);
+im->align_x_ = Right;
 container->add_widget(txt);
 container->add_widget(im);</code>
 </pre>
+
+<h2>GridWidget</h2>
+
+Bei dem Hau den Maulwurf Spiel
