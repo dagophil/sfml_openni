@@ -7,9 +7,16 @@ menupos: 2
 <div class="jumbotron">
     <h1>Spiel Design</h1>
 	<p> Das Spiel wird mithilfe einer Endlosschleife ausgeführt. In dieser wird zuerst überprüft, ob das Programm oder Fenster geschlossen und dadurch beendet wurden. 
-	<br/>Falls nicht, so empfängt das Spiel die aktuellen Daten der Kinect und speichert die beiden Handpositionen und überprüft ob ein Objekt gehovert wird, um ein entpsrechendes Event auslösen zu können.  
-
-</div> 
+	<br/>Falls nicht, so empfängt das Spiel die aktuellen  die beiden Handpositionen von der Kinect und überprüft ob ein Objekt gehovert wird um ein entpsrechendes Event auslösen zu können.
+	<br/>Danach wird das entsprechende Bild gezeichnet und angezeigt.
+<p>
+</div>
+	<h2>Umwandlung der Hand-Koordinaten</h2>
+    <div class="clearfix">
+    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="894" height="674" src="{{"/img/highscore_screenshot.png" alt="highscore_screenshot.png"|prepend: site.baseurl}}"/>
+    Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.
+    <br/> Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.
+    </div>
 	Update Endlosschleife
 	Screenwechsel Eventmanager
 	
