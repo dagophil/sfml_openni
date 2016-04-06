@@ -68,7 +68,7 @@ int main(int argc, char** argv)
         auto style = sf::Style::Close;
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
-        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test menu", style);
+        sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
         window.ShowMouseCursor(false);
         FPS fps_measure;
         overlay.handle_close_ = [&]()

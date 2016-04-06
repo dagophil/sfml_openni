@@ -42,7 +42,7 @@ public:
         auto img_w = std::make_shared<ImageWidget>(img_filename, 0);
         img_w->set_height(1.0);
         img_w->scale_ = ScaleInX;
-        img_w->align_x_ = Right;
+        img_w->align_x_ = Center;
         grid(0) = img_w;
 
         // Create the grid for the texts.
