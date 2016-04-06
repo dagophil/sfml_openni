@@ -12,20 +12,54 @@ menupos: 4
 <h2>Die Widget Klasse</h2>
 
 <h3>Motivation</h3>
-<div class="clearfix">
-    <img class="img-responsive img-thumbnail lfloat-sm-6" width="800" height="628" src="{{ "/img/menu1.png" | prepend: site.baseurl }}" />
-    <p>zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir eine Widget Klasse entworfen.zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir eine Widget Klasse entworfen.zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir eine Widget Klasse entworfen.zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir eine Widget Klasse entworfen.</p>
-</div>
-<!--
+
+<p>Beim Entwurf des Kinect Menüs stellten wir fest, dass Texte und Bilder oft ineinander verschachtelt sind. Zudem orientieren sich Höhe und Breite eines Bildobjekts oft an den Ausmaßen des übergeordneten Elements. Werden für Größe und Position eines Objektes also absolute Pixelwerte benutzt, so führt das schnell zu Problemen wenn übergeordnete Elemente verschoben werden oder sich in der Größe ändern.</p>
+<p><strong>Beispiel:</strong><br />
+Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einzelner Menüpunkt setzt sich zusammen aus einem Bild, einem Titel und einer kurzen Beschreibung.</p>
+
 <div class="row">
-    <div class="col-sm-8">
+    <div class="col-sm-6" style="margin-bottom:16px;">
         <img class="img-responsive img-thumbnail" width="800" height="628" src="{{ "/img/menu1.png" | prepend: site.baseurl }}" />
     </div>
-    <div class="col-sm-4">
-        <p>Hi</p>
+    <div class="col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Liste aller Menüpunkte</div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Einzelner Menüpunkt</div>
+                    <div class="panel-body container-fluid">
+                        <div class="col-xs-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Bild</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-7 col-xs-offset-1">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Titel, Beschreibung</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p>...</p>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Einzelner Menüpunkt</div>
+                    <div class="panel-body container-fluid">
+                        <div class="col-xs-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Bild</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-7 col-xs-offset-1">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Titel, Beschreibung</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
--->
 
 <pre class="line-numbers">
 <code class="language-cpp">
