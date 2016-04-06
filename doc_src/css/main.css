@@ -82,3 +82,8 @@ body
         margin-bottom: 16px;
     }
 }
+
+.th-right th
+{
+    text-align: right;
+}

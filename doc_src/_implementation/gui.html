@@ -14,8 +14,9 @@ menupos: 4
 <h3>Motivation</h3>
 
 <p>Beim Entwurf des Kinect Menüs stellten wir fest, dass Texte und Bilder oft ineinander verschachtelt sind. Zudem orientieren sich Höhe und Breite eines Bildobjekts oft an den Ausmaßen des übergeordneten Elements. Werden für Größe und Position eines Objektes also absolute Pixelwerte benutzt, so führt das schnell zu Problemen wenn übergeordnete Elemente verschoben werden oder sich in der Größe ändern.</p>
+<br />
 <p><strong>Beispiel:</strong><br />
-Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einzelner Menüpunkt setzt sich zusammen aus einem Bild, einem Titel und einer kurzen Beschreibung.</p>
+Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einzelner Menüpunkt setzt sich zusammen aus einem Bild, einem Titel und einer kurzen Beschreibung.</p><br />
 
 <div class="row">
     <div class="col-sm-6" style="margin-bottom:16px;">
@@ -61,10 +62,33 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
     </div>
 </div>
 
+<h2>Lösungsansatz</h2>
+<p>Um Probleme mit absoluten Pixelangaben zu umgehen, führten wir die Widget Klasse ein. Ein Widget ist zunächst ein Positionierungsobjekt, das eine Position (x, y) und eine Größe (w, h) besitzt. Zudem lassen sich einem Widget weitere untergeordnete Widgets zuordnen, sodass eine Verschachtelung ermöglicht wird.</p>
+<p>Die Werte von x, y, w und h reichen von 0.0 bis 1.0 und sind immer relativ zur Größe des übergeordneten Elements zu berechnen. Ein Widget der Breite w = 0.5 ist als genau halb so breit wie das Elternobjekt. Des Weiteren enthält ein Widget Positionsangaben wie <em>align_x = {left | center | right}</em>, sodass es auch zentriert oder rechtsbündig ausgerichtet werden kann.</p>
+
+<h2>Unterklassen</h2>
+<p>Die Widget Klasse kann auch zum Zeichnen benutzt werden. Dazu muss ein Objekt von einer der Unterklassen ImageWidget, AnimatedWidget, TextWidget oder ColorWidget erzeugt werden. Die Funktionen der Widgets lassen sich aus dem Namen herleiten:</p>
+<table class="table th-right">
+    <thead>
+        <tr><th>Name</th><th style="text-align:left;">Funktion</th>
+    </thead>
+    <tbody>
+        <tr><th>ImageWidget</th><td>Zeige ein einzelnes Bild an.</td></tr>
+        <tr><th>AnimatedWidget</th><td>Spiele eine Animation ab.</td></tr>
+        <tr><th>TextWidget</th><td>Zeige einen Text an.</td></tr>
+        <tr><th>ColorWidget</th><td>Fülle das Widget mit einer Farbe.</td></tr>
+    </tbody>
+</table>
+
+<h2>Beispiele zur Benutzung:</h2>
+
+<p>Erstelle ein Widget mit rotem Hintergrund und füge ein zentriertes Bild hinzu:</p>
 <pre class="line-numbers">
 <code class="language-cpp">
-int main()
-{
-    std::cout << "hi" << std::endl;
-}</code>
+auto container = make_shared&lt;ColorWidget&gt;(Color(255, 0, 0));
+auto im = make_shared&lt;ImageWidget&gt;("images/bg.jpg");
+im->set_height(0.7);
+im->align_x_ = Center;
+im->align_y_ = Center;
+container->add_widget(im);</code>
 </pre>
