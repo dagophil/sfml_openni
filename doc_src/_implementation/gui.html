@@ -66,7 +66,7 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
 </div>
 
 <h2>Lösungsansatz</h2>
-<p>Um Probleme mit absoluten Pixelangaben zu umgehen, führten wir die Widget Klasse ein. Ein Widget ist zunächst ein Positionierungsobjekt, das eine Position (x, y) und eine Größe (w, h) besitzt. Zudem lassen sich einem Widget weitere untergeordnete Widgets zuordnen, sodass eine Verschachtelung ermöglicht wird.</p>
+<p>Um Probleme mit absoluten Pixelangaben zu umgehen, führten wir die Widget Klasse ein. Ein Widget ist zunächst ein Positionierungsobjekt, das eine Position (x, y) und eine Größe (w, h) besitzt. Zudem lassen sich einem Widget weitere untergeordnete Widgets zuordnen, sodass eine Verschachtelung ermöglicht wird. Dank der Verschachtelung genügt es, den Zeichenbefehl auf dem root-Widget aufzurufen. Der Zeichenbefehl wird dann rekursiv an alle untergeordneten Widgets weitergegeben.</p>
 <p>Die Werte von x, y, w und h reichen von 0.0 bis 1.0 und sind immer relativ zur Größe des übergeordneten Elements zu berechnen. Ein Widget der Breite w = 0.5 ist als genau halb so breit wie das Elternobjekt. Des Weiteren enthält ein Widget Positionsangaben wie <em>align_x = {left | center | right}</em>, sodass es auch zentriert oder rechtsbündig ausgerichtet werden kann.</p>
 
 <h2>Unterklassen</h2>
@@ -144,4 +144,4 @@ for (int i = 0; i < 9; ++i)
 }</code>
 </pre>
 
-
+<h1>Actions</h1>
