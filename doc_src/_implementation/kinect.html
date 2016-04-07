@@ -6,5 +6,48 @@ menupos: 3
 {% include base.html %}
 
 <div class="jumbotron">
-    <h1>Kinect!</h1>
+    <h1>Kinect</h1>
+
+    <h2>Umwandlung der Hand-Koordinaten</h2>
+    <div class="clearfix">
+    <a href="{{base}}/img/ebene_skeleton.png" class="lightbox-link" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
+        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
+    </a>
+    <p>
+    Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>
+    Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.<br/>
+    Linke Schulter \((S_1)\), rechte Schulter \((S_2)\) und Torso \((T)\):
+    $$
+        S_1 = \begin{pmatrix}
+        S_{10} \\ S_{11} \\S_{12}
+        \end{pmatrix}
+        \quad
+        S_2 = \begin{pmatrix}
+        S_{20} \\ S_{21} \\S_{22}
+        \end{pmatrix}
+        \quad
+        T= \begin{pmatrix}
+        T_1\\T_2\\T_3
+        \end{pmatrix}
+    $$
+    Daraus ergibt sich die folgende Basiswechselmatrix:
+    $$
+        M_{B \rightarrow E} = \left( \begin{array}{ccc}
+        S_{20} - S_{10}&0&S_{22}-S_{12} \\
+        0&X&0 \\
+        S_{22} - S_{12}&0&S_{10}-S_{20} \\
+        \end{array}
+        \right)
+    $$
+    Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
+    Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
+    $$
+        H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
+        H_1 - T_1\\ H_2-T_2\\H_3-T_3        
+        \end{pmatrix}
+    $$
+    Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
+    </p>
+    </div>
+	Zittern verhindern, eigener Klick implementiert, 
 </div>
