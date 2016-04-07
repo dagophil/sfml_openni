@@ -9,10 +9,12 @@ body
     margin-bottom: 0;
 }
 
-.MathJax_Display
+.lightbox-link
 {
-    z-index: -1;
+    z-index: 3;
+    position: relative;
 }
+
 
 footer.footer
 {
