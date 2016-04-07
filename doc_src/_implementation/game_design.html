@@ -3,6 +3,7 @@ layout: default
 title: Spiel Design
 menupos: 2
 ---
+{% include base.html %}
 
 <div class="jumbotron">
     <h1>Spiel Design</h1>
@@ -12,8 +13,8 @@ menupos: 2
 </div>
 	<h2>Umwandlung der Hand-Koordinaten</h2>
     <div class="clearfix">
-    <a href="{{"/img/ebene_skeleton.png" | prepend: site.baseurl}}" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
-        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{"/img/ebene_skeleton.png" | prepend: site.baseurl}}" alt="ebene_skeleton.png"/>
+    <a href="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
+        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
     </a>
     <p>
     Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>

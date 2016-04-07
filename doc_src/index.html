@@ -3,6 +3,7 @@ layout: default
 title: Ziele
 menupos: 1
 ---
+{% include base.html %}
 
 <div class="jumbotron">
     <h1>Ziele</h1>
@@ -12,11 +13,10 @@ menupos: 1
 <p>Ziel unseres Projektes ist der Entwurf eines interaktiven Menüs, mit welchem sich Kinect Programme starten und wechseln lassen, ohne die Tastatur zu benutzen.<br/ >
 Die einzelnen Menüpunkte werden aus einer XML-Datei eingelesen.</p>
 <p> Weiter Informationen unter:
-    <a href="{{ "menu.html"|prepend: site.baseurl }}">Kinect Menü</a>
+    <a href="{{base}}/menu.html">Kinect Menü</a>
 </p>
 <br />
 <h2>Das Hau den Maulwurf Spiel</h2>     
 <p>Der zweite Teil ist die Implementierung eines "Hau den Maulwurf"-Spiels, in welchem man die Tiefenerkennung der Kinect ausnutzt.<br />
 Das Spielfeld besteht aus einem 3x3 Feld aus Maulwurflöchern, aus welchen im Zufallsprinzip Maulwürfe erscheinen und nach kurzer Zeit wieder verschwinden. Der Spieler benutzt seine Hand wie einen Hammer um die Maulwürfe auf den Kopf zu hauen.</p>
-<p>Weitere Informationen unter: <a href="{{ "game.html"|prepend: site.baseurl}}">Das Spiel</a></p>
-
+<p>Weitere Informationen unter: <a href="{{base}}/game.html">Das Spiel</a></p>

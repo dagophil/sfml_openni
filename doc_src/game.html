@@ -3,6 +3,7 @@ layout: default
 title: Das Spiel
 menupos: 3
 ---
+{% include base.html %}
 
 <div class="jumbotron">
     <h1>Das Hau den Maulwurf Spiel</h1>
@@ -11,8 +12,8 @@ menupos: 3
     Einmal pro Spiel erscheint ein goldener Maulwurf, welcher fünfmal soviele Punkte gibt wie ein normaler Maulwurf. Er ist dafür aber auch schneller wieder in seinem Maulwurfshügel verschwunden.</p>
 </div>
 <div class="clearfix">
-    <a href="{{"/img/screenshot_2.jpg" | prepend: site.baseurl}}" data-lightbox="screenshot_2.jpg">
-	   <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{"/img/screenshot_2.jpg" | prepend: site.baseurl}}" alt="screenshot_2.jpg"/>
+    <a href="{{base}}/img/screenshot_2.jpg" data-lightbox="screenshot_2.jpg">
+	   <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{base}}/img/screenshot_2.jpg" alt="screenshot_2.jpg"/>
     </a>
     <p>Die Spieloberfläche besteht aus vier verschiedenen Teilen.<br/>
     In der Mitte des Bildschirms befindet sich das Spielfeld mit den neun Maulwurfslöchern, aus denen die zu treffenden Maulwürfe hervorkommen bis die Zeit abgelaufen ist. <span style="color:#FF0000">[1]</span><br/>
@@ -22,8 +23,8 @@ menupos: 3
     </p>
 </div>
 <div class="clearfix">
-    <a href="{{"/img/highscore_screenshot.jpg" | prepend: site.baseurl}}" data-lightbox="highscore_screenshot.jpg">
-        <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{"/img/highscore_screenshot.jpg" | prepend: site.baseurl}}" alt="highscore_screenshot.jpg"/>
+    <a href="{{base}}/img/highscore_screenshot.jpg" data-lightbox="highscore_screenshot.jpg">
+        <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{base}}/img/highscore_screenshot.jpg" alt="highscore_screenshot.jpg"/>
     </a>
     <p> Ist die Spielzeit abgelaufen, wird die erreichte Punktzahl mit den aktuellen fünf Top-Highscores verglichen.        <br/>
     Hat man einen Highscore übertroffen so erscheint eine Animation auf dem Bildschirm und der entsprechende Platz wird durch einen besonderen Maulwurf dargestellt.<br/>
@@ -33,7 +34,7 @@ menupos: 3
     <br/>Die zu erreichenden Plätze sind:
 </p>
 <div class="col-sm-10 col-sm-offset-1">
-    <a href="{{"/img/mole_highscore_sheet.png" | prepend: site.baseurl}}" data-lightbox="mole_highscore_sheet.png">
-        <img class="img-thumbnail img-responsive" width="2080" height="709" src="{{"/img/mole_highscore_sheet.png" | prepend: site.baseurl}}" alt="mole_highscore.png"/>
+    <a href="{{base}}/img/mole_highscore_sheet.png" data-lightbox="mole_highscore_sheet.png">
+        <img class="img-thumbnail img-responsive" width="2080" height="709" src="{{base}}/img/mole_highscore_sheet.png" alt="mole_highscore.png"/>
     </a>
 </div>

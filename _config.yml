@@ -6,10 +6,6 @@ destination: doc
 baseurl: ""
 url: "http://localhost:4000"
 
-# Use this (or something similar) for a local jekyll build
-#baseurl: "/home/philip/src/kinect/test_projects/sfml_openni/doc/"
-#url: ""
-
 collections:
   implementation:
     output: true
