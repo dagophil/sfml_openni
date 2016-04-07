@@ -54,8 +54,7 @@ Ein Beispiel für das Animations-Datenformat:
     <a href="{{base}}/img/animated_widget.png" class="lightbox-link" alt="animated_widget.png" data-lightbox="animated_widget"> 
     <img class="img-responsive img-thumbnail lfloat-sm-6"  width="460" height="546" src="{{base}}/img/animated_widget.png" alt="animated_widget"/></a>
 Das Klassendiagramm der Animated-Widget Klasse
-</div>  
-=======
+</div>
 <h2>Die Spielschleife</h2>
 <p>Alle Objekte die auf dem Bildschirm gezeichnet werden, sind von der <a href="gui.html">Widget Klasse</a> abgeleitet. Es gibt ein Hauptwidget, das die anderen Widgets enthält. Die Update- und Zeichenfunktionen müssen nur auf dem Hauptwidget aufgerufen werden, da sie dann rekursiv auch in den untergeordneten Widgets aufgerufen werden.</p>
 <p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
@@ -91,4 +90,3 @@ Das Klassendiagramm der Animated-Widget Klasse
 <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam die verschiedenen Bilder nur einmal laden zu müssen und das gleiche Bild wiederholt zu verwenden.<br/>
 Hierfür benutzen wir den Ressourcen Manager. Es werden vor Spielbeginn alle benötigten Bilder einmal eingelesen und geladen um dann nur noch diese zu verwenden.<br/>
 Der Ressourcen Manager speichert den Namen der Bilddatei und das Bild in eine map-Struktur der C++ Standard-Library.</p>
->>>>>>> d3e42e8400c6bc7958eed1bc54a369adc507ceda
