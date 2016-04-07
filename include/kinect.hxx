@@ -388,7 +388,7 @@ KinectSensor::KinectSensor()
       hand_right_visible_(false)
 {
     // Initialize the kinect components.
-    check_error(context_.Init());
+    check_error(context_.Init());resource_manager
     check_error(depth_generator_.Create(context_));
     check_error(user_generator_.Create(context_));
     if (!user_generator_.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
