@@ -1,0 +1,40 @@
+---
+layout: default
+title: Das Spiel
+menupos: 3
+---
+{% include base.html %}
+
+<div class="jumbotron">
+    <h1>Das Hau den Maulwurf Spiel</h1>
+    <p>Ziel des Spiels ist es, soviele Maulwürfe wie möglich innerhalb einer Minute zu treffen.<br/>
+    Es gibt neun Maulwurfshügel aus denen zufällig ein bis drei Maulwürfe hervorkommen, wurden diese getroffen oder sind sie nach einer kurzen Zeit wieder verschwunden, so erscheinen die nächsten Maulwürfe bis die Zeit um ist. <br />
+    Einmal pro Spiel erscheint ein goldener Maulwurf, welcher fünfmal soviele Punkte gibt wie ein normaler Maulwurf. Er ist dafür aber auch schneller wieder in seinem Maulwurfshügel verschwunden.</p>
+</div>
+<div class="clearfix">
+    <a href="{{base}}/img/screenshot_2.jpg" data-lightbox="screenshot_2.jpg">
+	   <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{base}}/img/screenshot_2.jpg" alt="screenshot_2.jpg"/>
+    </a>
+    <p>Die Spieloberfläche besteht aus vier verschiedenen Teilen.<br/>
+    In der Mitte des Bildschirms befindet sich das Spielfeld mit den neun Maulwurfslöchern, aus denen die zu treffenden Maulwürfe hervorkommen bis die Zeit abgelaufen ist. <span style="color:#FF0000">[1]</span><br/>
+    Auf der rechten Seite wird die verbleibende Zeit durch einen orangenen Balken dargestellt. <span style="color:#FF0000">[2]</span><br/>
+    Direkt über dem Spielfeld ist das Scoreboard. Hier wird der aktuelle Punktestand angezeigt und der bisherige Top-Highscore. <span style="color:#FF0000">[3]</span><br/>
+    Auf der linken Seite befindet sich der Combo-Zähler. Wird ein Maulwurf getroffen, so erhält man einen Stern, welcher sich dann golden einfärbt. Hat man fünf Sterne gesammelt, so erhöht dies den Punktemultiplikator, der in der oberen linken Ecke angezeigt wird. Man kann somit die Punkte für einen getroffenen Maulwurf verdoppeln oder sogar verdreifachen. <span style="color:#FF0000">[4]</span> 
+    </p>
+</div>
+<div class="clearfix">
+    <a href="{{base}}/img/highscore_screenshot.jpg" data-lightbox="highscore_screenshot.jpg">
+        <img class="img-responsive img-thumbnail lfloat-sm-6" width="1366" height="768"  src="{{base}}/img/highscore_screenshot.jpg" alt="highscore_screenshot.jpg"/>
+    </a>
+    <p> Ist die Spielzeit abgelaufen, wird die erreichte Punktzahl mit den aktuellen fünf Top-Highscores verglichen.        <br/>
+    Hat man einen Highscore übertroffen so erscheint eine Animation auf dem Bildschirm und der entsprechende Platz wird durch einen besonderen Maulwurf dargestellt.<br/>
+    </p>
+</div>
+<p> 
+    <br/>Die zu erreichenden Plätze sind:
+</p>
+<div class="col-sm-10 col-sm-offset-1">
+    <a href="{{base}}/img/mole_highscore_sheet.png" data-lightbox="mole_highscore_sheet.png">
+        <img class="img-thumbnail img-responsive" width="2080" height="709" src="{{base}}/img/mole_highscore_sheet.png" alt="mole_highscore.png"/>
+    </a>
+</div>

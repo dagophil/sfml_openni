@@ -1,0 +1,12 @@
+title: Kinect Menü
+source: doc_src
+destination: doc
+
+baseurl: ""
+
+collections:
+  implementation:
+    output: true
+    submenu: true
+    menupos: 4
+    title: "Implementierung"

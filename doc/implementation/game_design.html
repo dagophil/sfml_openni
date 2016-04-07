@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Spiel Design</title>
+
+    <!-- bootstrap css and ie10 viewport hack for surface/desktop windows 8 bug -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../css/ie10-viewport-bug-workaround.css">
+
+    <!-- syntax highlighter -->
+    <link rel="stylesheet" href="../css/prism.css">
+
+    <!-- lightbox -->
+    <link rel="stylesheet" href="../css/lightbox.min.css">
+
+    <!-- custom styles -->
+    <link rel="stylesheet" href="../css/main.css">
+
+    <!-- ie8 support of html5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="../js/html5shiv.min.js"></script>
+        <script src="../js/respond.min.js"></script>
+    <![endif]-->
+</head>
+    
+    <body>
+
+        
+
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="..">Kinect Menü</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+
+            
+            
+            
+
+            
+                
+            
+                
+
+                    
+
+                        <li>
+                            <a href="../">Ziele</a>
+                        </li>
+
+                    
+                
+                
+            
+                
+
+                    
+
+                        <li>
+                            <a href="../menu.html">Das Menü</a>
+                        </li>
+
+                    
+                
+                
+            
+                
+
+                    
+
+                        <li>
+                            <a href="../game.html">Das Spiel</a>
+                        </li>
+
+                    
+                
+                
+            
+                
+
+                    
+
+                        
+                        
+
+                        <li class="dropdown active">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Implementierung <span class="caret"></span></a>
+
+                            <ul class="dropdown-menu">
+                            
+                            
+                                <li>
+                                    <a href="../implementation/libraries.html">Libraries</a>
+                                </li>
+                            
+                                <li class="active">
+                                    <a href="../implementation/game_design.html">Spiel Design</a>
+                                </li>
+                            
+                                <li>
+                                    <a href="../implementation/kinect.html">Kinect Schnittstelle</a>
+                                </li>
+                            
+                                <li>
+                                    <a href="../implementation/gui.html">GUI: Widget und Action Klassen</a>
+                                </li>
+                            
+                            </ul>
+                        </li>
+
+                    
+                
+                
+            
+                
+
+                    
+
+                        <li>
+                            <a href="../team.html">Team</a>
+                        </li>
+
+                    
+                
+                
+            
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+        <div class="container">
+            
+
+
+
+<div class="jumbotron">
+    <h1>Spiel Design</h1>
+	<p> Das Spiel wird mithilfe einer Endlosschleife ausgeführt. In dieser wird zuerst überprüft, ob das Programm oder Fenster geschlossen und dadurch beendet wurden.<br/>
+    Falls nicht, so empfängt das Spiel die aktuellen  die beiden Handpositionen von der Kinect und überprüft ob ein Objekt gehovert wird um ein entpsrechendes Event auslösen zu können.<br/>
+    Danach wird das entsprechende Bild gezeichnet und angezeigt.</p>
+</div>
+	<h2>Umwandlung der Hand-Koordinaten</h2>
+    <div class="clearfix">
+    <a href="../img/ebene_skeleton.png" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
+        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="../img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
+    </a>
+    <p>
+    Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>
+    Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.<br/>
+    Linke Schulter \((S_1)\), rechte Schulter \((S_2)\) und Torso \((T)\):
+    $$
+        S_1 = \begin{pmatrix}
+        S_{10} \\ S_{11} \\S_{12}
+        \end{pmatrix}
+        \quad
+        S_2 = \begin{pmatrix}
+        S_{20} \\ S_{21} \\S_{22}
+        \end{pmatrix}
+        \quad
+        T= \begin{pmatrix}
+        T_1\\T_2\\T_3
+        \end{pmatrix}
+    $$
+    Daraus ergibt sich die folgende Basiswechselmatrix:
+    $$
+        M_{B \rightarrow E} = \left( \begin{array}{ccc}
+        S_{20} - S_{10}&0&S_{22}-S_{12} \\
+        0&X&0 \\
+        S_{22} - S_{12}&0&S_{10}-S_{20} \\
+        \end{array}
+        \right)
+    $$
+    Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
+    Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
+    $$
+        H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
+        H_1 - T_1\\ H_2-T_2\\H_3-T_3        
+        \end{pmatrix}
+    $$
+    Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
+    </p>
+    </div>
+
+    <h2> Der Event Manager</h2>
+    <p>Um Ereignisse zu verwalten benutzen wir einen Eventmanager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro erzeugtem Bild abgearbeitet und die Events an die entsprechenden Listener verteilt.<br/>
+    Events sind unter anderem:</p>
+    <table class="table th-right">
+        <thead> 
+            <tr><th>Eventname</th>
+            <th style="text-align:left;">Funktion</th>
+        </thead>
+        <tbody>
+        <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
+	    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
+        <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
+        </tbody>
+    </table>
+    <h2>Der Ressourcen Manager</h2>
+    <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam </p>
+
+
+        </div>
+
+        
+
+
+<footer class="footer">
+<div class="container">
+&copy; Copyright 2016 Florian Hägele und Philip Schill.
+</div>
+</footer>
+
+<!-- bootstrap js and ie10 viewport hack for surface/desktop windows 8 bug -->
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+<!-- syntax highlighter -->
+<script src="../js/prism.js"></script>
+
+<!-- lightbox -->
+<script type="text/javascript" src="../js/lightbox.min.js"></script>
+
+<!-- latex support -->
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+    </body>
+
+</html>
