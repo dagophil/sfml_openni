@@ -42,7 +42,7 @@ menupos: 2
         \right)
     $$
     Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
-    Die umgerechnete Handposition (\(H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
+    Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
     $$
         H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
         H_1 - T_1\\ H_2-T_2\\H_3-T_3        
@@ -52,7 +52,7 @@ menupos: 2
     </p>
     </div>
 
-    <h2> Der Eventmanager</h2>
+    <h2> Der Event Manager</h2>
     <p>Um Ereignisse zu verwalten benutzen wir einen Eventmanager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro erzeugtem Bild abgearbeitet und die Events an die entsprechenden Listener verteilt.<br/>
     Events sind unter anderem:</p>
     <table class="table th-right">
@@ -62,7 +62,10 @@ menupos: 2
         </thead>
         <tbody>
         <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
+	    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
+        <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
         </tbody>
-    </table>   
+    </table>
+    <h2>Der Ressourcen Manager</h2>
+    <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam </p>
 
-	Screenwechsel Eventmanager
