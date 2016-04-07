@@ -2,9 +2,7 @@ title: Kinect Menü
 source: doc_src
 destination: doc
 
-# Use this for jekyll serve
 baseurl: ""
-url: "http://localhost:4000"
 
 collections:
   implementation:
