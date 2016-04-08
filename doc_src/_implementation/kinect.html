@@ -6,10 +6,8 @@ menupos: 3
 {% include base.html %}
 
 <div class="jumbotron">
-    <h1>Kinect</h1>
-
-    
-	Zittern verhindern, eigener Klick implementiert, 
+    <h1>Die Kinect Schnittstelle</h1>
+    <p>Der Zugriff auf die Daten der Kinect geschieht mithilfe der OpenNI Library. Dazu stellt die Library verschiedene Generatoren zur Verfügung, die im Folgenden erläutert werden. Zudem haben wir Methoden entwickelt, die die Bedienung unseres Programms benutzerfreundlicher gestalten. Beispielsweise ermöglichen wir eine bessere Erkennung der Klick-Geste, führen eine Koordinatentransformation abhängig von der Position des Benutzers durch und verhindern das Zittern des Cursors.</p>
 </div>
 
 <h2>Auslesen der Kinect Daten</h2>
@@ -41,6 +39,9 @@ for (int y = 0; y &lt; meta.YRes(); ++y) {
     }
 }</code>
 </pre>
+
+<!--<h3>UserGenerator</h3>
+<p>Die Klasse UserGenerator stellt alle Daten zur Verfügung, die sich auf einzelne Benutzer beziehen.</p>-->
 
 
 
