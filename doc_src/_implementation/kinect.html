@@ -54,16 +54,12 @@ menupos: 3
     </p>
     </div>
     <h2>Zittern des Cursors verhindern</h2>
-    Benutzt man die Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass dieser sehr unruhig ist und zu "zittern" scheint.
-    <br/>Dies lässt das Bild unruhihg erscheinen, da man selbst das Gefühl hat, seine Hand ruhig zu halten aber der Cursor sich ständig bewegt.
-    <br/>Um dies zu verhindern, haben wir eine Averager Klasse erstellt, die die letzten Werte des Zeigers speichert (in unserem Fall die letzten zehn Werte) und den Durchschnittswert deren bildet. Dies lässt den Zeiger und damit auch das Bild ruhiger erscheinen.
-    <br/> Außerdem wird der Cursor nur bewegt, sobald ein mindest Schwellenwert überschritten wird.
-    So konzentriert sich das Auge nicht auf einen sich bewegenden Cursor, wenn man selbst die Hand nicht bewegt.
+    Benutzt man direkt die umgerechneten Handkoordinaten der Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass der Cursor sehr unruhig ist und zu zittern scheint. Dies lässt das Bild unruhig erscheinen, da der Cursor sich ständig bewegt, obwohl man selbst das Gefühl hat, seine Hand ruhig zu halten.<br/>
+    Um das Zittern zu verhindern, speichern wir die letzten 10 Positionen des Cursors und berechnen deren Durchschnittswert. Der Cursor wird nur bewegt, wenn sich der berechnete Durchschnittswert signifikant von dem vorigen unterscheidet.
 
 	<h2>Klick-Geste</h2>
-    <p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. 
-    <br/> Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt.
-<br/>Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Geste hierfür entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.  </p>
+    <p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt.<br/>
+    Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Klick-Geste entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.</p>
     <h3> Die Klick-Geste Implementierung</h2>
 <pre class="line-numbers">
 <code class="language-cpp">
@@ -84,8 +80,7 @@ for (auto const & p : positions_) {
     }
 }
 
-// To prevent rapid clicking, only fire handle_click_() if
-// no click happened just before.
+// To prevent rapid clicking, only fire handle_click_() if no click happened just before.
 if (clicked_) {
     if (sum < threshold_) {
         clicked_ = false;
