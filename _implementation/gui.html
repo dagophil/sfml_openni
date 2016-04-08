@@ -7,7 +7,7 @@ menupos: 4
 
 <div class="jumbotron">
     <h1>Grafische Benutzeroberfläche</h1>
-    <p>Wie in <a href="libraries.html">Libraries</a> beschrieben, wird <a href="http://www.sfml-dev.org/" target="_blank">SFML</a> zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir eine Widget Klasse entworfen.</p>
+    <p>Wie in <a href="libraries.html">Libraries</a> beschrieben, wird <a href="http://www.sfml-dev.org/" target="_blank">SFML</a> zum Zeichnen der Benutzeroberfläche benutzt. Diese Library kann plattformunabhängig ein Fenster erzeugen und dort primitive Formen (Kreise, Rechtecke, ...) sowie Bilder einzeichnen. Um eine leichte Ausrichtung der Elemente zu ermöglichen und um den Umgang mit Bildern und Animationen zu vereinheitlichen, haben wir Widget und Action Klassen entworfen.</p>
 </div>
 
 <h2>Die Widget Klasse</h2>
@@ -21,8 +21,8 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
 
 <div class="row" style="margin-bottom:16px;">
     <div class="col-sm-6" style="margin-bottom:16px;">
-        <a href="{{base}}/img/menu1.png" data-lightbox="menu1">
-            <img class="img-responsive img-thumbnail" width="800" height="628" src="{{base}}/img/menu1.png" />
+        <a href="{{base}}/img/menu1.png" class="lightbox-link" data-lightbox="menu1">
+            <img class="img-responsive img-thumbnail" width="800" height="628" src="{{base}}/img/menu1.png" alt="menu1.png" />
         </a>
     </div>
     <div class="col-sm-6">
@@ -65,15 +65,15 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
     </div>
 </div>
 
-<h2>Lösungsansatz</h2>
+<h3>Lösungsansatz</h3>
 <p>Um Probleme mit absoluten Pixelangaben zu umgehen, führten wir die Widget Klasse ein. Ein Widget ist zunächst ein Positionierungsobjekt, das eine Position (x, y) und eine Größe (w, h) besitzt. Zudem lassen sich einem Widget weitere untergeordnete Widgets zuordnen, sodass eine Verschachtelung ermöglicht wird. Dank der Verschachtelung genügt es, den Zeichenbefehl auf dem root-Widget aufzurufen. Der Zeichenbefehl wird dann rekursiv an alle untergeordneten Widgets weitergegeben.</p>
 <p>Die Werte von x, y, w und h reichen von 0.0 bis 1.0 und sind immer relativ zur Größe des übergeordneten Elements zu berechnen. Ein Widget der Breite w = 0.5 ist als genau halb so breit wie das Elternobjekt. Des Weiteren enthält ein Widget Positionsangaben wie <em>align_x = {left | center | right}</em>, sodass es auch zentriert oder rechtsbündig ausgerichtet werden kann.</p>
 
-<h2>Unterklassen</h2>
+<h3>Unterklassen</h3>
 <p>Die Widget Klasse kann auch zum Zeichnen benutzt werden. Dazu muss ein Objekt von einer der Unterklassen ImageWidget, AnimatedWidget, TextWidget oder ColorWidget erzeugt werden. Die Funktionen der Widgets lassen sich aus dem Namen herleiten:</p>
 <table class="table th-right">
     <thead>
-        <tr><th>Name</th><th style="text-align:left;">Funktion</th>
+        <tr><th>Name</th><th style="text-align:left;">Funktion</th></tr>
     </thead>
     <tbody>
         <tr><th>ImageWidget</th><td>Zeige ein einzelnes Bild an.</td></tr>
@@ -83,7 +83,8 @@ Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einze
     </tbody>
 </table>
 
-<h2>Beispiele zur Benutzung:</h2>
+<br />
+<h3>Beispiele zur Benutzung</h3>
 
 <br />
 <p>Erstelle ein Widget mit rotem Hintergrund und füge ein zentriertes Bild hinzu:</p>
@@ -111,12 +112,13 @@ container->add_widget(txt);
 container->add_widget(im);</code>
 </pre>
 
-<h2>GridWidget</h2>
+<br />
+<h3>GridWidget</h3>
 
 <div class="clearfix" style="margin-bottom:16px;">
 <div class="lfloat-sm-6">
-<a href="{{base}}/img/screenshot_3.jpg" data-lightbox="screenshot_3">
-    <img class="img-responsive img-thumbnail" width="1366" height="768" src="{{base}}/img/screenshot_3.jpg" />
+<a href="{{base}}/img/screenshot_3.jpg" class="lightbox-link" data-lightbox="screenshot_3">
+    <img class="img-responsive img-thumbnail" width="1366" height="768" src="{{base}}/img/screenshot_3.jpg" alt="screenshot_3.jpg" />
 </a>
 </div>
 <p>Bei dem Hau den Maulwurf Spiel gibt es einige grafische Elemente, die wie in einer Tabelle oder in einem Gitter angeordnet sind. So befinden sich zum Beispiel die Maulwurfshügel in einem Gitter der Größe 3x3. Um eine leichte Positionierung solch angeordneter Elemente zu vereinfachen, haben wir die GridWidget Klasse erstellt.</p>
@@ -137,11 +139,107 @@ vector&lt;string&gt; filenames = {
 };
 auto grid_ptr = make_shared&lt;GridWidget&gt;(3, 3);
 auto & grid = *grid_ptr; // easy access to operator()
-for (int i = 0; i < 9; ++i)
+for (int i = 0; i &lt; 9; ++i)
 {
     auto im = make_shared&lt;ImageWidget&gt;(filenames[i]);
     grid(i%3, i/3) = im;
 }</code>
 </pre>
 
-<h1>Actions</h1>
+<br />
+
+<h3>AnimatedWidget</h3>
+    <div class="clearfix">
+    <a href="{{base}}/img/gmole_spritesheet.png" class="lightbox-link" data-lightbox="gmole_spritesheet"> 
+    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="1001" height="751" src="{{base}}/img/gmole_spritesheet.png" alt="golden_mole_spritesheet"/></a>
+    
+    <p>In dem Hau den Maulwurf Spiel werden viele Animationen verwendet.
+    <br/> Die Animationen haben wir mithilfe von sogenannten Spritesheets verwirklicht. Hier werden innerhalb eines Bildes, die Animationsbilderfolge in gleich großen Bildern gespeichert. 
+    <br/> Zusätzlich dazu wird ein neues Datenformat angelegt, in dem der Speicherort des Bildes, die Anzahl an Reihen und Spalten und die Dauer der einzelnen Bilder gespeichert wird.
+<br/>Nach dem Anlegen einer Animation kann man festlegen, ob sich die Animation wiederholen soll, sie nach einem Durchlauf im ersten oder letzten Bild pausieren soll oder ob die Animation rückwärts abgespielt werden soll. 
+</div>
+<br />
+<p><strong>Beispiel:</strong><br />
+Das Animations-Datenformat für das obige Spritesheet lautet wie folgt:</p>
+<pre class="line-numbers">
+<code class="language-cpp">
+//mole_golden.pf
+animations/mole_golden.png 
+5 5 //number of rows and columns
+0.02 //duration in seconds for each frame</code>
+</pre>
+<!-- Animated Widget CD
+<div class="col-md-offset-3" style="margin-top:16px;margin-bottom:16px;">
+    <a href="{{base}}/img/animated_widget.png" class="lightbox-link" alt="animated_widget.png" data-lightbox="animated_widget"> 
+        <img class="img-responsive img-thumbnail"  width="460" height="546" src="{{base}}/img/animated_widget.png"  alt="animated_widget"/>
+    </a>
+</div>
+<div class="col-md-offset-3">Das Klassendiagramm der Animated-Widget Klasse</div>
+-->
+<br />
+<h2>Die Action Klasse</h2>
+
+<h3>Motivation</h3>
+
+<p>Sowohl beim Hau den Maulwurf Spiel als auch beim Kinect Menü werden bewegliche und animierte Widgets benötigt. Zum Beispiel müssen die Menüpunkte bewegt werden, wenn mit der Kinect gescrollt wird und die Bewegung soll kurz weiterlaufen anstatt abrupt aufzuhören. Es reicht also nicht aus, wenn ein Widget statisch immer an derselben Stelle gezeichnet wird. Um Aktionen, wie zum Beispiel Bewegungen, zu ermöglichen, haben wir die Action Klasse entworfen.</p>
+<p>Aktionen können an jedes Widget Objekt angehängt werden. In jedem Frame ruft jedes Widget die act Methode seiner gespeicherten Action Objekte auf und bringt so die Aktionen Stück für Stück voran. Enthält ein Widget mehrere Aktionen, so werden diese gleichzeitig ausgeführt. Um Aktionen nacheinander auszuführen, kann man sie mithilfe der ChainedAction Klasse aneinanderhängen.</p>
+<p>Die Action Klasse selbst ist abstrakt. Ihre Aufgabe besteht darin, die abstrakte act_impl Methode aufzurufen und ein Callback auszulösen, sobald die Aktion beendet ist. Konkrete Aktionen werden mithilfe von Unterklassen erstellt, in denen act_impl implementiert ist:</p>
+
+<div class="col-md-8 col-md-offset-2" style="margin-top:16px;margin-bottom:16px;">
+    <a href="{{base}}/img/class_diagram_action.png" class="lightbox-link" data-lightbox="class_diagram_action">
+        <img class="img-responsive img-thumbnail" width="924" height="353" src="{{base}}/img/class_diagram_action.png" alt="class_diagram_action.png" />
+    </a>
+</div>
+
+<table class="table th-right">
+    <thead>
+        <tr><th>Name</th><th style="text-align:left;">Funktion</th></tr>
+    </thead>
+    <tbody>
+        <tr><th>DelayedAction</th><td>Warte eine gewissene Zeit, führe dann die nächste Aktion aus.</td></tr>
+        <tr><th>FunctionAction</th><td>Führe die Funktion aus, die im Konstruktor übergeben wurde.</td></tr>
+        <tr><th>ChainedAction</th><td>Führe nacheinander die Aktionen aus, die im Konstruktor übergeben wurden.</td></tr>
+        <tr><th>HideAction</th><td>Verstecke das Widget.</td></tr>
+        <tr><th>ShowAction</th><td>Zeige das Widget an.</td></tr>
+        <tr><th>MoveByAction</th><td>Bewege das Widget in einer bestimmten Zeit um einen bestimmten Wert.</td></tr>
+        <tr><th>ShrinkAction</th><td>Verkleinere das Widget in einer bestimmten Zeit bis es verschwunden ist.</td></tr>
+        <tr><th>BlinkAction</th><td>Lass das Widget mit einer gegebenen Frequenz blinken.</td></tr>
+    </tbody>
+</table>
+
+<br />
+<h3>Beispiele zur Benutzung</h3>
+
+<br />
+<p>Starte eine Animation und lasse sie nach 3.5 Sekunden rückwärts laufen:</p>
+<pre class="line-numbers">
+<code class="language-cpp">
+// Start the mole animation.
+mole->backwards(false);
+mole->restart();
+
+// Create the action that makes the animation run backwards.
+auto start_backwards = make_shared&lt;FunctionAction&gt;(
+    [](Widget & w, float elapsed_time) {
+        w.backwards(true);
+        w.restart();
+    }
+);
+
+// Add a delay of 3.5 seconds.
+auto delay = make_shared&lt;DelayedAction&gt;(3.5, start_backwards);
+
+// Attach the action to the mole widget.
+mole->add_action(delay);</code>
+</pre>
+
+<br />
+<p>Bewege das Widget 2 Sekunden lang um 0.5 Einheiten in x-Richtung und um 0.3 Einheiten in y-Richtung und verstecke es anschließend:</p>
+<pre class="line-numbers">
+<code class="language-cpp">
+auto w = make_shared&lt;ImageWidget&gt;("images/circle.png");
+auto move = make_shared&lt;MoveByAction&gt;({0.5, 0.3}, 2.0);
+auto hide = make_shared&lt;HideAction&gt;();
+auto chain = make_shared&lt;ChainedAction&gt;(move, hide);
+w->add_action(chain);</code>
+</pre>

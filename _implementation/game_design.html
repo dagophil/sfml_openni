@@ -7,66 +7,44 @@ menupos: 2
 
 <div class="jumbotron">
     <h1>Spiel Design</h1>
-	<p> Das Spiel wird mithilfe einer Endlosschleife ausgeführt. In dieser wird zuerst überprüft, ob das Programm oder Fenster geschlossen und dadurch beendet wurden.<br/>
-    Falls nicht, so empfängt das Spiel die aktuellen  die beiden Handpositionen von der Kinect und überprüft ob ein Objekt gehovert wird um ein entpsrechendes Event auslösen zu können.<br/>
-    Danach wird das entsprechende Bild gezeichnet und angezeigt.</p>
+	<p>Das Spiel wird mithilfe der in Computerspielen üblichen Endlosschleife ausgeführt. Zudem existieren zwei globale Objekte:<br />
+    Der Event Manager empfängt Events und verbreitet sie an eingetragene Listener Objekte. Somit kann die Spiellogik ein Event posten ("Maulwurf wurde getroffen") und andere Komponenten können darauf reagieren (der Punktezähler erhöht den Punktestand, der Sound Controller spielt das "Treffer" Geräusch ab).<br />
+    Der Ressourcen Manager sorgt dafür, dass große Objekte, wie zum Beispiel Bilddateien, nicht mehrfach geladen werden.</p>
 </div>
-	<h2>Umwandlung der Hand-Koordinaten</h2>
-    <div class="clearfix">
-    <a href="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
-        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
-    </a>
-    <p>
-    Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>
-    Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.<br/>
-    Linke Schulter \((S_1)\), rechte Schulter \((S_2)\) und Torso \((T)\):
-    $$
-        S_1 = \begin{pmatrix}
-        S_{10} \\ S_{11} \\S_{12}
-        \end{pmatrix}
-        \quad
-        S_2 = \begin{pmatrix}
-        S_{20} \\ S_{21} \\S_{22}
-        \end{pmatrix}
-        \quad
-        T= \begin{pmatrix}
-        T_1\\T_2\\T_3
-        \end{pmatrix}
-    $$
-    Daraus ergibt sich die folgende Basiswechselmatrix:
-    $$
-        M_{B \rightarrow E} = \left( \begin{array}{ccc}
-        S_{20} - S_{10}&0&S_{22}-S_{12} \\
-        0&X&0 \\
-        S_{22} - S_{12}&0&S_{10}-S_{20} \\
-        \end{array}
-        \right)
-    $$
-    Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
-    Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
-    $$
-        H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
-        H_1 - T_1\\ H_2-T_2\\H_3-T_3        
-        \end{pmatrix}
-    $$
-    Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
-    </p>
-    </div>
 
-    <h2> Der Event Manager</h2>
-    <p>Um Ereignisse zu verwalten benutzen wir einen Eventmanager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro erzeugtem Bild abgearbeitet und die Events an die entsprechenden Listener verteilt.<br/>
-    Events sind unter anderem:</p>
-    <table class="table th-right">
-        <thead> 
-            <tr><th>Eventname</th>
-            <th style="text-align:left;">Funktion</th>
-        </thead>
-        <tbody>
-        <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
-	    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
-        <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
-        </tbody>
-    </table>
-    <h2>Der Ressourcen Manager</h2>
-    <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam </p>
+<h2>Die Spielschleife</h2>
+<p>Alle Objekte die auf dem Bildschirm gezeichnet werden, sind von der <a href="gui.html">Widget Klasse</a> abgeleitet. Es gibt ein Hauptwidget, das die anderen Widgets enthält. Die Update- und Zeichenfunktionen müssen nur auf dem Hauptwidget aufgerufen werden, da sie dann rekursiv auch in den untergeordneten Widgets aufgerufen werden.</p>
+<p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
+<ul>
+    <li>Initialisierung.</li>
+    <li>Solange das Fenster geöffnet ist:
+        <ul>
+            <li>Lese die Kinect-Daten ein.</li>
+            <li>Berechne die Koordinaten des Cursors mithilfe einer Umrechnung der Handkoordinaten der Kinect in Bildschirmkoordinaten (siehe <a href="kinect.html">Kinect Schnittstelle</a>).</li>
+            <li>Überprüfe, ob ein Klick ausgelöst wurde.</li>
+            <li>Rufe die Update-Funktion des Hauptwidgets auf. Übergebe dabei die Koordinaten des Cursors und ob ein Klick ausgelöst wurde. (Mit diesem Aufruf wird die komplette Spiellogik aktualisiert.)</li>
+            <li>Zeichne das Hauptwidget und somit auch alle untergeordneten Widgets.</li>
+        </ul>
+    </li>
+</ul>
+	
+<h2> Der Event Manager</h2>
+<p>Um Ereignisse zu verwalten benutzen wir einen Event Manager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro Frame abgearbeitet und die Events an die entsprechenden Listener verteilt.</p>
+<p>Als Listener ist zum Beispiel der Sound Controller zu nennen: Dieser reagiert auf "MoleHit" Events und spielt einen entsprechenden Sound ab.</p>
+<p>Events sind unter anderem:</p>
+<table class="table th-right">
+    <thead> 
+        <tr><th>Eventname</th>
+        <th style="text-align:left;">Funktion</th>
+    </thead>
+    <tbody>
+    <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
+    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
+    <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
+    </tbody>
+</table>
 
+<h2>Der Ressourcen Manager</h2>
+<p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam die verschiedenen Bilder nur einmal laden zu müssen und das gleiche Bild wiederholt zu verwenden.<br/>
+Hierfür benutzen wir den Ressourcen Manager. Es werden vor Spielbeginn alle benötigten Bilder einmal eingelesen und geladen um dann nur noch diese zu verwenden.<br/>
+Der Ressourcen Manager speichert den Namen der Bilddatei und das Bild in eine map-Struktur der C++ Standard-Library.</p>
