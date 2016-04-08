@@ -8,7 +8,11 @@ menupos: 3
 <div class="jumbotron">
     <h1>Kinect</h1>
 
-    <h2>Umwandlung der Hand-Koordinaten</h2>
+    
+	Zittern verhindern, eigener Klick implementiert, 
+</div>
+
+<h2>Umwandlung der Hand-Koordinaten</h2>
     <div class="clearfix">
     <a href="{{base}}/img/ebene_skeleton.png" class="lightbox-link" alt="ebene_skeleton.png" data-lightbox="ebene_skeleton"> 
         <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
@@ -49,5 +53,53 @@ menupos: 3
     Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
     </p>
     </div>
-	Zittern verhindern, eigener Klick implementiert, 
-</div>
+    <h2>Zittern des Cursors verhindern</h2>
+    Benutzt man die Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass dieser sehr unruhig ist und zu "zittern" scheint.
+    <br/>Dies lässt das Bild unruhihg erscheinen, da man selbst das Gefühl hat, seine Hand ruhig zu halten aber der Cursor sich ständig bewegt.
+    <br/>Um dies zu verhindern, haben wir eine Averager Klasse erstellt, die die letzten Werte des Zeigers speichert (in unserem Fall die letzten zehn Werte) und den Durchschnittswert deren bildet. Dies lässt den Zeiger und damit auch das Bild ruhiger erscheinen.
+    <br/> Außerdem wird der Cursor nur bewegt, sobald ein mindest Schwellenwert überschritten wird.
+    So konzentriert sich das Auge nicht auf einen sich bewegenden Cursor, wenn man selbst die Hand nicht bewegt.
+
+	<h2>Klick-Geste</h2>
+    <p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. 
+    <br/> Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt.
+<br/>Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Geste hierfür entwickelt, welche früher reagiert und eine kleiner Bewegung benötigt um einen Klick auszulösen.  </p>
+    <h3> Die Klick-Geste Implementierung</h2>
+<pre class="line-numbers language-cpp">
+    <code class="language-cpp">
+    // Update the elapsed time and add the new point to the queue.
+        elapsed_time_ += p_elapsed_time;
+        positions_.emplace_back(elapsed_time_, point.Y);
+        // Remove all points that are too old.
+        while (!positions_.empty() && positions_.front().first+max_delay_ < elapsed_time_)
+            positions_.pop_front();
+        // Check if enough movement happened
+        float sum = 0.0;
+        float prev = positions_.front().second;
+        for (auto const & p : positions_)
+        {
+            if (p.second > prev)
+            {
+                sum += std::abs(p.second - prev);
+                prev = p.second;
+            }
+        }
+        if (clicked_)
+        {
+            if (sum < threshold_)
+            {
+                reset();
+            }
+        }
+        else
+        {
+            if (sum >= threshold_)
+            {
+                clicked_ = true;
+                handle_click_();
+            }
+        } </code>
+    </pre>
+
+
+
