@@ -45,7 +45,7 @@ for (int y = 0; y &lt; meta.YRes(); ++y) {
 
 
 <h2>Umwandlung der Hand-Koordinaten</h2>
-    <div class="clearfix">
+<div class="clearfix">
     <a href="{{base}}/img/ebene_skeleton.png" class="lightbox-link" data-lightbox="ebene_skeleton"> 
         <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
     </a>
@@ -84,14 +84,15 @@ for (int y = 0; y &lt; meta.YRes(); ++y) {
     $$
     Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
     </p>
-    </div>
-    <h2>Zittern des Cursors verhindern</h2>
-    Benutzt man direkt die umgerechneten Handkoordinaten der Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass der Cursor sehr unruhig ist und zu zittern scheint. Dies lässt das Bild unruhig erscheinen, da der Cursor sich ständig bewegt, obwohl man selbst das Gefühl hat, seine Hand ruhig zu halten.<br/>
-    Um das Zittern zu verhindern, speichern wir die letzten 10 Positionen des Cursors und berechnen deren Durchschnittswert. Der Cursor wird nur bewegt, wenn sich der berechnete Durchschnittswert signifikant von dem vorigen unterscheidet.
+</div>
 
-	<h2>Klick-Geste</h2>
-    <p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt. Zudem reagiert der GestureGenerator von OpenNI nicht bei hektischen Bewegungen.<br/>
-    Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Klick-Geste entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.</p>
+<h2>Zittern des Cursors verhindern</h2>
+Benutzt man direkt die umgerechneten Handkoordinaten der Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass der Cursor sehr unruhig ist und zu zittern scheint. Dies lässt das Bild unruhig erscheinen, da der Cursor sich ständig bewegt, obwohl man selbst das Gefühl hat, seine Hand ruhig zu halten.<br/>
+Um das Zittern zu verhindern, speichern wir die letzten 10 Positionen des Cursors und berechnen deren Durchschnittswert. Der Cursor wird nur bewegt, wenn sich der berechnete Durchschnittswert signifikant von dem vorigen unterscheidet.
+
+<h2>Klick-Geste</h2>
+<p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt. Zudem reagiert der GestureGenerator von OpenNI nicht bei hektischen Bewegungen.<br/>
+Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Klick-Geste entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.</p>
 
 <h3>Implementierung der Klick-Geste</h3>
 <p>Um eine Klick-Geste zu erkennen, wird die aktuelle Handposition mit der Position 0.1 Sekunden zuvor verglichen. Ist der Unterschied in y-Richtung groß genug, wird ein Callback ausgelöst.</p>
@@ -123,6 +124,3 @@ if (clicked) {
     }
 }</code>
 </pre>
-
-
-
