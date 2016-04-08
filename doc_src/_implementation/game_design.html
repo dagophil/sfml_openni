@@ -17,14 +17,15 @@ menupos: 2
 <p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
 <ul>
     <li>Initialisierung.</li>
-    <li>Solange das Fenster geöffnet ist:</li>
-    <ul>
-        <li>Lese die Kinect-Daten ein.</li>
-        <li>Berechne die Koordinaten des Cursors mithilfe einer Umrechnung der Handkoordinaten der Kinect in Bildschirmkoordinaten (siehe <a href="kinect.html">Kinect Schnittstelle</a>).</li>
-        <li>Überprüfe, ob ein Klick ausgelöst wurde.</li>
-        <li>Rufe die Update-Funktion des Hauptwidgets auf. Übergebe dabei die Koordinaten des Cursors und ob ein Klick ausgelöst wurde. (Mit diesem Aufruf wird die komplette Spiellogik aktualisiert.)</li>
-        <li>Zeichne das Hauptwidget und somit auch alle untergeordneten Widgets.</li>
-    </ul>
+    <li>Solange das Fenster geöffnet ist:
+        <ul>
+            <li>Lese die Kinect-Daten ein.</li>
+            <li>Berechne die Koordinaten des Cursors mithilfe einer Umrechnung der Handkoordinaten der Kinect in Bildschirmkoordinaten (siehe <a href="kinect.html">Kinect Schnittstelle</a>).</li>
+            <li>Überprüfe, ob ein Klick ausgelöst wurde.</li>
+            <li>Rufe die Update-Funktion des Hauptwidgets auf. Übergebe dabei die Koordinaten des Cursors und ob ein Klick ausgelöst wurde. (Mit diesem Aufruf wird die komplette Spiellogik aktualisiert.)</li>
+            <li>Zeichne das Hauptwidget und somit auch alle untergeordneten Widgets.</li>
+        </ul>
+    </li>
 </ul>
 	
 <h2> Der Event Manager</h2>

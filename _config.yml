@@ -4,6 +4,9 @@ destination: doc
 
 baseurl: ""
 
+compress_html:
+  blanklines: true
+
 collections:
   implementation:
     output: true
