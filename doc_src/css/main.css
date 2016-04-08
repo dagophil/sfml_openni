@@ -1,7 +1,18 @@
+html
+{
+    height: 100%;
+}
+
 body
 {
-	padding-top: 70px;
+    position: relative;
+    min-height: 100%;
 	font-size: 18px;
+}
+
+#page-container
+{
+    padding: 70px 0 124px 0;
 }
 
 .navbar-nav
@@ -15,11 +26,9 @@ body
     position: relative;
 }
 
-
 footer.footer
 {
     background-color: #222;
-    border-top: 1px solid #080808;
     background-image: -webkit-linear-gradient(top,#3c3c3c 0,#222 100%);
     background-image: -o-linear-gradient(top,#3c3c3c 0,#222 100%);
     background-image: -webkit-gradient(linear,left top,left bottom,from(#3c3c3c),to(#222));
@@ -27,12 +36,15 @@ footer.footer
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3c3c3c', endColorstr='#ff222222', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
     background-repeat: repeat-x;
+    border-top: 1px solid #080808;
+    bottom: 0;
     color: #888;
     font-size: 14px;
     height: 64px;
-    margin-top: 40px;
     padding-top: 20px;
+    position: absolute;
     text-shadow: 1px 1px 2px #000;
+    width: 100%;
 }
 
 .lfloat-sm-1,
