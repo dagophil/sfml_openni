@@ -12,49 +12,6 @@ menupos: 2
     Der Ressourcen Manager sorgt dafür, dass große Objekte, wie zum Beispiel Bilddateien, nicht mehrfach geladen werden.</p>
 </div>
 
-<<<<<<< HEAD
-    <h2> Der Event Manager</h2>
-    <p>Um Ereignisse zu verwalten benutzen wir einen Eventmanager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro erzeugtem Bild abgearbeitet und die Events an die entsprechenden Listener verteilt.<br/>
-    Events sind unter anderem:</p>
-    <table class="table th-right">
-        <thead> 
-            <tr><th>Eventname</th>
-            <th style="text-align:left;">Funktion</th>
-        </thead>
-        <tbody>
-        <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
-	    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
-        <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
-        </tbody>
-    </table>
-    <h2>Der Ressourcen Manager</h2>
-    <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam die verschiedenen Bilder nur einmal laden zu müssen und das gleiche Bild wiederholt zu verwenden.
-    <br/>Hierfür benutzen wir den Ressourcen Manager. Es werden vor Spielbeginn alle benötigten Bilder einmal eingelesen und geladen um dann nur noch diese zu verwenden.
-    <br/>Der Ressourcen Manager speichert den Namen der Bilddatei und das Bild in eine map-Struktur der C++ Standard-Library.
-    </p>
-    <h2>Animationen</h2>
-    <div class="clearfix">
-    <a href="{{base}}/img/gmole_spritesheet.png" class="lightbox-link" alt="golden_mole_spritesheet.png" data-lightbox="gmole_spritesheet"> 
-    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="1001" height="751" src="{{base}}/img/gmole_spritesheet.png" alt="golden_mole_spritesheet"/></a>
-    
-    <p>In dem Hau den Maulwurf Spiel werden, wie im Ressourcen Manager angesprochen, viele Animationen verwendet.
-    <br/> Die Animationen haben wir mithilfe von sogenannten Spritesheets verwirklicht. Hier werden innerhalb eines Bildes, die Animationsbilderfolge in gleich großen Bildern gespeichert. 
-    <br/> Zusätzlich wird ein neues Datenformat gespeichert, in der der Speicherort des Bildes, die Anzahl an Reihen und Spalten und die Dauer der einzelnen Bilder gespeichert wird.
-<br/>Außerdem kann man festlegen, ob die Animation sich wiederholen soll, nach einem Durchlauf im ersten oder letzten Bild pausieren soll, ob die Animation rückwärts abgespielt werden soll, 
-</div>
-Ein Beispiel für das Animations-Datenformat:
-    <pre class="line-numbers language-cpp">
-        <code class="language-cpp">
-    animations/mole_golden.png 
-            5 5 //number of rows and columns
-            0.02 //duration in seconds for each frame</code>
-    </pre>
-
-    <div class="clearfix">
-    <a href="{{base}}/img/animated_widget.png" class="lightbox-link" alt="animated_widget.png" data-lightbox="animated_widget"> 
-    <img class="img-responsive img-thumbnail lfloat-sm-6"  width="460" height="546" src="{{base}}/img/animated_widget.png" alt="animated_widget"/></a>
-Das Klassendiagramm der Animated-Widget Klasse
-</div>
 <h2>Die Spielschleife</h2>
 <p>Alle Objekte die auf dem Bildschirm gezeichnet werden, sind von der <a href="gui.html">Widget Klasse</a> abgeleitet. Es gibt ein Hauptwidget, das die anderen Widgets enthält. Die Update- und Zeichenfunktionen müssen nur auf dem Hauptwidget aufgerufen werden, da sie dann rekursiv auch in den untergeordneten Widgets aufgerufen werden.</p>
 <p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
