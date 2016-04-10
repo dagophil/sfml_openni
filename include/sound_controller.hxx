@@ -44,11 +44,19 @@ public:
         if (!sounds_[Punch].buffer.LoadFromFile("sounds/punch.ogg"))
             throw std::runtime_error("Could not load sound: Punch.");
 
+
         // Assign the buffers to the sounds.
         for (auto & p : sounds_)
         {
             p.second.sound.SetBuffer(p.second.buffer);
         }
+
+        // Load the background music.
+        if (!background_.OpenFromFile("sounds/joplin_maple_leaf_rag.ogg"))
+            throw std::runtime_error("Could not load sound: Maple leaf rag.");
+        background_.Play();
+        background_.SetLoop(true);
+        background_.SetVolume(90);
     }
 
 protected:
@@ -58,9 +66,16 @@ protected:
      */
     void notify_impl(Event const & event)
     {
-        if (opts.sound_)
+        if (event.type_ == Event::ToggleSound)
         {
-            if (event.type_ == Event::MoleHit)
+            if (opts.sound_)
+                background_.Play();
+            else
+                background_.Stop();
+        }
+        else if (event.type_ == Event::MoleHit)
+        {
+            if (opts.sound_)
             {
                 std::uniform_int_distribution<int> r(0, 4);
                 int sound = r(opts.rand_engine_);
@@ -74,6 +89,7 @@ protected:
 private:
 
     std::map<SoundEffects, Sound> sounds_; // the sounds
+    sf::Music background_; // the background music
 
 };
 

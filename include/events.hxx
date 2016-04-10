@@ -68,7 +68,8 @@ public:
         Close,
         MoleHit,
         KinectClick,
-        FieldHover
+        FieldHover,
+        ToggleSound
     };
 
     Event(EventType type)

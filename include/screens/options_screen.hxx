@@ -101,10 +101,13 @@ public:
         // Program the sound checkbox.
         auto sound_box = create_checkbox(1);
         if (opts.sound_)
+        {
             sound_box->next_frame();
+        }
         sound_box->handle_click_ = [sound_box](DiffType x, DiffType y){
             opts.sound_ = !opts.sound_;
             sound_box->next_frame();
+            event_manager.post(Event(Event::ToggleSound));
         };
 
         // Program the depth checkbox.
