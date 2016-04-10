@@ -12,4 +12,21 @@ menupos: 1
 
 <h2>OpenNI</h2>
 <p>OpenNI wurde entwickelt, um die Entwicklung von Anwendungen mit 3D Kamera Input zu erleichtern. Durch die OpenNI API können Anwendungen, zum Beispiel Spiele, unabhängig von dem Gerät entwickelt werden, das die Eingabedaten liefert. Das Hauptziel von OpenNI ist, ein Interface für Anwendungen zur Verfügung zu stellen, die ein <a href="https://de.wikipedia.org/wiki/Natural_User_Interface" target="_blank">Natural User Interface</a> zur Eingabe nutzen (Gesten, Körperhaltungen, usw).</p>
-<p>Die OpenNI API stellt Generatoren zur Verfügung, mit denen die konkreten Eingabedaten ausgelesen werden können. Beispielsweise wird der Zugriff auf das Tiefenbild der Kinect Kamera durch die Klasse DepthGenerator ermöglicht. Wie wir OpenNI in unserem Projekt eingesetzt haben, finden Sie unter <a href="kinect.html">Kinect Schnittstelle.</a></p>
+<p>Die OpenNI API stellt Generatoren zur Verfügung, mit denen die konkreten Eingabedaten ausgelesen werden können. Beispielsweise wird der Zugriff auf das Tiefenbild der Kinect Kamera durch die Klasse DepthGenerator ermöglicht.</p>
+<p>Weitere Informationen unter: <a href="kinect.html">Kinect Schnittstelle</a></p>
+
+<h2>SFML</h2>
+<p>SFML (<a href="http://www.sfml-dev.org/" target="_blank">Simple and Fast Multimedia Library</a>) stellt ein Interface zu verschiedenen Komponenten des Computers zur Verfügung und erleichtert so die Entwicklung von Spielen und Multimedia Anwendungen. In unserem Projekt kommt Version 1.6 zum Einsatz, da diese Version auf den Computern im Robotiklabor installiert war.</p>
+<p>Folgende Aufgaben kann SFML übernehmen:</p>
+<ul>
+    <li>Ein Fenster erstellen, das auf Tastatur und Maus Ereignisse reagiert.</li>
+    <li>Texte und einfache Formen zeichen, zum Beispiel Rechtecke, Kreise.</li>
+    <li>Bilddateien verschiedener Formate laden und zeichnen, unter anderem jpg, png, gif, tga.</li>
+    <li>Sounddateien verschiedener Formate laden und abspielen, beispielsweise ogg, wav.</li>
+    <li>Diverse Systemaufgaben, zum Beispiel das Erstellen von Threads, Zufallszahlen oder Stoppuhren.</li>
+    <li>Nachrichten und Pakete über das Netzwerk verschicken.</li>
+</ul>
+<p>In dem <a href="{{base}}/menu.html">Kinect Menü</a> benutzen wir SFML zum Erstellen des Fensters und zum Zeichnen von Bildern, Texten und Rechtecken. Bei dem <a href="{{base}}/game.html">Hau den Maulwurf Spiel</a> wird zusätzlich das Sound-Modul und die Stoppuhr benutzt.</p>
+
+<h2>TinyXML-2</h2>
+<p>Das <a href="{{base}}/menu.html">Kinect Menü</a> besteht aus mehreren Menüpunkten, die sich aus Bild, Titel und Beschreibung zusammensetzen. Zusätzlich muss das Menü intern wissen, welcher Befehl bei der Auswahl eines Menüpunktes gestartet werden soll. Es war uns wichtig, dass das Menü leicht geändert werden kann, ohne dass man das Projekt neu kompilieren muss. Daher werden die einzelnen Menüpunkte beim Start des Kinect Menüs aus einer XML-Datei eingelesen. Zum Einlesen der XML-Datei wird in unserem Projekt <a href="http://www.grinninglizard.com/tinyxml2/" target="_blank">TinyXML-2</a> benutzt. TinyXML-2 ist ein XML Parser, der leicht in ein C++ Projekt integriert werden kann, da er nur aus einer Header- und einer Quelldatei besteht. Zudem ist die TinyXML-2 API dank dem objektorientierten Ansatz sehr gut zu benutzen.</p>
