@@ -7,22 +7,18 @@ menupos: 2
 
 <div class="jumbotron">
 <h1>Das Menü</h1>
-    <p>
-        Die Hauptaufgabe dieses Projektes war es, eine Menüoberfläche zu erstellen, die komplett mit der Kinect bedienbar ist.
-    <br/> Die einzelnen Menüpunkte werden aus einer XML-Datei eingelesen und als Liste angezeigt.
-    <br /> Um ein Programm auszuwählen und zu starten, muss man für zwei Sekunden den Cursor über den jeweiligen Menüpunkt halten, um den Cursor herum färbt sich ein Kreis ein und signalisiert dadurch das Laden des Programms. Ist dieser voll, so wird das entsprechende Programm gestartet.
-    <br /> Das Menü verfügt um eine Hilfefunktion, die die einzelnen Teile des Menüs erklärt.
-    </p>
+    <p>Die Hauptaufgabe dieses Projektes war es, eine Menüoberfläche zu erstellen, die komplett mit der Kinect bedienbar ist. Die einzelnen Menüpunkte werden aus einer XML-Datei eingelesen und als Liste angezeigt, was die Modifikation der Menüpunkte sehr leicht macht.<br />
+    Um ein Programm auszuwählen und zu starten, muss man für zwei Sekunden den Cursor über den jeweiligen Menüpunkt halten, um den Cursor herum färbt sich ein Kreis ein und signalisiert dadurch das Laden des Programms. Ist dieser voll, so wird das entsprechende Programm gestartet.<br />
+    Das Menü verfügt über eine Hilfefunktion, die die einzelnen Teile des Menüs erklärt.</p>
 </div>
-<br />
 
 <h2>Die Oberfläche</h2>
 <div class="clearfix">
     <a href="{{base}}/img/menu_screenshot.png" class="lightbox-link" data-lightbox="menu_screenshot"> 
-        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="400" height="314" src="{{base}}/img/menu_screenshot.png" alt="menu_screenshot.png"/></a>
+        <img class="img-responsive img-thumbnail lfloat-sm-5"  width="800" height="628" src="{{base}}/img/menu_screenshot.png" alt="menu_screenshot.png"/></a>
+    <p>Das Menü besteht aus:</p>
     <p>
-        Das Menü besteht aus: 
-        <br /><span style="color:#FF0000">[1]</span> Die Liste aller Programme.  
+        <span style="color:#FF0000">[1]</span> Die Liste aller Programme.  
         <br /><span style="color:#FF0000">[2]</span> Zwei Scroll-Leisten zum langsamen Scrollen.  
         <br /><span style="color:#FF0000">[3]</span> Die Scroll-Leiste zum schnellen Scrollen. 
         <br /><span style="color:#FF0000">[4]</span> Der Hilfefunktion.
@@ -30,6 +26,12 @@ menupos: 2
     </p>
 </div>
 <br />
+
+<h2>Scrollen</h2>
+<p>Es gibt verschiedene Möglichkeiten die Menüpunkte nach unten oder oben zu verschieben. Man kann langsam scrollen mithilfe der beiden Scroll Leisten über und unter den Menüpunkten, indem man den Cursor auf das jeweilige Feld bewegt.<br />
+Zudem gibt es rechts am Bildschirmrand eine Scroll Leiste, mit der man schnell durch die Menüpunkte scrollen kann. Hier wird gemessen, wie schnell der Cursor bewegt wird und entsprechend schnell werden dann die Menüpunkte verschoben. Es ist auch möglich, das Scrollen durch eine kurze Bewegung auf der Scroll Leiste, entgegengesetzt der aktuellen Scrollrichtung, zu unterbrechen.<br />
+Um vorzubeugen, dass man bereits durch langsame Bewegung des Cursors die Liste leicht verschiebt, gibt es einen kleinen Schwellwert, der überschritten werden muss.
+</p>
 
 <h2>Die XML-Datei</h2>
 <p>Das Kinect Menü besteht aus mehreren Menüpunkten, die sich aus Bild, Titel und Beschreibung zusammensetzen. Zusätzlich muss das Menü intern wissen, welcher Befehl bei der Auswahl eines Menüpunktes gestartet werden soll. Es war uns wichtig, dass das Menü leicht geändert werden kann, ohne dass man das Projekt neu kompilieren muss. Daher werden die einzelnen Menüpunkte beim Start des Kinect Menüs aus einer XML-Datei eingelesen.</p>
@@ -55,6 +57,7 @@ Um ein Menü mit zwei Menüpunkten zu erstellen, kann man folgende XML-Datei ver
     &lt;/MENUITEM&gt;
 &lt;/MENU&gt;</code>
 </pre>
+<br />
 
 <h3>Einlesen der XML-Datei</h3>
 <p>Um die XMl-Datei einzulesen, wird <a href="http://www.grinninglizard.com/tinyxml2/" target="_blank">TinyXML-2</a> benutzt. Die TinyXML-2 API ist dank dem objektorientierten Ansatz sehr gut zu benutzen. Der komplette Code zum Einlesen der XML-Datei des Menüs lautet wie folgt:</p>
@@ -88,10 +91,3 @@ for (auto elt = root->FirstChildElement("MENUITEM");
     );
 }</code>
 </pre>
-<br />
-
-<h2>Scrollen</h2>
-<p>Es gibt verschiedene Möglichkeiten die Menüpunkte nach unten oder oben zu verschieben. Man kann langsam scrollen mithilfe der beiden Scroll-Leisten über und unter den Menüpunkten nutzen, indem man den Cursor auf das jeweilige Feld bewegt.
-    <br />Zudem gibt es die rechts am Bildschirmrand eine Scroll Leiste mit der man schnell durch die Menüpunkte scrollen kann. Hier wird gemessen, wie schnell man den Cursor von oben nach unten bewegt und entsprechend schnell werden dann die Menüpunkte verschoben. Es ist auch möglich, das Scrollen durch eine schnelle Bewegung auf der Scroll Leiste, entgegengesetzt der aktuellen Scrollrichtung, zu unterbrechen. 
-    <br /> Um vorzubeugen, dass man durch langsames nach oben oder unten bewegen des Cursors die Liste leicht verschiebt, gibt es einen kleinen Schwellenwert der überschritten werden muss, damit die Liste anfängt sich zu verschieben.
-</p>
