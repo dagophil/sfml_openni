@@ -29,27 +29,4 @@ menupos: 1
 <p>In dem <a href="{{base}}/menu.html">Kinect Menü</a> benutzen wir SFML zum Erstellen des Fensters und zum Zeichnen von Bildern, Texten und Rechtecken. Bei dem <a href="{{base}}/game.html">Hau den Maulwurf Spiel</a> wird zusätzlich das Sound-Modul und die Stoppuhr benutzt.</p>
 
 <h2>TinyXML-2</h2>
-<p>Das <a href="{{base}}/menu.html">Kinect Menü</a> besteht aus mehreren Menüpunkten, die sich aus Bild, Titel und Beschreibung zusammensetzen. Zusätzlich muss das Menü intern wissen, welcher Befehl bei der Auswahl eines Menüpunktes gestartet werden soll. Es war uns wichtig, dass das Menü leicht geändert werden kann, ohne dass man das Projekt neu kompilieren muss. Daher werden die einzelnen Menüpunkte beim Start des Kinect Menüs aus einer XML-Datei eingelesen.</p>
-<p>Zum Einlesen der XML-Datei wird <a href="http://www.grinninglizard.com/tinyxml2/" target="_blank">TinyXML-2</a> benutzt. Diese Library ist ein XML parser, der leicht zu benutzen ist und leicht in ein Projekt integriert werden kann. TinyXML-2 besteht aus einer Headerdatei und einer</p>
-
-<p><strong>Beispiel einer XML Menü Datei:</strong><br />
-Um ein Menü mit zwei Menüpunkten zu erstellen, kann man folgende XML-Datei verwenden:</p>
-<pre class="line-numbers">
-<code class="language-xml">
-&lt;MENU&gt;
-    &lt;MENUITEM&gt;
-        &lt;IMAGE&gt;images/game_logo.png&lt;/IMAGE&gt;
-        &lt;TITLE&gt;Game title&lt;/TITLE&gt;
-        &lt;DESCRIPTION&gt;Game description.&lt;/DESCRIPTION&gt;
-        &lt;COMMAND&gt;./game_command&lt;/COMMAND&gt;
-    &lt;/MENUITEM&gt;
-
-    &lt;!-- place further menu items here, for example: --&gt;
-    &lt;MENUITEM&gt;
-        &lt;IMAGE&gt;images/logo.png&lt;/IMAGE&gt;
-        &lt;TITLE&gt;Whac a mole&lt;/TITLE&gt;
-        &lt;DESCRIPTION&gt;The Whac a mole game.&lt;/DESCRIPTION&gt;
-        &lt;COMMAND&gt;./hdm&lt;/COMMAND&gt;
-    &lt;/MENUITEM&gt;
-&lt;/MENU&gt;</code>
-</pre>
+<p>Das <a href="{{base}}/menu.html">Kinect Menü</a> besteht aus mehreren Menüpunkten, die sich aus Bild, Titel und Beschreibung zusammensetzen. Zusätzlich muss das Menü intern wissen, welcher Befehl bei der Auswahl eines Menüpunktes gestartet werden soll. Es war uns wichtig, dass das Menü leicht geändert werden kann, ohne dass man das Projekt neu kompilieren muss. Daher werden die einzelnen Menüpunkte beim Start des Kinect Menüs aus einer XML-Datei eingelesen. Zum Einlesen der XML-Datei wird in unserem Projekt <a href="http://www.grinninglizard.com/tinyxml2/" target="_blank">TinyXML-2</a> benutzt. TinyXML-2 ist ein XML Parser, der leicht in ein C++ Projekt integriert werden kann, da er nur aus einer Header- und einer Quelldatei besteht. Zudem ist die TinyXML-2 API dank dem objektorientierten Ansatz sehr gut zu benutzen.</p>

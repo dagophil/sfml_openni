@@ -32,15 +32,62 @@ menupos: 2
 <br />
 
 <h2>Die XML-Datei</h2>
- 
-<div class="clearfix">
-    <a href="{{base}}/img/menu_xml.png" class="lightbox-link" data-lightbox="menu_xml"> 
-        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="400" height="314" src="{{base}}/img/menu_xml.png" alt="menu_xml.png"/></a>
-    <p>
-        Die Menüpunkte werden mithilfe einer XML-Datei erstellt. Ein Menüpunkt besteht aus einem Vorschaubild, Titel, einer kurzen Beschreibung und dem auszuführendem Systembefehl um das Programm zu starten.
-        <br />
-    </p>
-</div>
+<p>Das Kinect Menü besteht aus mehreren Menüpunkten, die sich aus Bild, Titel und Beschreibung zusammensetzen. Zusätzlich muss das Menü intern wissen, welcher Befehl bei der Auswahl eines Menüpunktes gestartet werden soll. Es war uns wichtig, dass das Menü leicht geändert werden kann, ohne dass man das Projekt neu kompilieren muss. Daher werden die einzelnen Menüpunkte beim Start des Kinect Menüs aus einer XML-Datei eingelesen.</p>
+
+<p><strong>Beispiel einer XML Menü Datei:</strong><br />
+Um ein Menü mit zwei Menüpunkten zu erstellen, kann man folgende XML-Datei verwenden:</p>
+<pre class="line-numbers">
+<code class="language-xml">
+&lt;MENU&gt;
+    &lt;MENUITEM&gt;
+        &lt;IMAGE&gt;images/game_logo.png&lt;/IMAGE&gt;
+        &lt;TITLE&gt;Game title&lt;/TITLE&gt;
+        &lt;DESCRIPTION&gt;Game description.&lt;/DESCRIPTION&gt;
+        &lt;COMMAND&gt;./game_command&lt;/COMMAND&gt;
+    &lt;/MENUITEM&gt;
+
+    &lt;!-- place further menu items here, for example: --&gt;
+    &lt;MENUITEM&gt;
+        &lt;IMAGE&gt;images/logo.png&lt;/IMAGE&gt;
+        &lt;TITLE&gt;Whac a mole&lt;/TITLE&gt;
+        &lt;DESCRIPTION&gt;The Whac a mole game.&lt;/DESCRIPTION&gt;
+        &lt;COMMAND&gt;./hdm&lt;/COMMAND&gt;
+    &lt;/MENUITEM&gt;
+&lt;/MENU&gt;</code>
+</pre>
+
+<h3>Einlesen der XML-Datei</h3>
+<p>Um die XMl-Datei einzulesen, wird <a href="http://www.grinninglizard.com/tinyxml2/" target="_blank">TinyXML-2</a> benutzt. Die TinyXML-2 API ist dank dem objektorientierten Ansatz sehr gut zu benutzen. Der komplette Code zum Einlesen der XML-Datei des Menüs lautet wie folgt:</p>
+
+<pre class="line-numbers">
+<code class="language-cpp">
+// Open the xml file.
+XMLDocument doc;
+doc.LoadFile("menu.xml");
+auto root = doc.FirstChild();
+if (string(root->Value()) != "MENU")
+    throw runtime_error("XML error: Root node should be MENU.");
+
+// Loop over the menu items in the xml file.
+for (auto elt = root->FirstChildElement("MENUITEM");
+     elt != nullptr;
+     elt = elt->NextSiblingElement("MENUITEM"))
+{
+    // Read the menu item attributes.
+    auto img = elt->FirstChildElement("IMAGE");
+    auto title = elt->FirstChildElement("TITLE");
+    auto description = elt->FirstChildElement("DESCRIPTION");
+    auto command = elt->FirstChildElement("COMMAND");
+
+    // Create the actual menu item object.
+    add_menu_item(
+                img->GetText(),
+                title->GetText(),
+                description->GetText(),
+                command->GetText()
+    );
+}</code>
+</pre>
 <br />
 
 <h2>Scrollen</h2>
