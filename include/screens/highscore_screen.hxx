@@ -62,7 +62,7 @@ public:
 
         if(!dir_exist(dirname))
         {
-            mkdir(dirname, S_IRWXU|S_IRWXG);
+            make_dir(dirname);
             std::ofstream h(filename);
 
             for (size_t i = 0; i < 5; i++)

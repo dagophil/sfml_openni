@@ -10,13 +10,36 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fstream>
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+
+#ifdef OPENNI_FOUND
 #include <XnCppWrapper.h>
+#endif
 
 #include "platform_support.hxx"
 #include "ndarray.hxx"
+
+
+#ifndef OPENNI_FOUND
+	
+    typedef uint32_t XnUInt32;
+    typedef float XnFloat;
+
+    typedef struct XnVector3D
+    {
+	    XnFloat X;
+	    XnFloat Y;
+	    XnFloat Z;
+    } XnVector3D;
+
+    typedef XnVector3D XnPoint3D;
+
+#endif
 
 
 /**
@@ -390,6 +413,18 @@ bool dir_exist(std::string const & f)
         return true;
     else
         return false;
+}
+
+/**
+ * @brief Create the given directory.
+ */
+void make_dir(std::string const & f)
+{
+#if _MSC_VER
+    _mkdir(f.c_str());
+#else
+    mkdir(f.c_str(), S_IRWXU | S_IRWXG);
+#endif
 }
 
 /**
