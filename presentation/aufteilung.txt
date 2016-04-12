@@ -1,0 +1,41 @@
+Flo:
+
+Einleitung
+Ziele
+Menü
+XML
+
+
+Phil:
+
+Kinect Einführung
+Depth Generator
+
+
+Flo:
+
+Basiswechsel
+Zittern
+Klick-Geste
+
+
+Phil:
+
+Widgets, Actions
+
+
+Flo:
+
+Animated Widget
+Spiel
+
+
+Phil:
+
+SFML
+Probleme
+Ausblick
+
+
+Demonstration
+
