@@ -15,29 +15,43 @@ if(CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 
 # C++11
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if(MSVC)
+    if ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 17.0)
+        message(FATAL_ERROR "The visual studio version is ${CMAKE_CXX_COMPILER_VERSION}, but you need at least 17.0.")
+    endif()
 else()
-  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.6)
-    message(FATAL_ERROR "The gcc version is ${CMAKE_CXX_COMPILER_VERSION}, but you need at least 4.6.")
-  endif()
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+    if(COMPILER_SUPPORTS_CXX11)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    elseif(COMPILER_SUPPORTS_CXX0X)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    else()
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+    endif()
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.6)
+            message(FATAL_ERROR "The gcc version is ${CMAKE_CXX_COMPILER_VERSION}, but you need at least 4.6.")
+        endif()
+    endif()
 endif()
 
 # SFML
 find_package(SFML REQUIRED system window graphics audio)
 include_directories(${SFML_INCLUDE_DIR})
 
+# Use dynamic linking for SFML
+add_definitions(-DSFML_DYNAMIC)
+
+# Use static  linking for SFML
+#add_definitions(-DSFML_STATIC)
+
 # OpenNI
-find_package(OpenNI REQUIRED)
-include_directories(${OPENNI_INCLUDE_DIRS})
+find_package(OpenNI)
+if(OPENNI_FOUND)
+  include_directories(${OPENNI_INCLUDE_DIRS})
+endif()
 
 ## NITE
 #find_package(NITE REQUIRED)
@@ -71,14 +85,16 @@ add_custom_command(TARGET copy PRE_BUILD
 add_library(tinyxml2 STATIC tinyxml2.cpp)
 
 # Executable: The kinect menu.
-add_executable(proj proj.cxx)
-target_link_libraries(proj
-    ${SFML_LIBRARIES}
-    ${OPENNI_LIBRARIES}
-#    ${NITE_LIBRARIES}
-    tinyxml2
-)
-add_dependencies(proj copy)
+if(OPENNI_FOUND)
+  add_executable(proj proj.cxx)
+  target_link_libraries(proj
+      ${SFML_LIBRARIES}
+      ${OPENNI_LIBRARIES}
+#     ${NITE_LIBRARIES}
+      tinyxml2
+  )
+  add_dependencies(proj copy)
+endif()
 
 # Executable: The test menu.
 add_executable(testmenu testmenu.cxx)
@@ -96,12 +112,14 @@ target_link_libraries(hdm
 add_dependencies(hdm copy)
 
 # Executable: The game with kinect.
-add_executable(hdm_kinect hdm_kinect.cxx)
-target_link_libraries(hdm_kinect
-    ${SFML_LIBRARIES}
-    ${OPENNI_LIBRARIES}
-)
-add_dependencies(hdm_kinect copy)
+if (OPENNI_FOUND)
+  add_executable(hdm_kinect hdm_kinect.cxx)
+  target_link_libraries(hdm_kinect
+      ${SFML_LIBRARIES}
+      ${OPENNI_LIBRARIES}
+  )
+  add_dependencies(hdm_kinect copy)
+endif()
 
 # Executable: The widget test.
 add_executable(test_widgets test_widgets.cxx)

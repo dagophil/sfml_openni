@@ -9,6 +9,7 @@
 #include "../widgets.hxx"
 #include "../events.hxx"
 #include "../options.hxx"
+#include "../utility.hxx"
 
 namespace kin
 {
@@ -588,7 +589,7 @@ private:
     {
         if(!dir_exist("highscore"))
         {
-            mkdir("highscore", S_IRWXU|S_IRWXG);
+            make_dir("highscore");
             std::ofstream h("highscore/highscore.txt");
 
             for (size_t i = 0; i < 5; i++)
