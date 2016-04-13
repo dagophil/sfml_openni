@@ -18,12 +18,14 @@ menupos: 4
     Ein Teil des Kinect Menüs besteht aus der Liste mit den Menüpunkten. Ein einzelner Menüpunkt setzt sich zusammen aus einem Bild, einem Titel und einer kurzen Beschreibung.</p>
     <div class="row">
         <div class="col-sm-6" style="margin-bottom:25px;">
-            <a href="{{base}}/img/menu2.png" class="lightbox-link" data-lightbox="menu1">
+            <a href="{{base}}/img/menu2.png" class="lightbox-link" data-lightbox="menu2">
                 <img class="img-responsive img-thumbnail" width="800" height="628" src="{{base}}/img/menu2.png" alt="menu2.png" />
             </a>
         </div>
         <div class="col-sm-6" style="margin-bottom:25px;">
-            <p>TODO: Add something here.</p>
+            <a href="{{base}}/img/widget_diagram.png" class="lightbox-link" data-lightbox="widget_diagram">
+                <img class="img-responsive img-thumbnail" width="670" height="526" src="{{base}}/img/widget_diagram.png" alt="widget_diagram.png" />
+            </a>
         </div>
     </div>
 </div>
@@ -31,6 +33,13 @@ menupos: 4
     <h3>Lösungsansatz</h3>
     <p>Um Probleme mit absoluten Pixelangaben zu umgehen, führten wir die Widget Klasse ein. Ein Widget ist zunächst ein Positionierungsobjekt, das eine Position (x, y) und eine Größe (w, h) besitzt. Zudem lassen sich einem Widget weitere untergeordnete Widgets zuordnen, sodass eine Verschachtelung ermöglicht wird. Dank der Verschachtelung genügt es, den Zeichenbefehl auf dem root-Widget aufzurufen. Der Zeichenbefehl wird dann rekursiv an alle untergeordneten Widgets weitergegeben.</p>
     <p>Die Werte von x, y, w und h reichen von 0.0 bis 1.0 und sind immer relativ zur Größe des übergeordneten Elements zu berechnen. Ein Widget der Breite w = 0.5 ist als genau halb so breit wie das Elternobjekt. Des Weiteren enthält ein Widget Positionsangaben wie <em>align_x = {left | center | right}</em>, sodass es auch zentriert oder rechtsbündig ausgerichtet werden kann.</p>
+    <div class="row" style="margin-top:25px;margin-bottom:15px;">
+        <div class="col-xs-8 col-xs-offset-2">
+            <a href="{{base}}/img/widgets_cd.png" class="lightbox-link" data-lightbox="widgets_cd">
+                <img class="img-responsive img-thumbnail" width="847" height="470" src="{{base}}/img/widgets_cd.png" alt="widgets_cd.png" />
+            </a>
+        </div>
+    </div>
 </div>
 <div class="container-fluid">
     <h3>Unterklassen</h3>
@@ -53,14 +62,17 @@ menupos: 4
 <pre class="line-numbers">
 <code class="language-cpp">
 auto container = make_shared&lt;ColorWidget&gt;(Color(255, 0, 0));
-auto im = make_shared&lt;ImageWidget&gt;("images/bg.png");
+auto im = make_shared&lt;ImageWidget&gt;("images/green_guy.png");
 im->set_height(0.7);
 im->align_x_ = Center;
 im->align_y_ = Center;
 container->add_widget(im);</code>
 </pre>
-    <br />
-    <p>Erstelle ein Widget mit Text und Bild:</p>
+    <p>Ergebnis:</p>
+    <a href="{{base}}/img/widget_example.png" class="lightbox-link" data-lightbox="widget_example">
+        <img class="img-responsive img-thumbnail" width="190" height="190" src="{{base}}/img/widget_example.png" alt="widget_example.png" />
+    </a>
+    <p><br />Erstelle ein Widget mit Text und Bild:</p>
 <pre class="line-numbers">
 <code class="language-cpp">
 auto container = make_shared&lt;Widget&gt;();
