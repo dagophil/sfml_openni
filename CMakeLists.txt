@@ -51,6 +51,7 @@ add_definitions(-DSFML_DYNAMIC)
 find_package(OpenNI)
 if(OPENNI_FOUND)
   include_directories(${OPENNI_INCLUDE_DIRS})
+  add_definitions(-DOPENNI_FOUND)
 endif()
 
 ## NITE
