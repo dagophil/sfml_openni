@@ -40,8 +40,7 @@ footer.footer
     bottom: 0;
     color: #888;
     font-size: 14px;
-    height: 64px;
-    padding-top: 20px;
+    padding: 20px 0 20px 0;
     position: absolute;
     text-shadow: 1px 1px 2px #000;
     width: 100%;
