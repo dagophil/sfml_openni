@@ -12,39 +12,43 @@ menupos: 2
     Der Ressourcen Manager sorgt dafür, dass große Objekte, wie zum Beispiel Bilddateien, nicht mehrfach geladen werden.</p>
 </div>
 
-<h2>Die Spielschleife</h2>
-<p>Alle Objekte die auf dem Bildschirm gezeichnet werden, sind von der <a href="gui.html">Widget Klasse</a> abgeleitet. Es gibt ein Hauptwidget, das die anderen Widgets enthält. Die Update- und Zeichenfunktionen müssen nur auf dem Hauptwidget aufgerufen werden, da sie dann rekursiv auch in den untergeordneten Widgets aufgerufen werden.</p>
-<p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
-<ul>
-    <li>Initialisierung.</li>
-    <li>Solange das Fenster geöffnet ist:
-        <ul>
-            <li>Lese die Kinect-Daten ein.</li>
-            <li>Berechne die Koordinaten des Cursors mithilfe einer Umrechnung der Handkoordinaten der Kinect in Bildschirmkoordinaten (siehe <a href="kinect.html">Kinect Schnittstelle</a>).</li>
-            <li>Überprüfe, ob ein Klick ausgelöst wurde.</li>
-            <li>Rufe die Update-Funktion des Hauptwidgets auf. Übergebe dabei die Koordinaten des Cursors und ob ein Klick ausgelöst wurde. (Mit diesem Aufruf wird die komplette Spiellogik aktualisiert.)</li>
-            <li>Zeichne das Hauptwidget und somit auch alle untergeordneten Widgets.</li>
-        </ul>
-    </li>
-</ul>
-	
-<h2> Der Event Manager</h2>
-<p>Um Ereignisse zu verwalten benutzen wir einen Event Manager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro Frame abgearbeitet und die Events an die entsprechenden Listener verteilt.</p>
-<p>Als Listener ist zum Beispiel der Sound Controller zu nennen: Dieser reagiert auf "MoleHit" Events und spielt einen entsprechenden Sound ab.</p>
-<p>Events sind unter anderem:</p>
-<table class="table th-right">
-    <thead> 
-        <tr><th>Eventname</th>
-        <th style="text-align:left;">Funktion</th>
-    </thead>
-    <tbody>
-    <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
-    <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
-    <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
-    </tbody>
-</table>
-
-<h2>Der Ressourcen Manager</h2>
-<p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam die verschiedenen Bilder nur einmal laden zu müssen und das gleiche Bild wiederholt zu verwenden.<br/>
-Hierfür benutzen wir den Ressourcen Manager. Es werden vor Spielbeginn alle benötigten Bilder einmal eingelesen und geladen um dann nur noch diese zu verwenden.<br/>
-Der Ressourcen Manager speichert den Namen der Bilddatei und das Bild in eine map-Struktur der C++ Standard-Library.</p>
+<div class="container-fluid">
+    <h2>Die Spielschleife</h2>
+    <p>Alle Objekte die auf dem Bildschirm gezeichnet werden, sind von der <a href="gui.html">Widget Klasse</a> abgeleitet. Es gibt ein Hauptwidget, das die anderen Widgets enthält. Die Update- und Zeichenfunktionen müssen nur auf dem Hauptwidget aufgerufen werden, da sie dann rekursiv auch in den untergeordneten Widgets aufgerufen werden.</p>
+    <p>Damit lässt sich die Endlosschleife unseres Spiels wie folgt zusammenfassen:</p>
+    <ul>
+        <li>Initialisierung.</li>
+        <li>Solange das Fenster geöffnet ist:
+            <ul>
+                <li>Lese die Kinect-Daten ein.</li>
+                <li>Berechne die Koordinaten des Cursors mithilfe einer Umrechnung der Handkoordinaten der Kinect in Bildschirmkoordinaten (siehe <a href="kinect.html">Kinect Schnittstelle</a>).</li>
+                <li>Überprüfe, ob ein Klick ausgelöst wurde.</li>
+                <li>Rufe die Update-Funktion des Hauptwidgets auf. Übergebe dabei die Koordinaten des Cursors und ob ein Klick ausgelöst wurde. (Mit diesem Aufruf wird die komplette Spiellogik aktualisiert.)</li>
+                <li>Zeichne das Hauptwidget und somit auch alle untergeordneten Widgets.</li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div class="container-fluid">
+    <h2> Der Event Manager</h2>
+    <p>Um Ereignisse zu verwalten benutzen wir einen Event Manager. Dieser besitzt eine Queue in die aus jeder Stelle im Code Events eingefügt werden können. Diese Queue wird einmal pro Frame abgearbeitet und die Events an die entsprechenden Listener verteilt.</p>
+    <p>Als Listener ist zum Beispiel der Sound Controller zu nennen: Dieser reagiert auf "MoleHit" Events und spielt einen entsprechenden Sound ab.</p>
+    <p>Events sind unter anderem:</p>
+    <table class="table th-right">
+        <thead> 
+            <tr><th>Eventname</th>
+            <th style="text-align:left;">Funktion</th>
+        </thead>
+        <tbody>
+        <tr><th>ChangeScreen</th><td> Zu einem anderen Bildschirm im Spiel wechseln.</td></tr>
+        <tr><th>MoleHit</th><td> Ein Maulwurf wurde getroffen.</td></tr>
+        <tr><th>FieldHover</th><td>Es wird auf einen Maulwurfshügel gezielt.</td></tr>
+        </tbody>
+    </table>
+</div>
+<div class="container-fluid">
+    <h2>Der Ressourcen Manager</h2>
+    <p>In dem Hau den Maulwurf Spiel werden dieselben Bilder und Animationen mehrfach verwendet. Hier ist es also ratsam die verschiedenen Bilder nur einmal laden zu müssen und das gleiche Bild wiederholt zu verwenden.<br/>
+    Hierfür benutzen wir den Ressourcen Manager. Es werden vor Spielbeginn alle benötigten Bilder einmal eingelesen und geladen um dann nur noch diese zu verwenden.<br/>
+    Der Ressourcen Manager speichert den Namen der Bilddatei und das Bild in eine map-Struktur der C++ Standard-Library.</p>
+</div>

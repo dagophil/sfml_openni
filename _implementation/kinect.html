@@ -10,14 +10,15 @@ menupos: 3
     <p>Der Zugriff auf die Daten der Kinect geschieht mithilfe der OpenNI Library. Dazu stellt die Library verschiedene Generatoren zur Verfügung, die im Folgenden erläutert werden. Zudem haben wir Methoden entwickelt, die die Bedienung unseres Programms benutzerfreundlicher gestalten. Beispielsweise ermöglichen wir eine bessere Erkennung der Klick-Geste, führen eine Koordinatentransformation abhängig von der Position des Benutzers durch und verhindern das Zittern des Cursors.</p>
 </div>
 
-<h2>Auslesen der Kinect Daten</h2>
-<p>OpenNI stellt verschiedene Generatoren zur Verfügung, mit denen die Daten der Kinect ausgelesen werden können. In unserem Projekt wird der DepthGenerator eingesetzt, um das Tiefenbild der Kamera auszulesen. Zudem benutzen wir den UserGenerator, mit welchem man die Koordinaten der Skelett-Knotenpunkte verschiedener Benutzer erhält.</p>
-<p>Ursprünglich waren bei uns noch die Klasse Handsgenerator im Einsatz. Mit dieser Klasse kann man direkt auf die Koordinaten der Hände eines Benutzers zugreifen. Da wir jedoch noch weitere Skelett-Knotenpunkte benötigen (siehe <em>Umwandlung der Hand-Koordinaten</em>), benutzen wir stattdessen die Klasse UserGenerator, da man dort alle Knotenpunkte eines Benutzers auslesen kann.</p>
-<p>Zudem benutzten wir zu Beginn den den GestureGenerator, um Klick-Gesten zu erkennen. Dies führte jedoch zu Problemen: Der GestureGenerator erkennt einen Klick nur, wenn man die Geste deutlich ausführt und sich dabei nicht zu schnell bewegt. Für unser Hau den Maulwurf Spiel war das ungeeignet, da man dort schnell reagieren muss. Zudem haben unsere Tests gezeigt, dass Benutzer die Hau-Bewegung sehr hektisch ausführen, was vom GestureGenerator nicht als Klick erkannt wurde. Daher haben wir eine eigene Methode zum Erkennen von Klick-Gesten entwickelt (siehe <em>Klick-Geste</em>).</p>
-
-<h3>DepthGenerator</h3>
-<p>Wir benutzen die Klasse DepthGenerator, um auf das Tiefenbild der Kinect zuzugreifen. Nach der Initialisierung kann unmittelbar auf die Pixeldaten zugegriffen werden. Im Folgenden Beispiel nehmen wir an, dass alle Komponenten ohne Fehler initialisiert werden können. Normalerweise muss im Produktionscode zusätzlich geprüft werden, ob der Rückgabewert der Funktionen von XN_STATUS_OK verschieden ist.</p>
-
+<div class="container-fluid">
+    <h2>Auslesen der Kinect Daten</h2>
+    <p>OpenNI stellt verschiedene Generatoren zur Verfügung, mit denen die Daten der Kinect ausgelesen werden können. In unserem Projekt wird der DepthGenerator eingesetzt, um das Tiefenbild der Kamera auszulesen. Zudem benutzen wir den UserGenerator, mit welchem man die Koordinaten der Skelett-Knotenpunkte verschiedener Benutzer erhält.</p>
+    <p>Ursprünglich waren bei uns noch die Klasse Handsgenerator im Einsatz. Mit dieser Klasse kann man direkt auf die Koordinaten der Hände eines Benutzers zugreifen. Da wir jedoch noch weitere Skelett-Knotenpunkte benötigen (siehe <em>Umwandlung der Hand-Koordinaten</em>), benutzen wir stattdessen die Klasse UserGenerator, da man dort alle Knotenpunkte eines Benutzers auslesen kann.</p>
+    <p>Zudem benutzten wir zu Beginn den den GestureGenerator, um Klick-Gesten zu erkennen. Dies führte jedoch zu Problemen: Der GestureGenerator erkennt einen Klick nur, wenn man die Geste deutlich ausführt und sich dabei nicht zu schnell bewegt. Für unser Hau den Maulwurf Spiel war das ungeeignet, da man dort schnell reagieren muss. Zudem haben unsere Tests gezeigt, dass Benutzer die Hau-Bewegung sehr hektisch ausführen, was vom GestureGenerator nicht als Klick erkannt wurde. Daher haben wir eine eigene Methode zum Erkennen von Klick-Gesten entwickelt (siehe <em>Klick-Geste</em>).</p>
+</div>
+<div class="container-fluid">
+    <h3>DepthGenerator</h3>
+    <p>Wir benutzen die Klasse DepthGenerator, um auf das Tiefenbild der Kinect zuzugreifen. Nach der Initialisierung kann unmittelbar auf die Pixeldaten zugegriffen werden. Im Folgenden Beispiel nehmen wir an, dass alle Komponenten ohne Fehler initialisiert werden können. Normalerweise muss im Produktionscode zusätzlich geprüft werden, ob der Rückgabewert der Funktionen von XN_STATUS_OK verschieden ist.</p>
 <pre class="line-numbers">
 <code class="language-cpp">
 // Initialize the depth generator.
@@ -39,64 +40,63 @@ for (int y = 0; y &lt; meta.YRes(); ++y) {
     }
 }</code>
 </pre>
-
-<!--<h3>UserGenerator</h3>
-<p>Die Klasse UserGenerator stellt alle Daten zur Verfügung, die sich auf einzelne Benutzer beziehen.</p>-->
-
-
-
-<h2>Umwandlung der Hand-Koordinaten</h2>
-<div class="clearfix">
-    <a href="{{base}}/img/ebene_skeleton.png" class="lightbox-link" data-lightbox="ebene_skeleton"> 
-        <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png"/>
-    </a>
-    <p>
-    Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>
-    Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.<br/>
-    Linke Schulter \((S_1)\), rechte Schulter \((S_2)\) und Torso \((T)\):
-    $$
-        S_1 = \begin{pmatrix}
-        S_{10} \\ S_{11} \\S_{12}
-        \end{pmatrix}
-        \quad
-        S_2 = \begin{pmatrix}
-        S_{20} \\ S_{21} \\S_{22}
-        \end{pmatrix}
-        \quad
-        T= \begin{pmatrix}
-        T_1\\T_2\\T_3
-        \end{pmatrix}
-    $$
-    Daraus ergibt sich die folgende Basiswechselmatrix:
-    $$
-        M_{B \rightarrow E} = \left( \begin{array}{ccc}
-        S_{20} - S_{10} & 0 & S_{22}-S_{12} \\
-        0 & X & 0 \\
-        S_{22} - S_{12} & 0 & S_{10}-S_{20} \\
-        \end{array}
-        \right)
-    $$
-    Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
-    Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
-    $$
-        H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
-        H_1 - T_1\\ H_2-T_2\\H_3-T_3        
-        \end{pmatrix}
-    $$
-    Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
-    </p>
 </div>
-
-<h2>Zittern des Cursors verhindern</h2>
-Benutzt man direkt die umgerechneten Handkoordinaten der Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass der Cursor sehr unruhig ist und zu zittern scheint. Dies lässt das Bild unruhig erscheinen, da der Cursor sich ständig bewegt, obwohl man selbst das Gefühl hat, seine Hand ruhig zu halten.<br/>
-Um das Zittern zu verhindern, speichern wir die letzten 10 Positionen des Cursors und berechnen deren Durchschnittswert. Der Cursor wird nur bewegt, wenn sich der berechnete Durchschnittswert signifikant von dem vorigen unterscheidet.
-
-<h2>Klick-Geste</h2>
-<p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt. Zudem reagiert der GestureGenerator von OpenNI nicht bei hektischen Bewegungen.<br/>
-Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Klick-Geste entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.</p>
-
-<h3>Implementierung der Klick-Geste</h3>
-<p>Um eine Klick-Geste zu erkennen, wird die aktuelle Handposition mit der Position 0.1 Sekunden zuvor verglichen. Ist der Unterschied in y-Richtung groß genug, wird ein Callback ausgelöst.</p>
+<div class="container-fluid">
+    <h2>Umwandlung der Hand-Koordinaten</h2>
+    <div class="clearfix">
+        <a href="{{base}}/img/ebene_skeleton.png" class="lightbox-link" data-lightbox="ebene_skeleton"> 
+            <img class="img-responsive img-thumbnail lfloat-sm-6"  width="898" height="674" src="{{base}}/img/ebene_skeleton.png" alt="ebene_skeleton.png" style="margin-bottom: 25px;" />
+        </a>
+        <p>
+        Um die Bedienung unabhängig von der Position des Benutzers zu machen, haben wir eine neue Ebene abhängig vom Benutzer erstellt.<br/>
+        Diese wird aus den Koordinaten der linken und rechten Schulter sowie des Torsos durch einen Basiswechsel berechnet.<br/>
+        Linke Schulter \((S_1)\), rechte Schulter \((S_2)\) und Torso \((T)\):
+        $$
+            S_1 = \begin{pmatrix}
+            S_{10} \\ S_{11} \\S_{12}
+            \end{pmatrix}
+            \quad
+            S_2 = \begin{pmatrix}
+            S_{20} \\ S_{21} \\S_{22}
+            \end{pmatrix}
+            \quad
+            T= \begin{pmatrix}
+            T_1\\T_2\\T_3
+            \end{pmatrix}
+        $$
+        Daraus ergibt sich die folgende Basiswechselmatrix:
+        $$
+            M_{B \rightarrow E} = \left( \begin{array}{ccc}
+            S_{20} - S_{10} & 0 & S_{22}-S_{12} \\
+            0 & X & 0 \\
+            S_{22} - S_{12} & 0 & S_{10}-S_{20} \\
+            \end{array}
+            \right)
+        $$
+        Wobei \(X\) die Länge zwischen den beiden Schulterpunkten ist.<br/>
+        Die umgerechnete Handposition \((H_{	neu})\) erhält man aus der alten Handposition \((H)\) wie folgt:
+        $$
+            H_{neu} = M_{B \rightarrow E}^{-1} \cdot \begin{pmatrix}
+            H_1 - T_1\\ H_2-T_2\\H_3-T_3        
+            \end{pmatrix}
+        $$
+        Hierbei wird der Torso \((T)\) der Ursprung des neuen Koordinatensystems.
+        </p>
+    </div>
+</div>
+<div class="container-fluid">
+    <h2>Zittern des Cursors verhindern</h2>
+    <p>Benutzt man direkt die umgerechneten Handkoordinaten der Kinect als Cursor im Menü oder Spiel verwendet, fällt einem auf, dass der Cursor sehr unruhig ist und zu zittern scheint. Dies lässt das Bild unruhig erscheinen, da der Cursor sich ständig bewegt, obwohl man selbst das Gefühl hat, seine Hand ruhig zu halten.<br/>
+    Um das Zittern zu verhindern, speichern wir die letzten 10 Positionen des Cursors und berechnen deren Durchschnittswert. Der Cursor wird nur bewegt, wenn sich der berechnete Durchschnittswert signifikant von dem vorigen unterscheidet.</p>
+</div>
+<div class="container-fluid">
+    <h2>Klick-Geste</h2>
+    <p>Um einen Maulwurf in dem Hau den Maulwurf Spiel zu treffen, muss der Benutzer eine Klick Bewegung ausführen. Eine solche Klick-Geste wird bereits von OpenNi zur Verfügung gestellt, jedoch reagiert diese erst, wenn man den Arm fast ganz ausstreckt. Zudem reagiert der GestureGenerator von OpenNI nicht bei hektischen Bewegungen.<br/>
+    Dies ist äußerst ungeeignet für das Hau den Maulwurf Spiel, da hier sehr oft und schnell geklickt werden muss. Daher haben wir eine eigene Klick-Geste entwickelt, welche früher reagiert und nur eine kleine Bewegung benötigt um einen Klick auszulösen.</p>
+</div>
+<div class="container-fluid">
+    <h3>Implementierung der Klick-Geste</h3>
+    <p>Um eine Klick-Geste zu erkennen, wird die aktuelle Handposition mit der Position 0.1 Sekunden zuvor verglichen. Ist der Unterschied in y-Richtung groß genug, wird ein Callback ausgelöst.</p>
 <pre class="line-numbers">
 <code class="language-cpp">
 // Note: The type of positions is list&lt;pair&lt;float, float&gt; &gt;.
@@ -125,3 +125,4 @@ if (clicked) {
     }
 }</code>
 </pre>
+</div>
