@@ -42,8 +42,8 @@ void create_widgets(kin::Widget & container)
         std::cout << "mouse leave" << std::endl;
     };
 
-    grid1.set_x_sizes(0.5, 0.4, 0.1);
-    grid1.set_y_sizes(0.2, 0.6, 0.2);
+    grid1.set_x_sizes(0.5f, 0.4f, 0.1f);
+    grid1.set_y_sizes(0.2f, 0.6f, 0.2f);
 
     grid0(0, 1) = grid1_ptr;
 
@@ -67,24 +67,22 @@ int main(int argc, char** argv)
     // Create the window.
     auto style = sf::Style::Close;
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Test widgets", style);
-    FPS fps_measure;
-    while (window.IsOpened())
+    FPS fps_measure(1.0f);
+    while (window.isOpen())
     {
         // Handle window events.
         sf::Event event;
-        while (window.GetEvent(event))
+        while (window.pollEvent(event))
         {
-            if (event.Type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed)
             {
-                window.Close();
+                window.close();
             }
         }
 
         // Process the input.
-        sf::Input const & input = window.GetInput();
-        int mouse_x = input.GetMouseX();
-        int mouse_y = input.GetMouseY();
-        container.hover(mouse_x, mouse_y);
+        auto mouse_pos = sf::Mouse::getPosition(window);
+        container.hover(mouse_pos.x, mouse_pos.y);
 
         // Update the widgets.
         auto fps = fps_measure.update();
@@ -92,8 +90,8 @@ int main(int argc, char** argv)
         container.update(elapsed_time);
 
         // Draw everything.
-        window.Clear();
+        window.clear();
         container.render(window);
-        window.Display();
+        window.display();
     }
 }

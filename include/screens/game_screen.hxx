@@ -56,21 +56,21 @@ public:
         auto main_grid_ptr = std::make_shared<GridWidget>(3, 1);
         auto & main_grid = *main_grid_ptr;
         add_widget(main_grid_ptr);
-        main_grid.set_x_sizes(0.14, 0.72, 0.14);
+        main_grid.set_x_sizes(0.14f, 0.72f, 0.14f);
 
         // Create the moles.
         auto mole_grid_ptr = std::make_shared<GridWidget>(3, 3);
         auto & mole_grid = *mole_grid_ptr;
         main_grid(1) = mole_grid_ptr;
-        mole_grid.set_y(0.3);
-        mole_grid.set_width(0.8);
-        mole_grid.set_height(0.66);
+        mole_grid.set_y(0.3f);
+        mole_grid.set_width(0.8f);
+        mole_grid.set_height(0.66f);
         mole_grid.align_x_ = CenterX;
         for (size_t i = 0; i < 9; ++i)
         {
             auto w = std::make_shared<AnimatedWidget>("animations/mole.pf");
             w->scale_ = ScaleInX;
-            w->set_height(0.8);
+            w->set_height(0.8f);
             w->repeatable_ = false;
             w->freeze_finish_ = true;
             w->stop();
@@ -90,9 +90,9 @@ public:
         add_widget(timer);
 
         // Create the shrink actions for the timer.
-        auto f0 = std::make_shared<ShrinkAction>(1);
-        auto f1 = std::make_shared<ShrinkAction>(1);
-        auto f2 = std::make_shared<ShrinkAction>(1);
+        auto f0 = std::make_shared<ShrinkAction>(1.0f);
+        auto f1 = std::make_shared<ShrinkAction>(1.0f);
+        auto f2 = std::make_shared<ShrinkAction>(1.0f);
 
         // Create the resize actions for the timer.
         auto func = [](Widget &wid, float elapsed_time){
@@ -102,8 +102,8 @@ public:
         };
         auto resize_action1 = std::make_shared<FunctionAction>(func);
         auto resize_action2 = std::make_shared<FunctionAction>(func);
-        auto resize_action11 = std::make_shared<DelayedAction>(0.05, resize_action1);
-        auto resize_action22 = std::make_shared<DelayedAction>(0.05, resize_action2);
+        auto resize_action11 = std::make_shared<DelayedAction>(0.05f, resize_action1);
+        auto resize_action22 = std::make_shared<DelayedAction>(0.05f, resize_action2);
 
         // Chain the actions together.
         auto chain = std::make_shared<ChainedAction>(f0,resize_action11, f1,resize_action22,f2);
@@ -111,17 +111,17 @@ public:
 
         // Create the "go" widget that appears after the timer.
         auto go = std::make_shared<ImageWidget>("images/timer0.png", 50);
-        go->set_height(0.2857);
+        go->set_height(0.2857f);
         go->scale_ = ScaleInX;
         go->align_x_ = CenterX;
         go->align_y_ = CenterY;
 
         // Show / hide the 3-2-1 counter.
-        event_manager.add_delayed_call(3.0, [&, timer, go](){
+        event_manager.add_delayed_call(3.0f, [&, timer, go](){
             remove_widget(timer);
             add_widget(go);
         });
-        event_manager.add_delayed_call(4.0, [&, go](){
+        event_manager.add_delayed_call(4.0f, [&, go](){
             remove_widget(go);
             running_ = true;
         });
@@ -131,17 +131,17 @@ public:
         scoreboard->align_x_ = CenterX;
         scoreboard->align_y_ = Top;
         scoreboard->scale_ = ScaleInX;
-        scoreboard->set_y(0.03);
-        scoreboard->set_height(0.26);
+        scoreboard->set_y(0.03f);
+        scoreboard->set_height(0.26f);
         add_widget(scoreboard);
 
         score_text_ = std::make_shared<TextWidget>("Score: " + std::to_string(score_));
         score_text_->text_align_x_ = Left;
         score_text_->text_align_y_ = CenterY;
-        score_text_->set_x(0.1);
+        score_text_->set_x(0.1f);
         score_text_->color_ = sf::Color(0, 0, 0);
         score_text_->font_size_ = opts.screen_height_ / 20;
-        score_text_->style_ = sf::String::Bold;
+        score_text_->style_ = sf::Text::Bold;
         scoreboard->add_widget(score_text_);
 
         check_highscore_exists();
@@ -153,10 +153,10 @@ public:
         auto highscore_text = std::make_shared<TextWidget>("Highscore: " + std::to_string(highscore_));
         highscore_text->text_align_x_ = Right;
         highscore_text->text_align_y_ = CenterY;
-        highscore_text->set_x(-0.1);
+        highscore_text->set_x(-0.1f);
         highscore_text->color_ = sf::Color(0, 0, 0);
         highscore_text->font_size_ = opts.screen_height_ / 20;
-        highscore_text->style_ = sf::String::Bold;
+        highscore_text->style_ = sf::Text::Bold;
         scoreboard->add_widget(highscore_text);
 
 
@@ -165,13 +165,13 @@ public:
         main_grid(2) = timebar;
 
         // Create the filler for the timer bar.
-        timefill_original_height_ = 0.985;
+        timefill_original_height_ = 0.985f;
         timefill_ = std::make_shared<ColorWidget>(sf::Color(255, 149, 14));
         timefill_->scale_ = None;
         timefill_->align_y_ = Bottom;
-        timefill_->set_x(0.0472);
-        timefill_->set_y(0.00729);
-        timefill_->set_width(0.913);
+        timefill_->set_x(0.0472f);
+        timefill_->set_y(0.00729f);
+        timefill_->set_width(0.913f);
         timefill_->set_height(timefill_original_height_);
         timebar->add_widget(timefill_);
 
@@ -181,7 +181,7 @@ public:
         timetext_->text_align_y_ = CenterY;
         timetext_->color_ = sf::Color(0, 0, 0);
         timetext_->font_size_ = opts.screen_height_ / 15;
-        timetext_->style_ = sf::String::Bold;
+        timetext_->style_ = sf::Text::Bold;
         timebar->add_widget(timetext_);
 
 // TODO: Add the scoreboard.
@@ -196,7 +196,7 @@ public:
         // Find the position and wave of the golden mole.
         std::uniform_int_distribution<int> gmole_index(0, 8);
         gmole_position_ = gmole_index(opts.rand_engine_);
-        int max_wave = std::floor(total_time_ / moletime_max_);
+        auto max_wave = static_cast<int>(std::floor(total_time_ / moletime_max_));
         std::uniform_int_distribution<int> gmole_wave_index(0, max_wave);
         gmole_wave_ = gmole_wave_index(opts.rand_engine_);
 
@@ -212,8 +212,8 @@ public:
         main_grid(0) = starbar;
         auto star_grid_ptr = std::make_shared<GridWidget>(1, 6);
         auto & star_grid = *star_grid_ptr;
-        star_grid.set_height(0.9);
-        star_grid.set_y(0.02);
+        star_grid.set_height(0.9f);
+        star_grid.set_y(0.02f);
         starbar->add_widget(star_grid_ptr);
 
         // Create the stars for the combo counter.
@@ -416,8 +416,8 @@ private:
         auto pow = std::make_shared<AnimatedWidget>(animation, 10);
         pow->align_y_ = Top;
         pow->scale_ = ScaleInX;
-        pow->set_x(0.2);
-        pow->set_height(0.5);
+        pow->set_x(0.2f);
+        pow->set_height(0.5f);
         moles_[i]->add_widget(pow);
 
         pow_index = rand_int(opts.rand_engine_);
@@ -486,7 +486,7 @@ private:
                 hide_mole(i);
                 return true;
         });
-        auto delay = std::make_shared<DelayedAction>(t-0.5, hide_action);
+        auto delay = std::make_shared<DelayedAction>(t-0.5f, hide_action);
         moles_[i]->add_action(delay);
     }
 
@@ -515,12 +515,12 @@ private:
         mole_out_[gmole_position_] = true;
 
         std::uniform_real_distribution<float> rand(moletime_min_, moletime_max_);
-        float t = rand(opts.rand_engine_) / 2.0;
+        float t = rand(opts.rand_engine_) / 2.0f;
         auto hide_action = std::make_shared<FunctionAction>([&](Widget &w, float elapsed_time){
                 hide_gmole();
                 return true;
         });
-        auto delay = std::make_shared<DelayedAction>(t-0.5, hide_action);
+        auto delay = std::make_shared<DelayedAction>(t-0.5f, hide_action);
         gmole_->add_action(delay);
     }
 
@@ -551,9 +551,9 @@ private:
         }
         else
         {
-            for (int i = 0; i < moles_.size(); ++i)
+            for (size_t i = 0; i < moles_.size(); ++i)
                 if (moles_[i]->hovered())
-                    return i;
+                    return static_cast<int>(i);
             if (gmole_->hovered())
                 return gmole_position_;
             return -1;
@@ -624,7 +624,7 @@ private:
 
             f >> t;
 
-            if (score_ > t && !new_highscore)
+            if (score_ > static_cast<int>(t) && !new_highscore)
             {
                 new_highscore = true;
                 opts.highscore_pos_ = i;
@@ -642,8 +642,8 @@ private:
             high_ani->scale_ = ScaleInY;
             high_ani->align_x_ = CenterX;
             high_ani->align_y_ = Top;
-            high_ani->set_y(0.2);
-            event_manager.add_delayed_call(1.6, [&, high_ani](){
+            high_ani->set_y(0.2f);
+            event_manager.add_delayed_call(1.6f, [&, high_ani](){
                 add_widget(high_ani);
             });
 
@@ -652,10 +652,10 @@ private:
 //            });
 
             auto high_mole = std::make_shared<AnimatedWidget>("animations/mole_highscore_sheet.pf",40);
-            high_mole->set_width(0.2);
+            high_mole->set_width(0.2f);
             high_mole->align_x_ = CenterX;
             high_mole->align_y_ = CenterY;
-            high_mole->set_y(0.2);
+            high_mole->set_y(0.2f);
             high_mole->scale_ = ScaleInY;
             high_mole->stop();
             high_mole->hide();
@@ -665,11 +665,11 @@ private:
                 for(int i = 0; i < opts.highscore_pos_; ++i)
                     high_mole->next_frame();
 
-            event_manager.add_delayed_call(1.6, [&, high_mole](){
+            event_manager.add_delayed_call(1.6f, [&, high_mole](){
                 high_mole->show();
             });
 
-            event_manager.add_delayed_call(5.4, [](){
+            event_manager.add_delayed_call(5.4f, [](){
                 event_manager.post(Event(Event::HighscoreScreen));
             });
 

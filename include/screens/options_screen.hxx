@@ -22,10 +22,10 @@ public:
     {
         // Create the grid background.
         auto gridbg = std::make_shared<ColorWidget>(sf::Color(0, 0, 0, 160));
-        gridbg->set_width(0.8);
-        gridbg->set_height(0.4);
+        gridbg->set_width(0.8f);
+        gridbg->set_height(0.4f);
         gridbg->align_x_ = CenterX;
-        gridbg->set_y(0.3);
+        gridbg->set_y(0.3f);
         add_widget(gridbg);
 
         // Create the grid.
@@ -41,8 +41,8 @@ public:
         reset_text->text_align_x_ = Right;
         reset_text->text_align_y_ = CenterY;
         reset_text->font_size_ = font_size;
-        reset_text->style_ = sf::String::Bold;
-        reset_text->set_x(-0.05);
+        reset_text->style_ = sf::Text::Bold;
+        reset_text->set_x(-0.05f);
         grid(0, 0) = reset_text;
 
         // Add the sound option text.
@@ -60,13 +60,13 @@ public:
 
         // Add the success text.
         auto success = std::make_shared<TextWidget>("Highscore was reset!");
-        success->set_width(0.4);
-        success->set_height(0.15);
+        success->set_width(0.4f);
+        success->set_height(0.15f);
         success->bg_color_ = sf::Color(0, 0, 0, 160);
         success->font_size_ = font_size;
-        success->style_ = sf::String::Bold;
+        success->style_ = sf::Text::Bold;
         success->align_x_ = Center;
-        success->set_y(0.05);
+        success->set_y(0.05f);
         success->text_align_x_ = Center;
         success->text_align_y_ = Center;
         success->hide();
@@ -76,7 +76,7 @@ public:
         auto create_checkbox = [&](int position){
             auto checkbox = std::make_shared<HoverclickWidget<AnimatedWidget> >("animations/checkbox.pf");
             checkbox->scale_ = ScaleInX;
-            checkbox->set_height(0.8);
+            checkbox->set_height(0.8f);
             checkbox->align_y_ = Center;
             checkbox->stop();
             attach_mouse_events(opts.mouse_, checkbox);
@@ -89,7 +89,7 @@ public:
         reset_box->handle_click_ = [success, reset_box](DiffType x, DiffType y){
             reset_highscore();
             success->show();
-            event_manager.add_delayed_call(3.0, [success](){
+            event_manager.add_delayed_call(3.0f, [success](){
                 success->hide();
             });
             reset_box->next_frame();
@@ -124,11 +124,11 @@ public:
 
         // Create the back button.
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
-        back_button->set_height(0.15);
+        back_button->set_height(0.15f);
         back_button->scale_ = ScaleInX;
         back_button->align_x_ = CenterX;
         back_button->align_y_ = Bottom;
-        back_button->set_y(0.05);
+        back_button->set_y(0.05f);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));

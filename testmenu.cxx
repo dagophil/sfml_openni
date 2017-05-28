@@ -29,9 +29,9 @@ int main(int argc, char** argv)
     size_t HEIGHT = 600;
     if (FULLSCREEN)
     {
-        auto mode = sf::VideoMode::GetDesktopMode();
-        WIDTH = mode.Width;
-        HEIGHT = mode.Height;
+        auto mode = sf::VideoMode::getDesktopMode();
+        WIDTH = mode.width;
+        HEIGHT = mode.height;
     }
 
     // Load the default font.
@@ -69,36 +69,35 @@ int main(int argc, char** argv)
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
-        window.ShowMouseCursor(false);
-        FPS fps_measure;
+        window.setMouseCursorVisible(false);
+        FPS fps_measure(1.0f);
         overlay.handle_close_ = [&]()
         {
-            window.Close();
+            window.close();
         };
-        while (window.IsOpened())
+        while (window.isOpen())
         {
             // Handle window events.
             sf::Event event;
-            while (window.GetEvent(event))
+            while (window.pollEvent(event))
             {
-                if (event.Type == sf::Event::Closed)
-                    window.Close();
-                else if (event.Type == sf::Event::MouseMoved)
+                if (event.type == sf::Event::Closed)
+                    window.close();
+                else if (event.type == sf::Event::MouseMoved)
                 {
-                    mouse_x = event.MouseMove.X;
-                    mouse_y = event.MouseMove.Y;
+                    mouse_x = event.mouseMove.x;
+                    mouse_y = event.mouseMove.y;
                 }
             }
 
             // Process the input.
-            sf::Input const & input = window.GetInput();
-            if (input.IsKeyDown(sf::Key::Escape))
-                window.Close();
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                window.close();
             overlay.hover(mouse_x, mouse_y);
 
             // Check if a menu item was clicked.
             if (clicked_item)
-                window.Close();
+                window.close();
 
             // Compute the fps.
             auto fps = fps_measure.update();
@@ -107,12 +106,12 @@ int main(int argc, char** argv)
             // Update the menu.
             overlay.update(elapsed_time);
 
-            window.Clear();
+            window.clear();
 
             // Draw the menu.
             overlay.render(window);
 
-            window.Display();
+            window.display();
         }
 
         // Start the next command.

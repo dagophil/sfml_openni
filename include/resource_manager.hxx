@@ -14,7 +14,7 @@ public:
     ResourceManager()
     {}
 
-    sf::Image & get_image(std::string const & filename)
+    sf::Texture & get_image(std::string const & filename)
     {
         auto it = images_.find(filename);
         if (it != images_.end())
@@ -23,9 +23,9 @@ public:
         }
         else
         {
-            auto p = images_.insert({filename, sf::Image()});
+            auto p = images_.insert({filename, sf::Texture()});
             auto it = p.first;
-            if (!it->second.LoadFromFile(filename))
+            if (!it->second.loadFromFile(filename))
             {
                 images_.erase(it);
                 throw std::runtime_error("Could not load image " + filename);
@@ -39,7 +39,7 @@ public:
 
 private:
 
-    std::map<std::string, sf::Image> images_;
+    std::map<std::string, sf::Texture> images_;
 
 };
 

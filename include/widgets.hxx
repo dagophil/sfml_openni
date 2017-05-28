@@ -463,7 +463,7 @@ void Widget::hover(
     {
         // Check if the mouse is inside and set the hover state accordingly.
         // If a sub widget is hovered, all other sub widgets cannot be hovered.
-        hovered_ = render_rect_.Contains(x, y);
+        hovered_ = render_rect_.contains(x, y);
         sort_widgets();
         for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it)
         {
@@ -490,7 +490,7 @@ void Widget::hover(
 
 bool Widget::contains(DiffType x, DiffType y) const
 {
-    return render_rect_.Contains(x, y);
+    return render_rect_.contains(x, y);
 }
 
 void Widget::update(float elapsed_time)
@@ -518,9 +518,9 @@ void Widget::render(
         DiffType parent_height
 ){
     if (parent_width == -1)
-        parent_width = target.GetWidth();
+        parent_width = target.getSize().x;
     if (parent_height == -1)
-        parent_height = target.GetHeight();
+        parent_height = target.getSize().y;
 
     if (overwrite_render_)
     {
@@ -530,47 +530,48 @@ void Widget::render(
     else
     {
         // Compute the correct render width and height.
-        render_rect_.Left = 0;
-        render_rect_.Top = 0;
+        render_rect_.left = 0;
+        render_rect_.top = 0;
         if (scale_ == Stretch)
         {
-            render_rect_.Right = parent_width;
-            render_rect_.Bottom = parent_height;
+            render_rect_.width = parent_width;
+            render_rect_.height = parent_height;
         }
         else if (scale_ == ScaleInX)
         {
-            render_rect_.Bottom = std::round(rel_height_ * parent_height);
-            render_rect_.Right = std::round(ratio_ * render_rect_.Bottom);
+            render_rect_.height = static_cast<DiffType>(std::round(rel_height_ * parent_height));
+            render_rect_.width = static_cast<DiffType>(std::round(ratio_ * render_rect_.height));
         }
         else if (scale_ == ScaleInY)
         {
-            render_rect_.Right = std::round(rel_width_ * parent_width);
-            render_rect_.Bottom = std::round(render_rect_.Right / ratio_);
+            render_rect_.width = static_cast<DiffType>(std::round(rel_width_ * parent_width));
+            render_rect_.height = static_cast<DiffType>(std::round(render_rect_.width / ratio_));
         }
         else // scale_ == None
         {
-            render_rect_.Right = std::round(rel_width_ * parent_width);
-            render_rect_.Bottom = std::round(rel_height_ * parent_height);
+            render_rect_.width = static_cast<DiffType>(std::round(rel_width_ * parent_width));
+            render_rect_.height = static_cast<DiffType>(std::round(rel_height_ * parent_height));
         }
 
         // Compute the correct render position in x.
         if (align_x_ == Left)
-            render_rect_.Offset(std::round(rel_x_ * parent_width), 0);
+            render_rect_.left += static_cast<DiffType>(std::round(rel_x_ * parent_width));
         else if (align_x_ == Right)
-            render_rect_.Offset(std::round((1 - rel_x_) * parent_width - render_rect_.GetWidth()), 0);
+            render_rect_.left += static_cast<DiffType>(std::round((1 - rel_x_) * parent_width - render_rect_.width));
         else // align_x_ == CenterX
-            render_rect_.Offset(std::round(0.5 * (parent_width - render_rect_.GetWidth()) + rel_x_*parent_width), 0);
+            render_rect_.left += static_cast<DiffType>(std::round(0.5 * (parent_width - render_rect_.width) + rel_x_*parent_width));
 
         // Compute the correct render position in y.
         if (align_y_ == Top)
-            render_rect_.Offset(0, std::round(rel_y_ * parent_height));
+            render_rect_.top += static_cast<DiffType>(std::round(rel_y_ * parent_height));
         else if (align_y_ == Bottom)
-            render_rect_.Offset(0, std::round((1 - rel_y_) * parent_height - render_rect_.GetHeight()));
+            render_rect_.top += static_cast<DiffType>(std::round((1 - rel_y_) * parent_height - render_rect_.height));
         else // align_y_ == CenterY
-            render_rect_.Offset(0, std::round(0.5 * (parent_height - render_rect_.GetHeight()) + rel_y_*parent_height));
+            render_rect_.top += static_cast<DiffType>(std::round(0.5 * (parent_height - render_rect_.height) + rel_y_*parent_height));
 
         // Move the widget relative to the parent.
-        render_rect_.Offset(parent_x, parent_y);
+        render_rect_.left += parent_x;
+        render_rect_.top += parent_y;
     }
 
     // Draw the widget.
@@ -581,7 +582,7 @@ void Widget::render(
         sort_widgets();
         for (auto w : widgets_)
         {
-            w->render(target, render_rect_.Left, render_rect_.Top, render_rect_.GetWidth(), render_rect_.GetHeight());
+            w->render(target, render_rect_.left, render_rect_.top, render_rect_.width, render_rect_.height);
         }
     }
 }
@@ -733,7 +734,12 @@ protected:
                     // Draw the current grid element.
                     auto pos = render_pos(x, y);
                     auto size = render_size(x, y);
-                    grid_(x, y)->render(target, std::round(pos.x), std::round(pos.y), std::round(size.x), std::round(size.y));
+                    grid_(x, y)->render(
+                        target,
+                        static_cast<DiffType>(std::round(pos.x)),
+                        static_cast<DiffType>(std::round(pos.y)),
+                        static_cast<DiffType>(std::round(size.x)),
+                        static_cast<DiffType>(std::round(size.y)));
                 }
             }
         }
@@ -745,7 +751,7 @@ private:
      * @brief Normalize v, accumulate its values, and add a leading zero.
      */
     template <typename... Args>
-    void set_sizes(std::vector<double> & v, size_t n, Args&& ... args)
+    void set_sizes(std::vector<float> & v, size_t n, Args&& ... args)
     {
         // Write the sizes into the vector.
         v = {args...};
@@ -753,7 +759,7 @@ private:
             throw std::runtime_error("GridWidget::set_sizes(): Wrong number of arguments.");
 
         // Normalize the values.
-        auto sum = std::accumulate(v.begin(), v.end(), 0.0);
+        auto sum = std::accumulate(v.begin(), v.end(), 0.0f);
         for (auto & x : v)
             x /= sum;
 
@@ -772,13 +778,13 @@ private:
     {
         sf::Vector2f pos;
         if (x_pos_.empty())
-            pos.x = render_rect_.GetWidth() * x / static_cast<float>(n_x_) + render_rect_.Left;
+            pos.x = render_rect_.width * x / static_cast<float>(n_x_) + render_rect_.left;
         else
-            pos.x = render_rect_.GetWidth() * x_pos_[x] + render_rect_.Left;
+            pos.x = render_rect_.width * x_pos_[x] + render_rect_.left;
         if (y_pos_.empty())
-            pos.y = render_rect_.GetHeight() * y / static_cast<float>(n_y_) + render_rect_.Top;
+            pos.y = render_rect_.height * y / static_cast<float>(n_y_) + render_rect_.top;
         else
-            pos.y = render_rect_.GetHeight() * y_pos_[y] + render_rect_.Top;
+            pos.y = render_rect_.height * y_pos_[y] + render_rect_.top;
         return pos;
     }
 
@@ -789,19 +795,19 @@ private:
     {
         sf::Vector2f size;
         if (x_pos_.empty())
-            size.x = render_rect_.GetWidth() / static_cast<float>(n_x_);
+            size.x = render_rect_.width / static_cast<float>(n_x_);
         else
-            size.x = render_rect_.GetWidth() * (x_pos_[x+1] - x_pos_[x]);
+            size.x = render_rect_.width * (x_pos_[x+1] - x_pos_[x]);
         if (y_pos_.empty())
-            size.y = render_rect_.GetHeight() / static_cast<float>(n_y_);
+            size.y = render_rect_.height / static_cast<float>(n_y_);
         else
-            size.y = render_rect_.GetHeight() * (y_pos_[y+1] - y_pos_[y]);
+            size.y = render_rect_.height * (y_pos_[y+1] - y_pos_[y]);
         return size;
     }
 
     Array2D<WidgetPointer> grid_; // the grid
-    std::vector<double> x_pos_; // the x-positions of the grid (the borders of the i-th column are x_pos_[i], x_pos_[i+1]).
-    std::vector<double> y_pos_; // the y-positions of the grid (the borders of the i-th row are y_pos_[i], y_pos_[i+1]).
+    std::vector<float> x_pos_; // the x-positions of the grid (the borders of the i-th column are x_pos_[i], x_pos_[i+1]).
+    std::vector<float> y_pos_; // the y-positions of the grid (the borders of the i-th row are y_pos_[i], y_pos_[i+1]).
 
 };
 
@@ -853,7 +859,7 @@ protected:
 
         if (hover_time_ > click_delay_ && !clicked_)
         {
-            handle_click_(T::render_rect_.GetWidth()/2, T::render_rect_.GetHeight()/2);
+            handle_click_(T::render_rect_.width/2, T::render_rect_.height/2);
             clicked_ = true;
         }
 
@@ -893,8 +899,10 @@ public:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        auto bg = sf::Shape::Rectangle(render_rect_.Left, render_rect_.Top, render_rect_.Right, render_rect_.Bottom, color_);
-        target.Draw(bg);
+        auto bg = sf::RectangleShape({ static_cast<float>(render_rect_.width), static_cast<float>(render_rect_.height) });
+        bg.setPosition(static_cast<float>(render_rect_.left), static_cast<float>(render_rect_.top));
+        bg.setFillColor(color_);
+        target.draw(bg);
     }
 
 private:
@@ -919,7 +927,7 @@ public:
           Widget(args...),
           image_(resource_manager.get_image(filename))
     {
-        ratio_ = image_.GetWidth() / static_cast<float>(image_.GetHeight());
+        ratio_ = image_.getSize().x / static_cast<float>(image_.getSize().y);
     }
 
 protected:
@@ -929,17 +937,19 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        auto x = static_cast<float>(render_rect_.Left);
-        auto y = static_cast<float>(render_rect_.Top);
-        auto scale_x = render_rect_.GetWidth() / static_cast<float>(image_.GetWidth());
-        auto scale_y = render_rect_.GetHeight() / static_cast<float>(image_.GetHeight());
-        sf::Sprite spr(image_, {x, y}, {scale_x, scale_y});
-        target.Draw(spr);
+        auto x = static_cast<float>(render_rect_.left);
+        auto y = static_cast<float>(render_rect_.top);
+        auto scale_x = render_rect_.width / static_cast<float>(image_.getSize().x);
+        auto scale_y = render_rect_.height / static_cast<float>(image_.getSize().y);
+        sf::Sprite spr(image_);
+        spr.setPosition(x, y);
+        spr.setScale(scale_x, scale_y);
+        target.draw(spr);
     }
 
 private:
 
-    sf::Image & image_; // the image
+    sf::Texture & image_; // the image
 
 };
 
@@ -948,7 +958,30 @@ private:
  */
 class TextWidget : public Widget
 {
+private:
+
+    /**
+     * @brief Return a reference to the default font.
+     * This font is used on a TextWidget on which set_font is never called.
+     * This private variable has a public setter.
+     */
+    static std::unique_ptr<sf::Font>& default_font()
+    {
+        static std::unique_ptr<sf::Font> font_instance;
+        return font_instance;
+    }
+
 public:
+
+    /**
+     * @brief Set the default font.
+     * This font is used on a TextWidget on which set_font is never called.
+     */
+    static void set_default_font(sf::Font const& font)
+    {
+        auto& f = default_font();
+        f = std::make_unique<sf::Font>(font);
+    }
 
     template <typename... Args>
     TextWidget(
@@ -958,22 +991,24 @@ public:
         :
           Widget(args...),
           text_(text),
-          style_(sf::String::Style::Regular),
+          style_(sf::Text::Style::Regular),
           font_size_(16),
           color_({255, 255, 255}),
           text_align_x_(Left),
           text_align_y_(Top),
-          bg_color_({0, 0, 0, 0})
+          bg_color_(sf::Color::Transparent),
+          use_default_font_(true)
     {}
 
     void set_font(sf::Font const & font)
     {
-        text_obj_.SetFont(font);
+        text_obj_.setFont(font);
+        use_default_font_ = false;
     }
 
     float text_height() const
     {
-        return text_obj_.GetRect().GetHeight();
+        return text_obj_.getLocalBounds().height;
     }
 
     /**
@@ -981,20 +1016,26 @@ public:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        text_obj_.SetText(text_);
-        text_obj_.SetSize(font_size_);
-        text_obj_.SetStyle(style_);
-        text_obj_.SetColor(color_);
-        insert_line_breaks(text_obj_, render_rect_.GetWidth());
+        if (use_default_font_ && default_font() != nullptr)
+        {
+            text_obj_.setFont(*default_font());
+        }
+        text_obj_.setString(text_);
+        text_obj_.setCharacterSize(static_cast<unsigned int>(font_size_));
+        text_obj_.setStyle(style_);
+        text_obj_.setFillColor(color_);
+        insert_line_breaks(text_obj_, render_rect_.width);
         set_position();
 
-        auto bg = sf::Shape::Rectangle(render_rect_.Left, render_rect_.Top, render_rect_.Right, render_rect_.Bottom, bg_color_);
-        target.Draw(bg);
-        target.Draw(text_obj_);
+        auto bg = sf::RectangleShape({ static_cast<float>(render_rect_.width), static_cast<float>(render_rect_.height) });
+        bg.setPosition({ static_cast<float>(render_rect_.left), static_cast<float>(render_rect_.top) });
+        bg.setFillColor(bg_color_);
+        target.draw(bg);
+        target.draw(text_obj_);
     }
 
     std::string text_; // the text
-    sf::String::Style style_; // the text style
+    sf::Text::Style style_; // the text style
     double font_size_; // the font size
     sf::Color color_; // the text color
     AlignX text_align_x_; // the horizontal align
@@ -1005,27 +1046,28 @@ private:
 
     void set_position()
     {
-        text_obj_.SetPosition(render_rect_.Left, render_rect_.Top);
-        float x  = render_rect_.Left;
+        text_obj_.setPosition(static_cast<float>(render_rect_.left), static_cast<float>(render_rect_.top));
+        auto x  = static_cast<float>(render_rect_.left);
         if (text_align_x_ == Left)
             x += 0;
         else if (text_align_x_ == Right)
-            x += render_rect_.GetWidth() - text_obj_.GetRect().GetWidth();
+            x += render_rect_.width - text_obj_.getLocalBounds().width;
         else
-            x += (render_rect_.GetWidth() - text_obj_.GetRect().GetWidth()) / 2.0;
+            x += (render_rect_.width - text_obj_.getLocalBounds().width) / 2.0f;
 
-        float y = render_rect_.Top;
+        auto y = static_cast<float>(render_rect_.top);
         if (text_align_y_ == Top)
             y += 0;
         else if (text_align_y_ == Bottom)
-            y += render_rect_.GetHeight() - text_obj_.GetRect().GetHeight();
+            y += render_rect_.height - text_obj_.getLocalBounds().height;
         else
-            y += (render_rect_.GetHeight() - text_obj_.GetRect().GetHeight()) / 2.0;
+            y += (render_rect_.height - text_obj_.getLocalBounds().height) / 2.0f;
 
-        text_obj_.SetPosition(x, y);
+        text_obj_.setPosition(x, y);
     }
 
-    sf::String text_obj_; // the text object that is rendered
+    sf::Text text_obj_; // the text object that is rendered
+    bool use_default_font_; // if this is true, the default font is used
 
 };
 
@@ -1273,16 +1315,16 @@ protected:
      */
     void render_impl(sf::RenderTarget & target)
     {
-        auto px = static_cast<float>(render_rect_.Left);
-        auto py = static_cast<float>(render_rect_.Top);
-        auto scale_x = render_rect_.GetWidth() / static_cast<float>(width());
-        auto scale_y = render_rect_.GetHeight() / static_cast<float>(height());
+        auto px = static_cast<float>(render_rect_.left);
+        auto py = static_cast<float>(render_rect_.top);
+        auto scale_x = render_rect_.width / static_cast<float>(width());
+        auto scale_y = render_rect_.height / static_cast<float>(height());
 
         sf::Sprite spr(image_);
-        spr.SetSubRect(sf::IntRect(x(), y(), x()+width(), y()+height()));
-        spr.SetPosition(px, py);
-        spr.SetScale(scale_x, scale_y);
-        target.Draw(spr);
+        spr.setTextureRect(sf::IntRect(x(), y(), width(), height()));
+        spr.setPosition(px, py);
+        spr.setScale(scale_x, scale_y);
+        target.draw(spr);
     }
 
 private:
@@ -1317,7 +1359,7 @@ private:
      */
     size_t width() const
     {
-        return image_.GetWidth() / i_.cols_;
+        return image_.getSize().x / i_.cols_;
     }
 
     /**
@@ -1325,7 +1367,7 @@ private:
      */
     size_t height() const
     {
-        return image_.GetHeight() / i_.rows_;
+        return image_.getSize().y / i_.rows_;
     }
 
     /**
@@ -1344,7 +1386,7 @@ private:
         return i_.row() * height();
     }
 
-    sf::Image & image_; // the sprite image
+    sf::Texture & image_; // the sprite image
     std::vector<float> frametimes_; // the length (in seconds) of the single frames
     detail::SpriteIndex i_; // the sprite index
     float runtime_; // the current runtime
@@ -1575,7 +1617,7 @@ protected:
         else if (inter_ == Quadratic)
         {
             t = (time_-elapsed_time_) / time_;
-            t = 1.0 - t*t;
+            t = 1.0f - t*t;
         }
         else
         {

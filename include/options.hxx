@@ -35,7 +35,7 @@ public:
      */
     void load_default_font(std::string const & default_font)
     {
-        if (!default_font_.LoadFromFile(default_font))
+        if (!default_font_.loadFromFile(default_font))
             throw std::runtime_error("Could not load default font.");
     }
 

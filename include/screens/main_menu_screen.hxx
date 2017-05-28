@@ -33,13 +33,13 @@ public:
         auto grid_ptr = std::make_shared<GridWidget>(1, 2*(v.size()-1)-1);
         add_widget(grid_ptr);
         auto & grid = *grid_ptr;
-        auto gap_height = 0.3333;
-        grid.set_y_sizes(1.0, gap_height, 1.0, gap_height, 1.0, gap_height, 1.0, gap_height, 1.0);
+        auto gap_height = 0.3333f;
+        grid.set_y_sizes(1.0f, gap_height, 1.0f, gap_height, 1.0f, gap_height, 1.0f, gap_height, 1.0f);
         grid.scale_ = None;
         grid.align_x_ = CenterX;
         grid.align_y_ = CenterY;
-        grid.set_width(0.333);
-        grid.set_height(0.8);
+        grid.set_width(0.333f);
+        grid.set_height(0.8f);
 
         // Draw the buttons.
         for (size_t i = 0; i < v.size() - 1; ++i)
@@ -60,11 +60,11 @@ public:
         auto const & ev = v[5].second;
         auto optsbtn = std::make_shared<HoverclickWidget<ImageWidget>>(img);
         optsbtn->scale_ = ScaleInX;
-        optsbtn->set_height(0.125);
+        optsbtn->set_height(0.125f);
         optsbtn->align_x_ = Right;
         optsbtn->align_y_ = Top;
-        optsbtn->set_x(0.01);
-        optsbtn->set_y(0.01);
+        optsbtn->set_x(0.01f);
+        optsbtn->set_y(0.01f);
         attach_mouse_events(opts.mouse_, optsbtn);
         optsbtn->handle_click_ = [&,ev](DiffType x, DiffType y){
             event_manager.post(ev);

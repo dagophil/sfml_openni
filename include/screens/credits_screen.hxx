@@ -23,10 +23,10 @@ public:
         auto grid_ptr = std::make_shared<GridWidget>(2,1);
         auto & grid = *grid_ptr;
         add_widget(grid_ptr);
-        grid.set_x_sizes(0.4, 0.4);
-        grid.set_height(0.5);
-        grid.set_width(0.8);
-        grid.set_y(-0.15);
+        grid.set_x_sizes(0.4f, 0.4f);
+        grid.set_height(0.5f);
+        grid.set_width(0.8f);
+        grid.set_y(-0.15f);
         grid.align_x_ = CenterX;
         grid.align_y_ = CenterY;
 
@@ -56,9 +56,9 @@ public:
 
         auto credit_text = std::make_shared<ImageWidget>("images/credits_text.png");
         credit_text->hoverable_ = false;
-        credit_text->set_height(0.2);
+        credit_text->set_height(0.2f);
         credit_text->align_x_ = CenterX;
-        credit_text->set_y(0.65);
+        credit_text->set_y(0.65f);
         credit_text->scale_ = ScaleInX;
         add_widget(credit_text);
 
@@ -71,10 +71,10 @@ public:
 //        grid(1,1) = text_flo;
 
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
-        back_button->set_height(0.1);
+        back_button->set_height(0.1f);
         back_button->scale_ = ScaleInX;
         back_button->align_x_ = CenterX;
-        back_button->set_y(0.9);
+        back_button->set_y(0.9f);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));

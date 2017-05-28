@@ -21,13 +21,14 @@ int main(int argc, char** argv)
     size_t HEIGHT = 600;
     if (FULLSCREEN)
     {
-        auto mode = sf::VideoMode::GetDesktopMode();
-        WIDTH = mode.Width;
-        HEIGHT = mode.Height;
+        auto mode = sf::VideoMode::getDesktopMode();
+        WIDTH = mode.width;
+        HEIGHT = mode.height;
     }
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+    TextWidget::set_default_font(opts.default_font());
 
     // Create the mouse widget.
     opts.mouse_ = std::make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
@@ -45,13 +46,13 @@ int main(int argc, char** argv)
     if (FULLSCREEN)
         style = sf::Style::Fullscreen;
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole", style);
-    window.ShowMouseCursor(false);
-    FPS fps_measure;
+    window.setMouseCursorVisible(false);
+    FPS fps_measure(1.0f);
 
     // Create the game class.
     HDMGame game;
     game.handle_close_ = [&](){
-        window.Close();
+        window.close();
     };
     game.add_widget(opts.mouse_);
 
@@ -61,34 +62,32 @@ int main(int argc, char** argv)
 
 
 
-    while (window.IsOpened())
+    while (window.isOpen())
     {
         // Handle window events.
         sf::Event event;
         opts.mouse_clicked_ = false;
-        while (window.GetEvent(event))
+        while (window.pollEvent(event))
         {
-            if (event.Type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed)
             {
-                window.Close();
+                window.close();
             }
-            else if (event.Type == sf::Event::KeyPressed)
+            else if (event.type == sf::Event::KeyPressed)
             {
-                if (event.Key.Code == sf::Key::Escape)
-                    window.Close();
+                if (event.key.code == sf::Keyboard::Escape)
+                    window.close();
             }
-            else if (event.Type == sf::Event::MouseButtonPressed)
+            else if (event.type == sf::Event::MouseButtonPressed)
             {
-                if (event.MouseButton.Button == sf::Mouse::Button::Left)
+                if (event.mouseButton.button == sf::Mouse::Button::Left)
                     opts.mouse_clicked_ = true;
             }
         }
 
         // Process the input.
-        sf::Input const & input = window.GetInput();
-        int mouse_x = input.GetMouseX();
-        int mouse_y = input.GetMouseY();
-        game.hover(mouse_x, mouse_y);
+        auto mouse_pos = sf::Mouse::getPosition(window);
+        game.hover(mouse_pos.x, mouse_pos.y);
 
         // Update the widgets.
         auto fps = fps_measure.update();
@@ -96,8 +95,8 @@ int main(int argc, char** argv)
         game.update(elapsed_time);
 
         // Draw everything.
-        window.Clear();
+        window.clear();
         game.render(window);
-        window.Display();
+        window.display();
     }
 }

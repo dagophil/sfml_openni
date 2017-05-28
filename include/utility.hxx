@@ -26,15 +26,15 @@
 
 
 #ifndef OPENNI_FOUND
-	
+
     typedef uint32_t XnUInt32;
     typedef float XnFloat;
 
     typedef struct XnVector3D
     {
-	    XnFloat X;
-	    XnFloat Y;
-	    XnFloat Z;
+        XnFloat X;
+        XnFloat Y;
+        XnFloat Z;
     } XnVector3D;
 
     typedef XnVector3D XnPoint3D;
@@ -116,11 +116,11 @@ public:
      * @brief Measure the FPS (compute mean over the given time span).
      * @param span the time span
      */
-    explicit FPS(float span = 1.0f)
+    explicit FPS(float const span)
         :
           span_(span),
-          current_span_(0.0f),
-          elapsed_time_(0.0f),
+          current_span_(sf::Time::Zero),
+          elapsed_time_(sf::Time::Zero),
           last_mean_(0.0f)
     {
         if (span <= 0.0f)
@@ -133,16 +133,16 @@ public:
      */
     float update()
     {
-        elapsed_time_ = clock_.GetElapsedTime();
-        clock_.Reset();
-        fps_.push_back(1.0f / elapsed_time_);
+        elapsed_time_ = clock_.getElapsedTime();
+        clock_.restart();
+        fps_.push_back(1.0f / elapsed_time_.asSeconds());
 
         current_span_ += elapsed_time_;
-        if (current_span_ >= span_)
+        if (current_span_.asSeconds() >= span_)
         {
             last_mean_ = std::accumulate(fps_.begin(), fps_.end(), 0.0f) / fps_.size();
             fps_.clear();
-            current_span_ = 0.0f;
+            current_span_ = sf::Time::Zero;
         }
         return last_mean_;
     }
@@ -153,7 +153,7 @@ public:
      */
     float elapsed_time() const
     {
-        return elapsed_time_;
+        return elapsed_time_.asSeconds();
     }
 
 private:
@@ -161,8 +161,8 @@ private:
     sf::Clock clock_;
     std::vector<float> fps_;
     float const span_;
-    float current_span_;
-    float elapsed_time_;
+    sf::Time current_span_;
+    sf::Time elapsed_time_;
     float last_mean_;
 };
 
@@ -295,29 +295,29 @@ std::vector<std::string> split_string(std::string const & s)
 }
 
 /**
- * Inserts line breaks into the sf::String so it does not exceed max_width.
+ * Inserts line breaks into the sf::Text so it does not exceed max_width.
  */
-void insert_line_breaks(sf::String & str, double max_width)
+void insert_line_breaks(sf::Text & str, double max_width)
 {
-    auto const words = split_string(str.GetText());
+    auto const words = split_string(str.getString());
     if (words.size() == 0)
         return;
 
     std::string result = "";
-    str.SetText(words[0]);
+    str.setString(words[0]);
     for (size_t i = 1; i < words.size(); ++i)
     {
         auto const & word = words[i];
-        str.SetText((std::string)str.GetText() + " " + word);
-        if (str.GetRect().GetWidth() > max_width)
+        str.setString(static_cast<std::string>(str.getString()) + " " + word);
+        if (str.getLocalBounds().width > max_width)
         {
-            std::string text = str.GetText();
+            std::string text = str.getString();
             result += text.substr(0, text.size()-word.size()) + "\n";
-            str.SetText(word);
+            str.setString(word);
         }
     }
-    result += str.GetText();
-    str.SetText(result);
+    result += str.getString();
+    str.setString(result);
 }
 
 /**
@@ -452,9 +452,9 @@ public:
         :
           handle_click_(kin::detail::do_nothing0),
           use_y_(use_y),
-          max_delay_(0.1),
-          threshold_(0.4),
-          elapsed_time_(0),
+          max_delay_(0.1f),
+          threshold_(0.4f),
+          elapsed_time_(0.0f),
           clicked_(false)
     {}
 

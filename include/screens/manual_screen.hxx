@@ -42,17 +42,17 @@ public:
             auto w = std::make_shared<ImageWidget>(f);
             w->scale_ = ScaleInX;
             w->align_x_ = Center;
-            w->set_height(0.7);
-            w->set_y(0.05);
+            w->set_height(0.7f);
+            w->set_y(0.05f);
             w->hide();
             add_widget(w);
             instructions_.push_back(w);
 
             auto shadow = std::make_shared<ImageWidget>("images/instructions/frame.png");
-            shadow->set_x(-0.0165);
-            shadow->set_y(-0.0294);
-            shadow->set_width(1.0428);
-            shadow->set_height(1.0761);
+            shadow->set_x(-0.0165f);
+            shadow->set_y(-0.0294f);
+            shadow->set_width(1.0428f);
+            shadow->set_height(1.0761f);
             w->add_widget(shadow);
         }
         instructions_[active_]->show();
@@ -61,8 +61,8 @@ public:
         auto grid_ptr = std::make_shared<GridWidget>(3, 1);
         auto & grid = *grid_ptr;
         add_widget(grid_ptr);
-        grid.set_height(0.15);
-        grid.set_y(0.05);
+        grid.set_height(0.15f);
+        grid.set_y(0.05f);
         grid.align_y_ = Bottom;
 
         // Create the left arrow.
@@ -97,7 +97,7 @@ public:
         arrow_right->handle_click_ = [&](DiffType x, DiffType y){
             instructions_[active_]->hide();
             active_ += 1; // ++active_ yields compiler error in gcc 4.6
-            if (active_ >= instructions_.size())
+            if (active_ >= static_cast<int>(instructions_.size()))
                 active_ = 0;
             instructions_[active_]->show();
         };

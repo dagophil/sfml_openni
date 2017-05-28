@@ -28,16 +28,16 @@ public:
         auto & grid = *grid_ptr;
         add_widget(grid_ptr);
 
-        grid.set_x_sizes(0.1, 0.2, 0.2);
-        grid.set_height(0.9);
-        grid.set_width(0.6);
+        grid.set_x_sizes(0.1f, 0.2f, 0.2f);
+        grid.set_height(0.9f);
+        grid.set_width(0.6f);
         grid.align_x_ = CenterX;
 
         auto back_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/back_button.png");
-        back_button->set_height(0.1);
+        back_button->set_height(0.1f);
         back_button->scale_ = ScaleInX;
         back_button->align_x_ = CenterX;
-        back_button->set_y(0.9);
+        back_button->set_y(0.9f);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [](DiffType x, DiffType y){
             event_manager.post(Event(Event::MainMenuScreen));
@@ -101,7 +101,7 @@ public:
             v->text_align_y_ = CenterY;
             v->text_align_x_ = CenterX;
             v->bg_color_ = sf::Color(0, 0, 0, 128);
-            v->style_ = sf::String::Bold;
+            v->style_ = sf::Text::Bold;
             v->font_size_ = help_font_size;
             grid(1,i) = v;
 
@@ -110,7 +110,7 @@ public:
             w->text_align_x_ = CenterX;
             w->text_align_y_ = CenterY;
             w->bg_color_ = sf::Color(0, 0, 0, 128);
-            w->style_ = sf::String::Bold;
+            w->style_ = sf::Text::Bold;
             w->font_size_ = help_font_size;
             grid(2,i) = w;
         }

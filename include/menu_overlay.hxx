@@ -35,7 +35,7 @@ public:
         // Create the grid.
         auto grid_ptr = std::make_shared<GridWidget>(2, 1);
         auto & grid = *grid_ptr;
-        grid.set_x_sizes(0.38, 0.62);
+        grid.set_x_sizes(0.38f, 0.62f);
         add_widget(grid_ptr);
 
         // Create the image widget
@@ -48,13 +48,13 @@ public:
         // Create the grid for the texts.
         auto text_grid_ptr = std::make_shared<GridWidget>(1, 2);
         auto & text_grid = *text_grid_ptr;
-        text_grid.set_y(0.1);
-        text_grid.set_y_sizes(0.36, 0.64);
+        text_grid.set_y(0.1f);
+        text_grid.set_y_sizes(0.36f, 0.64f);
         grid(1) = text_grid_ptr;
 
         // Create the text widget for the title.
         title_w_ = std::make_shared<TextWidget>(title);
-        title_w_->style_ = sf::String::Style::Bold;
+        title_w_->style_ = sf::Text::Style::Bold;
         title_w_->color_ = sf::Color(0, 0, 0);
         title_w_->set_font(opts.default_font());
         text_grid(0) = title_w_;
@@ -68,10 +68,10 @@ public:
         // Create the background image.
         auto im_bg = std::make_shared<ImageWidget>("images/menu_item_bg.png", -1);
         im_bg->scale_ = None;
-        im_bg->set_x(-0.0187);
-        im_bg->set_y(-0.17);
-        im_bg->set_width(1.0491);
-        im_bg->set_height(1.36154);
+        im_bg->set_x(-0.0187f);
+        im_bg->set_y(-0.17f);
+        im_bg->set_width(1.0491f);
+        im_bg->set_height(1.36154f);
         add_widget(im_bg);
     }
 
@@ -79,8 +79,8 @@ protected:
 
     void render_impl(sf::RenderTarget &target)
     {
-        title_w_->font_size_ = render_rect_.GetHeight() / 5.0;
-        text_w_->font_size_ = render_rect_.GetHeight() / 6.0;
+        title_w_->font_size_ = render_rect_.height / 5.0;
+        text_w_->font_size_ = render_rect_.height / 6.0;
     }
 
 private:
@@ -220,11 +220,11 @@ MenuOverlay::MenuOverlay(
     auto grid_ptr = std::make_shared<GridWidget>(4,1);
     auto & grid = *grid_ptr;
     add_widget(grid_ptr);
-    grid.set_x_sizes(0.05, 0.6, 0.15, 0.2);
+    grid.set_x_sizes(0.05f, 0.6f, 0.15f, 0.2f);
 
     // Create the menu item container.
     item_container_ = std::make_shared<Widget>();
-    item_container_->set_y(0.16);
+    item_container_->set_y(0.16f);
     grid(1)->add_widget(item_container_);
 
     // Create the menu items.
@@ -234,7 +234,7 @@ MenuOverlay::MenuOverlay(
         load_xml_menu_items(xml_filename);
 
     // Create the close button.
-    double close_height = 0.1;
+    auto close_height = 0.1f;
     auto close_button = std::make_shared<HoverclickWidget<ImageWidget> >("images/exit_symbol.png");
     close_button->scale_ = None;
     close_button->set_height(close_height);
@@ -256,11 +256,11 @@ MenuOverlay::MenuOverlay(
     help_top->scale_ = None;
     help_top->text_align_x_ = CenterX;
     help_top->text_align_y_ = Top;
-    help_top->set_width(0.6);
-    help_top->set_height(0.1);
-    help_top->set_x(0.05);
-    help_top->set_y(0.02);
-    help_top->style_ = sf::String::Bold;
+    help_top->set_width(0.6f);
+    help_top->set_height(0.1f);
+    help_top->set_x(0.05f);
+    help_top->set_y(0.02f);
+    help_top->style_ = sf::Text::Bold;
     help_top->font_size_ = help_font_size;
     help_text_container->add_widget(help_top);
 
@@ -270,11 +270,11 @@ MenuOverlay::MenuOverlay(
     help_bottom->text_align_x_ = CenterX;
     help_bottom->text_align_y_ = Bottom;
     help_bottom->align_y_ = Bottom;
-    help_bottom->set_width(0.6);
-    help_bottom->set_height(0.1);
-    help_bottom->set_x(0.05);
-    help_bottom->set_y(0.02);
-    help_bottom->style_ = sf::String::Bold;
+    help_bottom->set_width(0.6f);
+    help_bottom->set_height(0.1f);
+    help_bottom->set_x(0.05f);
+    help_bottom->set_y(0.02f);
+    help_bottom->style_ = sf::Text::Bold;
     help_bottom->font_size_ = help_font_size;
     help_text_container->add_widget(help_bottom);
 
@@ -284,11 +284,11 @@ MenuOverlay::MenuOverlay(
     help_menuitem->text_align_x_ = CenterX;
     help_menuitem->text_align_y_ = CenterY;
     help_menuitem->align_y_ = CenterY;
-    help_menuitem->set_width(0.6);
-    help_menuitem->set_height(0.16);
-    help_menuitem->set_x(0.05);
+    help_menuitem->set_width(0.6f);
+    help_menuitem->set_height(0.16f);
+    help_menuitem->set_x(0.05f);
     help_menuitem->bg_color_ = sf::Color(200, 0, 0, 128);
-    help_menuitem->style_ = sf::String::Bold;
+    help_menuitem->style_ = sf::Text::Bold;
     help_menuitem->font_size_ = help_font_size;
     help_text_container->add_widget(help_menuitem);
 
@@ -297,10 +297,10 @@ MenuOverlay::MenuOverlay(
     help_close->scale_ = None;
     help_close->text_align_x_ = CenterX;
     help_close->text_align_y_ = CenterY;
-    help_close->set_width(0.2);
-    help_close->set_height(0.1);
+    help_close->set_width(0.2f);
+    help_close->set_height(0.1f);
     help_close->align_x_ = Right;
-    help_close->style_ = sf::String::Bold;
+    help_close->style_ = sf::Text::Bold;
     help_close->font_size_ = help_font_size;
     help_text_container->add_widget(help_close);
 
@@ -311,9 +311,9 @@ MenuOverlay::MenuOverlay(
     help_slide->text_align_y_ = CenterY;
     help_slide->align_x_ = Right;
     help_slide->align_y_ = Bottom;
-    help_slide->set_width(0.2);
-    help_slide->set_height(0.9);
-    help_slide->style_ = sf::String::Bold;
+    help_slide->set_width(0.2f);
+    help_slide->set_height(0.9f);
+    help_slide->style_ = sf::Text::Bold;
     help_slide->font_size_ = help_font_size;
     help_text_container->add_widget(help_slide);
 
@@ -362,15 +362,15 @@ MenuOverlay::MenuOverlay(
     // Create the right scroll bar.
     auto scroll_bar = std::make_shared<ColorWidget>(scroll_color);
     scroll_bar->set_y(close_height);
-    scroll_bar->set_height(1.0-close_height);
+    scroll_bar->set_height(1.0f-close_height);
     grid(3)->add_widget(scroll_bar);
 
     auto arrow_bottom_big = std::make_shared<ImageWidget>("images/arrow_down_big.png",3);
     arrow_bottom_big->scale_ = ScaleInX;
     arrow_bottom_big->align_x_ = CenterX;
     arrow_bottom_big->align_y_ = Top;
-    arrow_bottom_big->set_height(0.25);
-    arrow_bottom_big->set_y(0.07);
+    arrow_bottom_big->set_height(0.25f);
+    arrow_bottom_big->set_y(0.07f);
     arrow_bottom_big->hide();
     scroll_bar->add_widget(arrow_bottom_big);
 
@@ -378,16 +378,16 @@ MenuOverlay::MenuOverlay(
     arrow_bottom_big_trans->scale_ = ScaleInX;
     arrow_bottom_big_trans->align_x_ = CenterX;
     arrow_bottom_big_trans->align_y_ = Top;
-    arrow_bottom_big_trans->set_height(0.25);
-    arrow_bottom_big_trans->set_y(0.07);
+    arrow_bottom_big_trans->set_height(0.25f);
+    arrow_bottom_big_trans->set_y(0.07f);
     scroll_bar->add_widget(arrow_bottom_big_trans);
 
     auto arrow_top_big = std::make_shared<ImageWidget>("images/arrow_up_big.png",3);
     arrow_top_big->scale_ = ScaleInX;
     arrow_top_big->align_x_ = CenterX;
     arrow_top_big->align_y_ = Bottom;
-    arrow_top_big->set_height(0.25);
-    arrow_top_big->set_y(0.07);
+    arrow_top_big->set_height(0.25f);
+    arrow_top_big->set_y(0.07f);
     arrow_top_big->hide();
     scroll_bar->add_widget(arrow_top_big);
 
@@ -395,8 +395,8 @@ MenuOverlay::MenuOverlay(
     arrow_top_big_trans->scale_ = ScaleInX;
     arrow_top_big_trans->align_x_ = CenterX;
     arrow_top_big_trans->align_y_ = Bottom;
-    arrow_top_big_trans->set_height(0.25);
-    arrow_top_big_trans->set_y(0.07);
+    arrow_top_big_trans->set_height(0.25f);
+    arrow_top_big_trans->set_y(0.07f);
     scroll_bar->add_widget(arrow_top_big_trans);
 
     scroll_bar->handle_mouse_enter_ = [arrow_bottom_big, arrow_top_big](DiffType x, DiffType y){
@@ -414,12 +414,12 @@ MenuOverlay::MenuOverlay(
 
     actual_scroll_bar_ = std::make_shared<Widget>(1);
     actual_scroll_bar_->scale_ = None;
-    actual_scroll_bar_->set_y(0.4);
-    actual_scroll_bar_->set_height(0.2);
+    actual_scroll_bar_->set_y(0.4f);
+    actual_scroll_bar_->set_height(0.2f);
     scroll_bar->add_widget(actual_scroll_bar_);
     actual_scroll_bar_->handle_mouse_enter_ = [&](DiffType x, DiffType y) {
-        scroll_wheel_.x = x;
-        scroll_wheel_.y = y;
+        scroll_wheel_.x = static_cast<float>(x);
+        scroll_wheel_.y = static_cast<float>(y);
         scroll_movement_time_ = 0;
     };
     actual_scroll_bar_->handle_mouse_leave_ = [&](DiffType x, DiffType y) {
@@ -432,11 +432,11 @@ MenuOverlay::MenuOverlay(
     handle_hover_ = [&](DiffType x, DiffType y)
     {
         opts.mouse_->show();
-        DiffType w = opts.mouse_->get_absolute_rectangle().GetWidth();
-        DiffType h = opts.mouse_->get_absolute_rectangle().GetHeight();
-        DiffType xx = x-0.45*w;
-        DiffType yy = y-0.17*h;
-        opts.mouse_->overwrite_render_rectangle({xx, yy, xx+w, yy+h});
+        DiffType w = opts.mouse_->get_absolute_rectangle().width;
+        DiffType h = opts.mouse_->get_absolute_rectangle().height;
+        auto xx = static_cast<DiffType>(x-0.45f*w);
+        auto yy = static_cast<DiffType>(y-0.17f*h);
+        opts.mouse_->overwrite_render_rectangle({xx, yy, w, h});
     };
 }
 
@@ -452,8 +452,8 @@ void MenuOverlay::add_menu_item(
                 title,
                 description
     );
-    w->set_height(0.15);
-    w->set_y(c * 0.2);
+    w->set_height(0.15f);
+    w->set_y(c * 0.2f);
     w->scale_ = None;
     w->handle_click_ = [this, command](DiffType x, DiffType y) {
         handle_menu_item_click_(command);
@@ -522,11 +522,11 @@ void MenuOverlay::update_impl(
 ){
     // Top scroll button.
     if (scroll_top_->hovered())
-        item_container_->move_y(elapsed_time / 3.0);
+        item_container_->move_y(elapsed_time / 3.0f);
 
     // Bottom scroll button.
     if (scroll_bottom_->hovered())
-        item_container_->move_y(-elapsed_time / 3.0);
+        item_container_->move_y(-elapsed_time / 3.0f);
 
     // Scroll bar.
     if (actual_scroll_bar_->hovered())
@@ -539,7 +539,7 @@ void MenuOverlay::update_impl(
         if (std::abs(strength) > 1)
         {
             if (item_container_->actions().empty())
-                item_container_->add_action(std::make_shared<MoveByAction>(sf::Vector2f(0, strength), 1.5, MoveByAction::Interpolation::Quadratic));
+                item_container_->add_action(std::make_shared<MoveByAction>(sf::Vector2f(0, strength), 1.5f, MoveByAction::Interpolation::Quadratic));
             else
                 item_container_->clear_actions();
         }
@@ -548,16 +548,18 @@ void MenuOverlay::update_impl(
     }
 
     // Make sure that we did not scroll to far.
-    auto pos = item_container_->widgets().front()->get_render_rectangle().Bottom;
-    double diff = scroll_bottom_->get_render_rectangle().Top - pos - gap_;
+    auto const first_widget_rect = item_container_->widgets().front()->get_render_rectangle();
+    auto pos = first_widget_rect.top + first_widget_rect.height;
+    auto diff = static_cast<float>(scroll_bottom_->get_render_rectangle().top - pos - gap_);
     if (diff < 0)
     {
         item_container_->clear_actions();
         item_container_->move_y(diff / screen_height_);
     }
 
-    pos = item_container_->widgets().back()->get_render_rectangle().Top;
-    diff = scroll_top_->get_render_rectangle().Bottom - pos + gap_;
+    pos = item_container_->widgets().back()->get_render_rectangle().top;
+    auto const scroll_top_rect = scroll_top_->get_render_rectangle();
+    diff = static_cast<float>(scroll_top_rect.top + scroll_top_rect.height - pos + gap_);
     if (diff > 0)
     {
         item_container_->clear_actions();

@@ -58,11 +58,11 @@ HDMGame::HDMGame()
 {
     handle_hover_ = [&](DiffType x, DiffType y)
     {
-        DiffType w = opts.mouse_->get_absolute_rectangle().GetWidth();
-        DiffType h = opts.mouse_->get_absolute_rectangle().GetHeight();
-        DiffType xx = x-0.45*w;
-        DiffType yy = y-0.17*h;
-        opts.mouse_->overwrite_render_rectangle({xx, yy, xx+w, yy+h});
+        DiffType w = opts.mouse_->get_absolute_rectangle().width;
+        DiffType h = opts.mouse_->get_absolute_rectangle().height;
+        auto xx = static_cast<DiffType>(x-0.45f*w);
+        auto yy = static_cast<DiffType>(y-0.17f*h);
+        opts.mouse_->overwrite_render_rectangle({xx, yy, w, h});
     };
 
     // Add the background image.

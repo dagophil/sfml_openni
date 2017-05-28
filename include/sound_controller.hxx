@@ -27,9 +27,9 @@ public:
         sf::SoundBuffer buffer;
         sf::Sound sound;
 
-        void Play()
+        void play()
         {
-            sound.Play();
+            sound.play();
         }
     };
 
@@ -39,24 +39,24 @@ public:
     HDMSoundController()
     {
         // Load the sounds.
-        if (!sounds_[WilhelmScream].buffer.LoadFromFile("sounds/wilhelm_scream.ogg"))
+        if (!sounds_[WilhelmScream].buffer.loadFromFile("sounds/wilhelm_scream.ogg"))
             throw std::runtime_error("Could not load sound: Wilhelm scream.");
-        if (!sounds_[Punch].buffer.LoadFromFile("sounds/punch.ogg"))
+        if (!sounds_[Punch].buffer.loadFromFile("sounds/punch.ogg"))
             throw std::runtime_error("Could not load sound: Punch.");
 
 
         // Assign the buffers to the sounds.
         for (auto & p : sounds_)
         {
-            p.second.sound.SetBuffer(p.second.buffer);
+            p.second.sound.setBuffer(p.second.buffer);
         }
 
         // Load the background music.
-        if (!background_.OpenFromFile("sounds/joplin_maple_leaf_rag.ogg"))
+        if (!background_.openFromFile("sounds/joplin_maple_leaf_rag.ogg"))
             throw std::runtime_error("Could not load sound: Maple leaf rag.");
-        background_.Play();
-        background_.SetLoop(true);
-        background_.SetVolume(90);
+        background_.play();
+        background_.setLoop(true);
+        background_.setVolume(90);
     }
 
 protected:
@@ -69,9 +69,9 @@ protected:
         if (event.type_ == Event::ToggleSound)
         {
             if (opts.sound_)
-                background_.Play();
+                background_.play();
             else
-                background_.Stop();
+                background_.stop();
         }
         else if (event.type_ == Event::MoleHit)
         {
@@ -80,8 +80,8 @@ protected:
                 std::uniform_int_distribution<int> r(0, 4);
                 int sound = r(opts.rand_engine_);
                 if (sound == 0)
-                    sounds_[WilhelmScream].Play();
-                sounds_[Punch].Play();
+                    sounds_[WilhelmScream].play();
+                sounds_[Punch].play();
             }
         }
     }
