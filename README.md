@@ -1,8 +1,9 @@
 # Kinect menu
 
 ## Installation
-* Install the prerequisites:
-  * SFML 1.6
+* Install the required prerequisites:
+  * SFML 2.4.2
+* Install the optional prerequisites that are needed to support the kinect:
   * OpenNI
   * SensorKinect
   * NITE 1.5.2.23
