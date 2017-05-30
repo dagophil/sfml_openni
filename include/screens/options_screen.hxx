@@ -89,13 +89,13 @@ public:
         reset_box->handle_click_ = [success, reset_box](DiffType x, DiffType y){
             reset_highscore();
             success->show();
-            event_manager.add_delayed_call(3.0f, [success](){
+            EventManager::instance().add_delayed_call(3.0f, [success](){
                 success->hide();
             });
             reset_box->next_frame();
-            reset_box->handle_mouse_enter_ = detail::do_nothing2<DiffType, DiffType>;
-            reset_box->handle_mouse_leave_ = detail::do_nothing2<DiffType, DiffType>;
-            reset_box->handle_click_ = detail::do_nothing2<DiffType, DiffType>;
+            reset_box->handle_mouse_enter_ = nullptr;
+            reset_box->handle_mouse_leave_ = nullptr;
+            reset_box->handle_click_ = nullptr;
         };
 
         // Program the sound checkbox.
@@ -107,7 +107,7 @@ public:
         sound_box->handle_click_ = [sound_box](DiffType x, DiffType y){
             opts.sound_ = !opts.sound_;
             sound_box->next_frame();
-            event_manager.post(Event(Event::ToggleSound));
+            EventManager::instance().post(Event(Event::ToggleSound));
         };
 
         // Program the depth checkbox.
@@ -131,7 +131,7 @@ public:
         back_button->set_y(0.05f);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
-            event_manager.post(Event(Event::MainMenuScreen));
+            EventManager::instance().post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
     }

@@ -117,11 +117,11 @@ public:
         go->align_y_ = CenterY;
 
         // Show / hide the 3-2-1 counter.
-        event_manager.add_delayed_call(3.0f, [&, timer, go](){
+        EventManager::instance().add_delayed_call(3.0f, [&, timer, go](){
             remove_widget(timer);
             add_widget(go);
         });
-        event_manager.add_delayed_call(4.0f, [&, go](){
+        EventManager::instance().add_delayed_call(4.0f, [&, go](){
             remove_widget(go);
             running_ = true;
         });
@@ -276,7 +276,7 @@ public:
                     }
                 }
             };
-            event_manager.register_listener(listener_);
+            EventManager::instance().register_listener(listener_);
         }
     }
 
@@ -355,7 +355,7 @@ private:
     void hit(int i)
     {
         // Post the hit-event.
-        event_manager.post(Event(Event::MoleHit));
+        EventManager::instance().post(Event(Event::MoleHit));
 
         //While the combo gauge is not full
         if (combo_mult_ < 3)
@@ -429,7 +429,7 @@ private:
         // Add some shrinking to the pow animation.
         auto shrinkact = std::make_shared<ShrinkAction>(1.0f);
         pow->add_action(shrinkact);
-        event_manager.add_delayed_call(1.0, [&, i, pow](){
+        EventManager::instance().add_delayed_call(1.0, [&, i, pow](){
             moles_[i]->remove_widget(pow);
           });
     }
@@ -500,7 +500,7 @@ private:
         {
             moles_[i]->backwards(true);
             moles_[i]->restart();
-            event_manager.add_delayed_call(0.5, [&, i]() {
+            EventManager::instance().add_delayed_call(0.5, [&, i]() {
                 mole_out_[i] = false;
                 if (!mole_hit_[i])
                     perfect_game_ = false;
@@ -531,7 +531,7 @@ private:
         {
             gmole_->backwards(true);
             gmole_->restart();
-            event_manager.add_delayed_call(0.5,[&](){
+            EventManager::instance().add_delayed_call(0.5,[&](){
                 mole_out_[gmole_position_] = false;
                 remove_widget(gmole_);
                 if (!mole_hit_[gmole_position_])
@@ -579,7 +579,7 @@ private:
         timeup->scale_ = ScaleInX;
 
         add_widget(timeup);
-        event_manager.add_delayed_call(1.5, [&, timeup](){
+        EventManager::instance().add_delayed_call(1.5, [&, timeup](){
             remove_widget(timeup);
         });
         check_highscore();
@@ -643,7 +643,7 @@ private:
             high_ani->align_x_ = CenterX;
             high_ani->align_y_ = Top;
             high_ani->set_y(0.2f);
-            event_manager.add_delayed_call(1.6f, [&, high_ani](){
+            EventManager::instance().add_delayed_call(1.6f, [&, high_ani](){
                 add_widget(high_ani);
             });
 
@@ -665,12 +665,12 @@ private:
                 for(int i = 0; i < opts.highscore_pos_; ++i)
                     high_mole->next_frame();
 
-            event_manager.add_delayed_call(1.6f, [&, high_mole](){
+            EventManager::instance().add_delayed_call(1.6f, [&, high_mole](){
                 high_mole->show();
             });
 
-            event_manager.add_delayed_call(5.4f, [](){
-                event_manager.post(Event(Event::HighscoreScreen));
+            EventManager::instance().add_delayed_call(5.4f, [](){
+                EventManager::instance().post(Event(Event::HighscoreScreen));
             });
 
             current_score.push_back(score_);
@@ -686,8 +686,8 @@ private:
         }
         else
         {
-            event_manager.add_delayed_call(2.5, [](){
-                event_manager.post(Event(Event::HighscoreScreen));
+            EventManager::instance().add_delayed_call(2.5, [](){
+                EventManager::instance().post(Event(Event::HighscoreScreen));
             });
         }
     }

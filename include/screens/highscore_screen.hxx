@@ -40,7 +40,7 @@ public:
         back_button->set_y(0.9f);
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [](DiffType x, DiffType y){
-            event_manager.post(Event(Event::MainMenuScreen));
+            EventManager::instance().post(Event(Event::MainMenuScreen));
         };
         add_widget(back_button);
 

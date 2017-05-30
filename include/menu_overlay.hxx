@@ -209,8 +209,8 @@ MenuOverlay::MenuOverlay(
         size_t screen_height
 )   :
       ColorWidget(sf::Color(255, 255, 255)),
-      handle_menu_item_click_(detail::do_nothing1<std::string const &>),
-      handle_close_(detail::do_nothing0),
+      handle_menu_item_click_(),
+      handle_close_(),
       gap_(screen_height / 20),
       scroll_movement_time_(0),
       screen_width_(screen_width),
@@ -240,7 +240,8 @@ MenuOverlay::MenuOverlay(
     close_button->set_height(close_height);
     grid(3)->add_widget(close_button);
     close_button->handle_click_ = [&](DiffType x, DiffType y){
-        handle_close_();
+        if (handle_close_)
+            handle_close_();
     };
     attach_mouse_events(opts.mouse_, close_button);
 
@@ -456,7 +457,8 @@ void MenuOverlay::add_menu_item(
     w->set_y(c * 0.2f);
     w->scale_ = None;
     w->handle_click_ = [this, command](DiffType x, DiffType y) {
-        handle_menu_item_click_(command);
+        if (handle_menu_item_click_)
+            handle_menu_item_click_(command);
     };
     attach_mouse_events(opts.mouse_, w);
     item_container_->add_widget(w);

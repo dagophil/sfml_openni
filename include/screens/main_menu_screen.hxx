@@ -51,7 +51,7 @@ public:
             btn->align_x_ = CenterX;
             attach_mouse_events(opts.mouse_, btn);
             btn->handle_click_ = [&, ev](DiffType x, DiffType y){
-                event_manager.post(ev);
+                EventManager::instance().post(ev);
             };
             grid(2*i) = btn;
         }
@@ -67,7 +67,7 @@ public:
         optsbtn->set_y(0.01f);
         attach_mouse_events(opts.mouse_, optsbtn);
         optsbtn->handle_click_ = [&,ev](DiffType x, DiffType y){
-            event_manager.post(ev);
+            EventManager::instance().post(ev);
         };
         add_widget(optsbtn);
 

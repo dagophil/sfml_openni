@@ -23,9 +23,9 @@ int main(int argc, char** argv)
     size_t HEIGHT = 600;
     if (FULLSCREEN)
     {
-        auto mode = sf::VideoMode::GetDesktopMode();
-        WIDTH = mode.Width;
-        HEIGHT = mode.Height;
+        auto mode = sf::VideoMode::getDesktopMode();
+        WIDTH = mode.width;
+        HEIGHT = mode.height;
     }
 
     // Set the kinect mode.
@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+    TextWidget::set_default_font(opts.default_font());
 
     // Create the mouse widget.
     opts.mouse_ = std::make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
@@ -51,19 +52,19 @@ int main(int argc, char** argv)
     if (FULLSCREEN)
         style = sf::Style::Fullscreen;
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Whac a Mole", style);
-    window.ShowMouseCursor(false);
-    FPS fps_measure;
+    window.setMouseCursorVisible(false);
+    FPS fps_measure(1.0f);
 
     // Create the game class.
     HDMGame game;
     game.handle_close_ = [&](){
-        window.Close();
+        window.close();
     };
     game.add_widget(opts.mouse_);
 
     // Create the sound controller.
     auto sound_controller = std::make_shared<HDMSoundController>();
-    event_manager.register_listener(sound_controller);
+    EventManager::instance().register_listener(sound_controller);
 
     // Create the kinect sensor.
     KinectSensor k;
@@ -81,21 +82,21 @@ int main(int argc, char** argv)
     };
     bool use_right = true;
 
-    while (window.IsOpened())
+    while (window.isOpen())
     {
         // Handle window events.
         sf::Event event;
         opts.mouse_clicked_ = false;
-        while (window.GetEvent(event))
+        while (window.pollEvent(event))
         {
-            if (event.Type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed)
             {
-                window.Close();
+                window.close();
             }
-            else if (event.Type == sf::Event::KeyPressed)
+            else if (event.type == sf::Event::KeyPressed)
             {
-                if (event.Key.Code == sf::Key::Escape)
-                    window.Close();
+                if (event.key.code == sf::Keyboard::Escape)
+                    window.close();
             }
         }
 
@@ -183,9 +184,9 @@ int main(int argc, char** argv)
         game.update(elapsed_time);
 
         // Draw everything.
-        window.Clear();
+        window.clear();
         game.render(window);
-        window.Display();
+        window.display();
 
         opts.mouse_clicked_ = false;
     }

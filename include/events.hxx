@@ -100,13 +100,14 @@ public:
 
     Listener()
         :
-          handle_notify_(detail::do_nothing1<Event const &>)
+          handle_notify_()
     {}
 
     void notify(Event const & event)
     {
         notify_impl(event);
-        handle_notify_(event);
+        if (handle_notify_)
+            handle_notify_(event);
     }
 
     std::function<void(Event const &)> handle_notify_;
@@ -126,6 +127,15 @@ class EventManager
 public:
 
     typedef std::shared_ptr<Listener> ListenerPointer;
+
+    /**
+     * @brief Return the global event manager.
+     */
+    static EventManager & instance()
+    {
+        static EventManager m;
+        return m;
+    }
 
     void register_listener(ListenerPointer listener)
     {
@@ -197,8 +207,6 @@ private:
     std::vector<DelayedCall> delayed_calls_;
 
 };
-
-EventManager event_manager; // the global event manager
 
 }
 

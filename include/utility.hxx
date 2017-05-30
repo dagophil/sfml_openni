@@ -385,22 +385,6 @@ XnVector3D operator/(XnVector3D a, float b)
     return a /= b;
 }
 
-namespace kin
-{
-namespace detail
-{
-    // Here are some functions that do nothing. They are needed for default callbacks.
-
-    void do_nothing0() {} // default function for widget callbacks
-
-    template <typename A>
-    void do_nothing1(A const &) {} // default function for widget callbacks
-
-    template <typename A, typename B>
-    void do_nothing2(A const &, B const &) {} // default function for widget callbacks
-}
-}
-
 /**
  * @brief Return true if the given string is an existing directory.
  */
@@ -450,7 +434,7 @@ public:
 
     explicit ClickDetector(bool use_y = true)
         :
-          handle_click_(kin::detail::do_nothing0),
+          handle_click_(),
           use_y_(use_y),
           max_delay_(0.1f),
           threshold_(0.4f),
@@ -495,7 +479,10 @@ public:
             if (sum >= threshold_)
             {
                 clicked_ = true;
-                handle_click_();
+                if (handle_click_)
+                {
+                    handle_click_();
+                }
             }
         }
     }

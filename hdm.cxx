@@ -58,9 +58,7 @@ int main(int argc, char** argv)
 
     // Create the sound controller.
     auto sound_controller = std::make_shared<HDMSoundController>();
-    event_manager.register_listener(sound_controller);
-
-
+    EventManager::instance().register_listener(sound_controller);
 
     while (window.isOpen())
     {

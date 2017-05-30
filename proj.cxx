@@ -119,9 +119,9 @@ int main(int argc, char** argv)
     size_t HEIGHT = 600;
     if (FULLSCREEN)
     {
-        auto mode = sf::VideoMode::GetDesktopMode();
-        WIDTH = mode.Width;
-        HEIGHT = mode.Height;
+        auto mode = sf::VideoMode::getDesktopMode();
+        WIDTH = mode.width;
+        HEIGHT = mode.height;
     }
 
     // Create the kinect sensor.
@@ -131,6 +131,7 @@ int main(int argc, char** argv)
 
     // Load the default font.
     opts.load_default_font("fonts/opensans/OpenSans-Regular.ttf");
+    TextWidget::set_default_font(opts.default_font());
 
     // Create the mouse widget.
     opts.mouse_ = make_shared<AnimatedWidget>("animations/hand_load_2s.pf", 999);
@@ -152,25 +153,28 @@ int main(int argc, char** argv)
     };
 
     // Measure the FPS.
-    FPS fps_measure;
-    sf::String fps_text;
-    fps_text.SetFont(opts.default_font());
-    fps_text.SetSize(16);
+    FPS fps_measure(1.0f);
+    sf::Text fps_text;
+    fps_text.setFont(opts.default_font());
+    fps_text.setCharacterSize(16);
 
     // Create the sprite for the depth RGBA.
     Array2D<sf::Color> depth_rgba(k.x_res(), k.y_res());
-    sf::Image depth_texture(k.x_res(), k.y_res());
+    sf::Texture depth_texture;
+    depth_texture.create(k.x_res(), k.y_res());
     sf::Sprite depth_sprite(depth_texture);
-    depth_sprite.SetScale(SCALE_X, SCALE_Y);
+    depth_sprite.setScale(SCALE_X, SCALE_Y);
 
     // Create the sprite for the user RGBA.
     Array2D<sf::Color> user_rgba(k.x_res(), k.y_res());
-    sf::Image user_texture(k.x_res(), k.y_res());
+    sf::Texture user_texture;
+    user_texture(k.x_res(), k.y_res());
     sf::Sprite user_sprite(user_texture);
-    user_sprite.SetScale(SCALE_X, SCALE_Y);
+    user_sprite.setScale(SCALE_X, SCALE_Y);
 
     // Create the texture for the user joints.
-    sf::Image joint_texture(3, 3, sf::Color(255, 255, 255, 255));
+    sf::Image joint_texture;
+    joint_texture.create(3, 3, sf::Color(255, 255, 255, 255));
     std::vector<sf::Sprite> joint_sprites;
 
     // Window open/close loop.
@@ -188,12 +192,12 @@ int main(int argc, char** argv)
         if (FULLSCREEN)
             style = sf::Style::Fullscreen;
         sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Kinect menu", style);
-        window.ShowMouseCursor(false);
+        window.setMouseCursorVisible(false);
         overlay.handle_close_ = [&]()
         {
             window.Close();
         };
-        while (window.IsOpened())
+        while (window.isOpen())
         {
             ///////////////////////////////////////////////
             //             Process the input             //
@@ -201,26 +205,25 @@ int main(int argc, char** argv)
 
             // Handle the window events.
             sf::Event event;
-            while (window.GetEvent(event))
+            while (window.pollEvent(event))
             {
-                if (event.Type == sf::Event::Closed)
-                    window.Close();
-                if (event.Type == sf::Event::TextEntered)
+                if (event.type == sf::Event::Closed)
+                    window.close();
+                if (event.type == sf::Event::TextEntered)
                 {
-                    if (tolower(event.Text.Unicode) == 'u')
+                    if (tolower(event.text.unicode) == 'u')
                         draw_opts.set_draw_users(!draw_opts.draw_users());
-                    if (tolower(event.Text.Unicode) == 'f')
+                    if (tolower(event.text.unicode) == 'f')
                         draw_opts.set_draw_fps(!draw_opts.draw_fps());
-                    if (tolower(event.Text.Unicode) == 'j')
+                    if (tolower(event.text.unicode) == 'j')
                         draw_opts.set_draw_joints(!draw_opts.draw_joints());
-                    if (tolower(event.Text.Unicode) == 'm')
+                    if (tolower(event.text.unicode) == 'm')
                         draw_opts.set_draw_menu(!draw_opts.draw_menu());
                 }
             }
 
             // Process the input.
-            sf::Input const & input = window.GetInput();
-            if (input.IsKeyDown(sf::Key::Escape))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
             {
                 window.Close();
                 break;
@@ -240,19 +243,20 @@ int main(int argc, char** argv)
             if (updates.depth_)
             {
                 depth_to_rgba(k.depth_data(), k.z_res(), depth_rgba);
-                depth_texture.LoadFromPixels(k.x_res(), k.y_res(), uint8_ptr(depth_rgba));
+                depth_texture.loadFromPixels(k.x_res(), k.y_res(), uint8_ptr(depth_rgba));
             }
             if (updates.user_)
             {
                 user_to_rgba(k.user_data(), user_rgba);
-                user_texture.LoadFromPixels(k.x_res(), k.y_res(), uint8_ptr(user_rgba));
+                user_texture.create(k.x_res(), k.y_res());
+                user_texture.update(uint8_ptr(user_rgba));
                 joint_sprites.clear();
                 for (auto const & user : k.users())
                 {
                     for (auto const & p : user.joints_)
                     {
                         joint_sprites.emplace_back(joint_texture);
-                        joint_sprites.back().SetPosition(SCALE_X*p.second.proj_position_.X,
+                        joint_sprites.back().setPosition(SCALE_X*p.second.proj_position_.X,
                                                          SCALE_Y*p.second.proj_position_.Y);
                     }
                 }
@@ -299,7 +303,7 @@ int main(int argc, char** argv)
                     overlay.hover(mouse_x, mouse_y);
                 overlay.update(elapsed_time);
                 if (clicked_item)
-                    window.Close();
+                    window.close();
             }
 
 
@@ -308,18 +312,18 @@ int main(int argc, char** argv)
             ///////////////////////////////////////////////
 
             // Clear to black.
-            window.Clear();
+            window.clear();
 
             // Draw the depth map.
             if (draw_opts.draw_depth())
             {
-                window.Draw(depth_sprite);
+                window.draw(depth_sprite);
             }
 
             // Draw the users.
             if (draw_opts.draw_users())
             {
-                window.Draw(user_sprite);
+                window.draw(user_sprite);
             }
 
             // Draw the joints.
@@ -327,7 +331,7 @@ int main(int argc, char** argv)
             {
                 for (auto const & spr : joint_sprites)
                 {
-                    window.Draw(spr);
+                    window.draw(spr);
                 }
             }
 
@@ -338,12 +342,12 @@ int main(int argc, char** argv)
             // Draw the FPS text.
             if (draw_opts.draw_fps())
             {
-                fps_text.SetText("FPS: " + to_string(fps));
-                window.Draw(fps_text);
+                fps_text.setString("FPS: " + to_string(fps));
+                window.draw(fps_text);
             }
 
             // Show the drawed stuff on the window.
-            window.Display();
+            window.display();
         }
 
         // Start the next command.

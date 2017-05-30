@@ -35,7 +35,7 @@ public:
         mole->align_x_ = CenterX;
         attach_mouse_events(opts.mouse_, mole);
         mole->handle_click_ = [&](DiffType x, DiffType y) {
-            event_manager.post(Event(Event::MainMenuScreen));
+            EventManager::instance().post(Event(Event::MainMenuScreen));
         };
         add_widget(mole);
 

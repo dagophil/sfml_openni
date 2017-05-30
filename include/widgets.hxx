@@ -31,7 +31,7 @@ public:
 
     Action()
         :
-          handle_finished_(detail::do_nothing0),
+          handle_finished_(),
           finished_(false)
     {}
 
@@ -45,7 +45,7 @@ public:
         if (!finished_)
         {
             finished_ = act_impl(w, elapsed_time);
-            if (finished_)
+            if (finished_ && handle_finished_)
                 handle_finished_();
         }
         return finished_;
@@ -406,9 +406,9 @@ Widget::Widget(
 )
     :
       z_index_(z_index),
-      handle_mouse_enter_(detail::do_nothing2<DiffType, DiffType>),
-      handle_mouse_leave_(detail::do_nothing2<DiffType, DiffType>),
-      handle_hover_(detail::do_nothing2<DiffType, DiffType>),
+      handle_mouse_enter_(),
+      handle_mouse_leave_(),
+      handle_hover_(),
       hoverable_(true),
       align_x_(Left),
       align_y_(Top),
@@ -479,11 +479,11 @@ void Widget::hover(
     // Raise the hover events.
     if (visible())
     {
-        if (previously_hovered && !hovered_)
+        if (previously_hovered && !hovered_ && handle_mouse_leave_)
             handle_mouse_leave_(x, y);
-        if (!previously_hovered && hovered_)
+        if (!previously_hovered && hovered_ && handle_mouse_enter_)
             handle_mouse_enter_(x, y);
-        if (hovered_)
+        if (hovered_ && handle_hover_)
             handle_hover_(x, y);
     }
 }
@@ -830,7 +830,7 @@ public:
     )
         :
           T(args...),
-          handle_click_(detail::do_nothing2<DiffType, DiffType>),
+          handle_click_(),
           click_delay_(2.0),
           hover_time_(0.0),
           clicked_(false)
@@ -859,7 +859,10 @@ protected:
 
         if (hover_time_ > click_delay_ && !clicked_)
         {
-            handle_click_(T::render_rect_.width/2, T::render_rect_.height/2);
+            if (handle_click_)
+            {
+                handle_click_(T::render_rect_.width / 2, T::render_rect_.height / 2);
+            }
             clicked_ = true;
         }
 

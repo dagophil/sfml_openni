@@ -52,7 +52,7 @@ private:
 
 HDMGame::HDMGame()
     :
-      handle_close_(detail::do_nothing0),
+      handle_close_(),
       hov_x_(-1),
       hov_y_(-1)
 {
@@ -79,7 +79,7 @@ HDMGame::HDMGame()
     {
         notify(event);
     };
-    event_manager.register_listener(listener_);
+    EventManager::instance().register_listener(listener_);
 
     // Load the splash screen.
     load_screen(Event::SplashScreen);
@@ -96,11 +96,11 @@ void HDMGame::update_impl(float elapsed_time)
     Event hov(Event::FieldHover);
     hov.field_hover_.x_ = hov_x_;
     hov.field_hover_.y_ = hov_y_;
-    event_manager.post(hov);
+    EventManager::instance().post(hov);
 
     Event tick(Event::Tick);
     tick.tick_.elapsed_time_ = elapsed_time;
-    event_manager.post(tick);
+    EventManager::instance().post(tick);
     hov_x_ = -1;
     hov_y_ = -1;
 }
@@ -125,7 +125,7 @@ void HDMGame::load_screen(Event::ScreenID id)
 
     // Remove the current widgets.
     container_->clear_widgets();
-    event_manager.clear_delayed_calls();
+    EventManager::instance().clear_delayed_calls();
 
     // Fill the map with the screen functions.
     std::map<Event::ScreenID, ScreenFunction> m {
@@ -160,7 +160,8 @@ void HDMGame::notify(Event const & event)
     }
     else if (event.type_ == Event::Close)
     {
-        handle_close_();
+        if (handle_close_)
+            handle_close_();
     }
 }
 

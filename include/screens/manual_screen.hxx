@@ -85,7 +85,7 @@ public:
         back_button->align_x_ = Center;
         attach_mouse_events(opts.mouse_, back_button);
         back_button->handle_click_ = [&](DiffType x, DiffType y){
-            event_manager.post(Event(Event::MainMenuScreen));
+            EventManager::instance().post(Event(Event::MainMenuScreen));
         };
         grid(1) = back_button;
 
