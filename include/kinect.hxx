@@ -86,7 +86,7 @@ public:
           id_(id),
           visible_(visible)
     {
-        base_change_ = sf::Matrix3::Identity;
+        base_change_ = sf::Transform::Identity;
     }
 
     /**
@@ -101,13 +101,16 @@ public:
             auto s1 = joints_.at(XN_SKEL_RIGHT_SHOULDER).real_position_;
             auto len = length(s1 - s0);
 
-            sf::Matrix3 base(s1.X - s0.X, 0, s1.Z - s0.Z, 0, 1, 0, s1.Z - s0.Z, 0, s0.X - s1.X);
-            base_change_ = base.GetInverse();
+            sf::Transform base(s1.X - s0.X, 0, s1.Z - s0.Z, 0, 1, 0, s1.Z - s0.Z, 0, s0.X - s1.X);
+            base_change_ = base.getInverse();
             if (len > 0)
             {
-                base_change_(1, 0) /= len;
-                base_change_(1, 1) /= len;
-                base_change_(1, 2) /= len;
+                auto s = 1 / len;
+                sf::Transform scale(0, s, 0, 0, s, 0, 0, s, 0); // this may need to be transposed
+                base_change_ *= scale;
+                //base_change_(1, 0) /= len;
+                //base_change_(1, 1) /= len;
+                //base_change_(1, 2) /= len;
             }
         }
     }
@@ -126,7 +129,7 @@ public:
 
 private:
 
-    sf::Matrix3 base_change_; // the base change matrix
+    sf::Transform base_change_; // the base change matrix
 
 };
 
